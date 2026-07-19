@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@theme {
+  /* --- Green (primary) --- */
+  --color-green-light: #f6f9f6;
+  --color-green-light-hover: #f2f6f1;
+  --color-green-light-active: #e2eae1;
+  --color-green-normal: #4e8b45;
+  --color-green-normal-hover: #457a3d;
+  --color-green-normal-active: #3b6a34;
+  --color-green-dark: #32592c;
+  --color-green-dark-hover: #294824;
+  --color-green-dark-active: #1f381c;
+  --color-green-darker: #162713;
+
+  /* --- Orange (accent) --- */
+  --color-orange-light: #f8f0e2;
+  --color-orange-light-hover: #f5ead8;
+  --color-orange-light-active: #ffe2b2;
+  --color-orange-normal: #ffb339;
+  --color-orange-normal-hover: #ffa514;
+  --color-orange-normal-active: #ed9200;
+  --color-orange-dark: #c87b00;
+  --color-orange-dark-hover: #a26400;
+  --color-orange-dark-active: #7d4d00;
+  --color-orange-darker: #573600;
+
+  /* --- Neutrals --- */
+  --color-ink: #2e2e2e;
+  --color-body-text: #2e2e2e
+  --color-border-muted: #d8ded7;
+
+  /* --- Typography scale (measured from screens) --- */
+  --text-h1: 3.125rem;       /* 50px — landing hero */
+  --text-h2: 2.5rem;     /* 40px — auth/section titles */
+  --text-body1: 1.25rem;    /* 20px — paragraphs, inputs, buttons */
+  --text-body2: 0.875rem;/* 14px — secondary/link text (standard pairing, not pixel-measured) */
+  --text-caption: 0.75rem;/* 12px — fine print (standard pairing, not pixel-measured) */
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+}
+
+body {
+  background-color: #ffffff;
+  color: var(--color-ink);
+}
