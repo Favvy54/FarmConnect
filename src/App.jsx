@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from "@vercel/speed-insights/react"
 import LandingPage from './screens/LandingPage.jsx'
 import SignupScreen from './screens/SignupScreen.jsx'
 import LoginScreen from './screens/LoginScreen.jsx'
@@ -16,6 +17,7 @@ export default function App() {
   return (
     <>
       <Analytics />
+      <SpeedInsights />
       <Routes>
       <Route path="/" element={
         <LandingPage
