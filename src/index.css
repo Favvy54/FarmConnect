@@ -45,4 +45,5 @@
 body {
   background-color: #ffffff;
   color: var(--color-ink);
+  overflow-x: hidden;
 }
