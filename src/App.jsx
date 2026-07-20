@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import LandingPage from './screens/LandingPage.jsx'
 import SignupScreen from './screens/SignupScreen.jsx'
 import LoginScreen from './screens/LoginScreen.jsx'
@@ -13,7 +14,9 @@ export default function App() {
   const navigate = useNavigate();
 
   return (
-    <Routes>
+    <>
+      <Analytics />
+      <Routes>
       <Route path="/" element={
         <LandingPage
           onLogin={() => navigate('/login')}
@@ -83,6 +86,6 @@ export default function App() {
       }
       />
     </Routes>
+    </>
   )
-
 }
