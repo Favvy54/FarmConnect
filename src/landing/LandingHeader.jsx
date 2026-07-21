@@ -1,5 +1,6 @@
 import Button from './Button.jsx'
-import HeaderLogo from "../assets/images/header-logo.png"
+import { AdvancedImage } from "@cloudinary/react";
+import { logos } from "../libs/cloudinaryImages";
 
 const NAV_LINKS = ['How It Works', 'Benefits', "Who It's For"]
 
@@ -8,7 +9,7 @@ export default function LandingHeader({ onLogin, onSignup }) {
     <header className="w-full bg-white">
       <div className="max-w-full mx-auto flex items-center justify-between px-6 py-5">
         <div className="flex items-center gap-2">
-          <img src={HeaderLogo} alt="FarmConnect logo" className="w-7 h-7" />
+          <AdvancedImage cldImg={logos.header} alt="FarmConnect logo" className="w-7 h-7" />
           <span className="text-2xl font-semibold text-ink">
             Farm<span className="font-normal text-body-text text-2xl">Connect</span>
           </span>

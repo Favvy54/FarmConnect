@@ -1,12 +1,13 @@
 import Button from './Button.jsx';
-import footerImg from '../assets/images/footer-food.png';
+import { AdvancedImage } from "@cloudinary/react";
+import { backgrounds } from "../libs/cloudinaryImages";
 
 export default function CTABanner({ onFindFood, onListSurplus }) {
   return (
     <section className=" max-w-full mx-auto px-6 py-16 flex flex-col md:flex-row items-center gap-8">
       <div className="w-[20%] relative">
-        <img
-          src={footerImg}
+        <AdvancedImage
+          cldImg={backgrounds.cta}
           alt="Bowl of surplus meal ready for pickup"
           className=" absolute -left-20 top-1/2 -translate-y-1/2 w-67.25 h-64 rounded-full object-cover shrink-0"
         />

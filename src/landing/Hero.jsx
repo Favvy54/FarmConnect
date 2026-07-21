@@ -1,9 +1,7 @@
 import { MapPin, Store } from 'lucide-react'
 import Button from './Button.jsx'
-import User1 from "../assets/images/user-1.jpg"
-import User2 from "../assets/images/user-2.jpg"
-import User3 from "../assets/images/user-3.jpg"
-import HeroImg from "../assets/images/hero-img.png"
+import { AdvancedImage } from "@cloudinary/react";
+import { backgrounds, users } from "../libs/cloudinaryImages";
 
 export default function Hero({ onFindFood, onListSurplus }) {
   return (
@@ -27,18 +25,15 @@ export default function Hero({ onFindFood, onListSurplus }) {
 
         <div className="flex items-center gap-3 mt-8">
           <div className="flex -space-x-3">
-            <img
-              src={User1}
+            <AdvancedImage cldImg={users.user1}
               alt="FarmConnect user avatar"
               className="w-9 h-9 rounded-full border-2 border-white object-cover"
             />
-            <img
-              src={User2}
+            <AdvancedImage cldImg={users.user2}
               alt="FarmConnect user avatar"
               className="w-9 h-9 rounded-full border-2 border-white object-cover"
             />
-            <img
-              src={User3}
+            <AdvancedImage cldImg={users.user3}
               alt="FarmConnect user avatar"
               className="w-9 h-9 rounded-full border-2 border-white object-cover"
             />
@@ -51,8 +46,7 @@ export default function Hero({ onFindFood, onListSurplus }) {
 
      
       <div className="flex items-center justify-center w-[55%]">
-        <img
-          src= {HeroImg}
+        <AdvancedImage cldImg={backgrounds.hero}
           alt="Vendor preparing a meal and a customer reserving it on the FarmConnect app"
           className="w-full h-full object-contain"
         />

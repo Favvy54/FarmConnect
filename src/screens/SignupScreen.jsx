@@ -3,7 +3,7 @@ import { User, Mail, Phone, Lock, User as UserIcon, Store } from 'lucide-react'
 import AuthLayout from '../components/AuthLayout.jsx'
 import TextField from '../components/TextField.jsx'
 import PrimaryButton from '../components/PrimaryButton.jsx'
-import SignupImg from "../assets/images/sign-up-img.png"
+import { auth } from "../libs/cloudinaryImages.js";
 
 export default function SignupScreen({ onSignup, onGoLogin }) {
   const [role, setRole] = useState('find') // 'find' | 'share'
@@ -15,7 +15,7 @@ export default function SignupScreen({ onSignup, onGoLogin }) {
       showLogo={false}
       photoFit='contain'
        rightAlign = 'items-start'
-      photoSrc= {SignupImg}
+      photoSrc= {auth.signup}
       photoAlt="Vendor plating a meal while a customer reserves it on their phone, with nearby, reserved, and pickup deadline callouts"
     
     >

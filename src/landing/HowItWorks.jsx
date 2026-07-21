@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Search, Store } from 'lucide-react'
-import FoodBg from "../assets/images/Food background.png"
+import { AdvancedImage } from "@cloudinary/react";
+import { backgrounds } from "../libs/cloudinaryImages";
 
 const STEPS = [
   {
@@ -25,7 +26,7 @@ export default function HowItWorks() {
 
   return (
     <section className="bg-center bg-cover bg-no-repeat min-h-screen px-6 py-20"
-    style={{ backgroundImage: `url(${FoodBg})`}}>
+    style={{ backgroundImage: `url(${backgrounds.food.toURL()})` }}>
       <div className="max-w-full mx-auto  text-center min-h-screen">
         <h2 className="text-h2 font-bold text-white text-left">How FarmConnect works</h2>
         <p className="text-body1 text-white/85 mt-3 max-w-full  text-left">

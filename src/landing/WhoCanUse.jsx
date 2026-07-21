@@ -1,4 +1,5 @@
-import BakerImg from "../assets/images/restaurant.png"
+import { AdvancedImage } from "@cloudinary/react";
+import { backgrounds } from "../libs/cloudinaryImages";
 const USER_TYPES = ['Restaurant', 'Students', 'Bakeries', 'Families', 'Event Caterers', 'Charities']
 
 export default function WhoCanUse() {
@@ -28,8 +29,9 @@ export default function WhoCanUse() {
       <div className=" relative rounded-3xl  aspect-4/5 max-w-md max-h-125">
         <div className="absolute -bottom-15 right-10 w-full h-full bg-linear-to-b from-green-normal to-white rounded-3xl"/>
         <div className="relative w-full h-full rounded-3xl overflow-hidden">
-            <img
-          src={BakerImg}
+            <AdvancedImage
+          cldImg={backgrounds.restaurant}
+          className="w-full h-full object-cover z-50"
           alt="Chef packaging surplus meals for pickup"
           className="w-full h-full object-cover z-50"
         />

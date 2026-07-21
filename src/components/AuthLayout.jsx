@@ -3,14 +3,15 @@
  * `showTagline` controls whether the "Discover meals near you" caption
  * overlay appears on the photo (present on most screens, absent on signup).
  */
-import HeaderLogo from '../assets/images/header-logo.png';
-import AuthImg from '../assets/images/auth-img.jpg';
+
+import { AdvancedImage } from '@cloudinary/react';
+import { logos, auth } from '../libs/cloudinaryImages';
 export default function AuthLayout({
   children,
   showLogo = true,
   showTagline = true,
   photoFit = 'cover', //Change object-fit to either cover or contain
-  photoSrc = AuthImg,
+  photoSrc = auth.login,
   rightAlign = 'items-center',
   photoAlt = 'Person checking a meal reservation on their phone',
   tagline = {
@@ -29,15 +30,21 @@ export default function AuthLayout({
       {/* Left photo panel */}
 
       <div className="hidden md:block relative w-1/2 min-h-screen">
-        <img
-          src={photoSrc}
-          alt={photoAlt}
-          className={`absolute inset-0 w-full h-full rounded-r-3xl${photoFit === 'contain' ? 'object-container' : 'object-cover'}`}
-        />
+        <AdvancedImage
+  cldImg={photoSrc}
+  alt={photoAlt}
+  className={`absolute inset-0 w-full h-full rounded-r-3xl ${
+    photoFit === "contain" ? "object-contain" : "object-cover"
+  }`}
+/>
 
         {showLogo && (
           <div className="absolute top-10 left-10 flex items-center gap-2">
-            <img src={HeaderLogo} alt="FarmConnect logo" className="w-7 h-7" />
+            <AdvancedImage
+              cldImg={logos.header}
+              alt="FarmConnect logo"
+              className="w-7 h-7"
+            />
             <span className="text-2xl font-semibold text-white">
               Farm
               <span className="font-normal text-body-text text-2xl">
