@@ -1,5 +1,6 @@
-import { FaFacebookF, FaLinkedinIn, FaInstagram, FaXTwitter,} from "react-icons/fa6"
-import FooterLogo from "../assets/images/footer-logo.png"
+import { FaFacebookF, FaLinkedinIn, FaInstagram, FaXTwitter, } from "react-icons/fa6"
+import { AdvancedImage } from "@cloudinary/react";
+import { logos } from "../libs/cloudinaryImages"
 
 const QUICK_LINKS = ['How It Works', 'Benefits', 'Who Its For']
 const FOR_USERS = ['Find Food', 'List Food', 'Become a Vendor']
@@ -10,7 +11,7 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-4 gap-10">
         <div>
           <div className="flex items-center gap-2 mb-4">
-            <img src={FooterLogo } alt="FarmConnect logo" className="w-7 h-7" />
+            <AdvancedImage cldImg={logos.footer} />
             <span className="text-body1 font-bold">FarmConnect</span>
           </div>
           <p className="text-body2 text-white/80">
