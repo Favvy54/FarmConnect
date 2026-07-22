@@ -5,6 +5,28 @@ import PrimaryButton from '../components/PrimaryButton.jsx'
 import BackToLogin from '../components/BackToLogin.jsx'
 
 export default function NewPasswordScreen({ onUpdate, onBack }) {
+
+ const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+
+    if (!e.target.checkValidity()) {
+      e.target.reportValidity()
+      return
+    }
+
+    if (password !== confirmPassword) {
+      setPasswordError("Passwords don't match")
+      return
+    }
+
+    setPasswordError('')
+    onUpdate?.()
+  }
+
   return (
     <AuthLayout>
       <BackToLogin onClick={onBack} />
@@ -15,14 +37,40 @@ export default function NewPasswordScreen({ onUpdate, onBack }) {
       </p>
 
       <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          onUpdate?.()
+        onSubmit={(handleSubmit) => {
+                        setPassword(e.target.value)
+            if (passwordError) setPasswordError('')
+
         }}
         className="mt-8 flex flex-col gap-4"
       >
-        <TextField icon={Lock} placeholder="Password" isPassword />
-        <TextField icon={Lock} placeholder="Confirm Password" isPassword />
+             <TextField
+          icon={Lock}
+          placeholder="Password"
+          isPassword
+          required
+          value={password}
+          onChange={(e) => {
+            setPassword(e.target.value)
+            if (passwordError) setPasswordError('')
+          }}
+        />
+                <div>
+          <TextField
+            icon={Lock}
+            placeholder="Confirm Password"
+            isPassword
+            required
+            value={confirmPassword}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value)
+              if (passwordError) setPasswordError('')
+            }}
+          />
+          {passwordError && (
+            <p className="text-caption text-error mt-1">{passwordError}</p>
+          )}
+        </div>
         <PrimaryButton type="submit">Update Password</PrimaryButton>
       </form>
       </div>

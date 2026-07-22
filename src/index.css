@@ -30,12 +30,15 @@
   --color-body-text: #2e2e2e
   --color-border-muted: #d8ded7;
 
-  /* --- Typography scale (measured from screens) --- */
-  --text-h1: 3.125rem;       /* 50px — landing hero */
-  --text-h2: 2.5rem;     /* 40px — auth/section titles */
-  --text-body1: 1.25rem;    /* 20px — paragraphs, inputs, buttons */
-  --text-body2: 0.875rem;/* 14px — secondary/link text (standard pairing, not pixel-measured) */
-  --text-caption: 0.75rem;/* 12px — fine print (standard pairing, not pixel-measured) */
+  /* Error states */
+  --color-error: #FF383C;
+
+  /* --- Typography scale  */
+  --text-h1: 3.125rem;       /* 50px  */
+  --text-h2: 2.5rem;     /* 40px */
+  --text-body1: 1.25rem;    /* 20px */
+  --text-body2: 0.875rem;/* 14px */
+  --text-caption: 0.75rem;/* 12px */
 
   --font-weight-regular: 400;
   --font-weight-medium: 500;

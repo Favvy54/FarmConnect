@@ -17,13 +17,17 @@ export default function LoginScreen({ onLogin, onGoSignup, onForgotPassword }) {
 
       <form
         onSubmit={(e) => {
-          e.preventDefault()
-          onLogin?.()
+            e.preventDefault()
+            if(e.target.checkValidity()) {
+          onSignup?.()
+            }else {
+              e.target.reportValidity()
+            }
         }}
         className="mt-8 flex flex-col gap-4"
       >
-        <TextField icon={Mail} placeholder="Email Address" type="email" />
-        <TextField icon={Lock} placeholder="Password" isPassword />
+        <TextField icon={Mail} placeholder="Email Address" type="email" required />
+        <TextField icon={Lock} placeholder="Password" isPassword required/>
 
         <div className="flex items-center justify-between text-body2">
           <label className="flex items-center gap-2 text-ink">

@@ -8,6 +8,7 @@ export default function TextField({
   isPassword = false,
   value,
   onChange,
+  required = false,
 }) {
   const [show, setShow] = useState(false)
   const resolvedType = isPassword ? (show ? 'text' : 'password') : type
@@ -22,6 +23,7 @@ export default function TextField({
         placeholder={placeholder}
         value={value}
         onChange={onChange}
+        required={required}
         className="w-full rounded-xl border border-ink bg-white pl-12 pr-12 py-2.5 text-body1 placeholder:text-ink focus:outline-none focus:border-2 focus:border-green-normal"
       />
       {isPassword && (

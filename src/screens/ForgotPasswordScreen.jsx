@@ -16,9 +16,14 @@ export default function ForgotPasswordScreen({ onSendReset, onBack }) {
       </p>
 
       <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          onSendReset?.()
+       onSubmit={(e) => {
+            e.preventDefault()
+            if(e.target.checkValidity()) {
+              onSignup?.()
+              onSendReset?.()
+            }else {
+              e.target.reportValidity()
+            }
         }}
         className="mt-8 flex flex-col gap-8"
       >
