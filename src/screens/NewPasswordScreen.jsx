@@ -1,31 +1,52 @@
+import { useState } from 'react';
 import { Lock } from 'lucide-react'
 import AuthLayout from '../components/AuthLayout.jsx'
 import TextField from '../components/TextField.jsx'
 import PrimaryButton from '../components/PrimaryButton.jsx'
 import BackToLogin from '../components/BackToLogin.jsx'
 
-export default function NewPasswordScreen({ onUpdate, onBack }) {
+export default function NewPasswordScreen({ email, onUpdate, onBack }) {
 
  const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [passwordError, setPasswordError] = useState('')
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+const [loading, setLoading] = useState(false);
 
-    if (!e.target.checkValidity()) {
-      e.target.reportValidity()
-      return
-    }
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (password !== confirmPassword) {
-      setPasswordError("Passwords don't match")
-      return
-    }
-
-    setPasswordError('')
-    onUpdate?.()
+  if (!e.target.checkValidity()) {
+    e.target.reportValidity();
+    return;
   }
+
+  if (password !== confirmPassword) {
+    setPasswordError("Passwords don't match");
+    return;
+  }
+
+  setPasswordError("");
+
+  try {
+    setLoading(true);
+
+    const data = await resetPassword(
+      email,
+      password,
+      confirmPassword
+    );
+
+    console.log(data);
+
+    onUpdate?.();
+
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <AuthLayout>
@@ -37,11 +58,7 @@ export default function NewPasswordScreen({ onUpdate, onBack }) {
       </p>
 
       <form
-        onSubmit={(handleSubmit) => {
-                        setPassword(e.target.value)
-            if (passwordError) setPasswordError('')
-
-        }}
+        onSubmit={handleSubmit}
         className="mt-8 flex flex-col gap-4"
       >
              <TextField
@@ -71,7 +88,12 @@ export default function NewPasswordScreen({ onUpdate, onBack }) {
             <p className="text-caption text-error mt-1">{passwordError}</p>
           )}
         </div>
-        <PrimaryButton type="submit">Update Password</PrimaryButton>
+        <PrimaryButton
+  type="submit"
+  disabled={loading}
+>
+  {loading ? "Updating..." : "Update Password"}
+</PrimaryButton>
       </form>
       </div>
 

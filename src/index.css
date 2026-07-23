@@ -27,7 +27,6 @@
 
   /* --- Neutrals --- */
   --color-ink: #2e2e2e;
-  --color-body-text: #2e2e2e
   --color-border-muted: #d8ded7;
 
   /* Error states */
@@ -36,6 +35,7 @@
   /* --- Typography scale  */
   --text-h1: 3.125rem;       /* 50px  */
   --text-h2: 2.5rem;     /* 40px */
+  --text-h3: 1.5rem;   /* 24px */
   --text-body1: 1.25rem;    /* 20px */
   --text-body2: 0.875rem;/* 14px */
   --text-caption: 0.75rem;/* 12px */
@@ -45,8 +45,13 @@
   --font-weight-bold: 700;
 }
 
+/* *{
+  
+  box-sizing: border-box;
+} */
+
 body {
   background-color: #ffffff;
   color: var(--color-ink);
-  overflow-x: hidden;
+  /* overflow-x: hidden; */
 }

@@ -12,13 +12,13 @@ export default function LandingPage({ onLogin, onSignup }) {
       <LandingHeader onLogin={onLogin} onSignup={onSignup} />
       <Hero onFindFood={onSignup} onListSurplus={onSignup} />
       <HowItWorks />
-      <WhyChoose />
-      <WhoCanUse />
-      <div className='bg-green-normal'>
+       <WhyChoose />
+     <WhoCanUse />
+       <div className='bg-green-normal'>
         <CTABanner onFindFood={onSignup} onListSurplus={onSignup} />
-      <hr className='border-t-2 border-white max-w-6xl mx-auto' />
-      <Footer />
-      </div>
+       <hr className='border-t-2 border-white' />
+      <Footer /> 
+       </div> 
       
     </div>
   )

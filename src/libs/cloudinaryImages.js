@@ -13,7 +13,7 @@ export const backgrounds = {
 };
 
 export const auth = {
-  signup: cld.image("sign-up-img_pywql5").format("auto").quality("auto"),
+  signup: cld.image("sign-up-img_qcnvoi").format("auto").quality("auto"),
   login: cld.image("auth-img_qjqulc").format("auto").quality("auto"),
   confirmation: cld.image("Done_ring_round_klpuar").format("auto").quality("auto"),
 };

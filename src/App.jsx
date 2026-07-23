@@ -13,9 +13,10 @@ import WelcomeOnboardingScreen from './screens/WelcomeOnboardingScreen.jsx'
 
 export default function App() {
   const navigate = useNavigate();
+  const [resetEmail, setResetEmail] = useState("");
 
   return (
-    <>
+    <div>
       <Analytics />
       <SpeedInsights />
       <Routes>
@@ -30,7 +31,7 @@ export default function App() {
 
       <Route path="/signup" element={
         <SignupScreen
-          onSignup={() => navigate('/verify-email')}
+          onSignup={() => navigate('/login')}
           onGoLogin={() => navigate('/login')}
         />
       }
@@ -39,7 +40,7 @@ export default function App() {
 
       <Route path="/login" element={
         <LoginScreen
-          onLogin={() => navigate('/welcome')}
+          onLogin={() => navigate('/welcome-onboarding')}
           onGoSignup={() => navigate('/signup')}
           onForgotPassword={() => navigate('/forgot-password')}
         />
@@ -48,14 +49,21 @@ export default function App() {
 
 
       <Route path="/forgot-password" element={<ForgotPasswordScreen
-        onSendReset={() => navigate('/verify-email')}
+        onSendReset={(email) => {
+    setResetEmail(email);
+    navigate("/verify-email");
+  }}
+
         onBack={()=> navigate('/login')}
       />
       }
       />
 
 
-      <Route path="/verify-email" element={<VerifyEmailScreen
+      <Route path="/verify-email" element=
+      {
+        <VerifyEmailScreen
+        email={resetEmail}
         onConfirm={() => navigate('/new-password')}
         onBack={() => navigate('/login')}
         onChangeEmail={() => navigate('/forgot-password')}
@@ -66,6 +74,7 @@ export default function App() {
 
       <Route path="/new-password" element={
         <NewPasswordScreen
+          email={resetEmail}
           onUpdate={() => navigate('/password-updated')}
           onBack={() => navigate('/login')}
         />
@@ -88,6 +97,6 @@ export default function App() {
       }
       />
     </Routes>
-    </>
+    </div>
   )
 }

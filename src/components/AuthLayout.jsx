@@ -29,11 +29,11 @@ export default function AuthLayout({
     <div className="h-screen w-full flex min-h-screen">
       {/* Left photo panel */}
 
-      <div className="hidden md:block relative w-1/2 min-h-screen">
+      <div className="hidden md:block relative w-1/2 h-full min-h-screen">
         <AdvancedImage
   cldImg={photoSrc}
   alt={photoAlt}
-  className={`absolute inset-0 w-full h-full rounded-r-3xl ${
+  className={`absolute inset-0 w-full h-fill rounded-r-3xl ${
     photoFit === "contain" ? "object-contain" : "object-cover"
   }`}
 />

@@ -25,20 +25,20 @@ export default function HowItWorks() {
   const [mode, setMode] = useState('find') // 'find' | 'share'
 
   return (
-    <section className="bg-center bg-cover bg-no-repeat min-h-screen px-6 py-20"
+    <section className="bg-center bg-cover bg-no-repeat min-h-screen px-3 py-3"
     style={{ backgroundImage: `url(${backgrounds.food.toURL()})` }}>
-      <div className="max-w-full mx-auto  text-center min-h-screen">
-        <h2 className="text-h2 font-bold text-white text-left">How FarmConnect works</h2>
-        <p className="text-body1 text-white/85 mt-3 max-w-full  text-left">
+      <div className="text-center min-h-screen my-20">
+        <h2 className="text-2xl md:text-h2 font-bold text-white md:text-left">How FarmConnect works</h2>
+        <p className="text-body2 text-center md:text-body1 text-white/85 mt-3 max-w-full  md:text-left">
           Whether you're finding food or sharing it, FarmConnect gets you there in three simple
           steps.
         </p>
 
         {/* Pill toggle */}
-        <div className="inline-flex bg-white rounded-full p-1.5 mt-8">
+        <div className="inline-flex bg-white rounded-[20px] p-1.5 mt-8">
           <button
             onClick={() => setMode('find')}
-            className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-body1 font-medium transition-colors
+            className={` text-body2 flex items-center gap-2 rounded-[10px] px-5.5 py-2.5 md:text-body1 font-medium transition-colors
               ${mode === 'find' ? 'bg-orange-normal text-white' : 'text-orange-normal'}`}
           >
             <Search className="w-4 h-4" />
@@ -46,7 +46,7 @@ export default function HowItWorks() {
           </button>
           <button
             onClick={() => setMode('share')}
-            className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-body1 font-medium transition-colors
+            className={`text-body2 flex items-center gap-2 rounded-full px-5 py-2.5 md:text-body1 font-medium transition-colors
               ${mode === 'share' ? 'bg-orange-normal text-white' : 'text-orange-normal'}`}
           >
             <Store className="w-4 h-4" />
@@ -58,7 +58,7 @@ export default function HowItWorks() {
           {STEPS.map(({ number, title, body }, i) => (
             <div
               key={number}
-              className={`px-0 md:px-8 ${i > 0 ? 'border-l-2 [border-image:linear-gradient(to_bottom,#fff_0%,#4e8b45_100%)_1] ' : '' }`}
+              className={`pr-8 md:px-8 ${i < 2 ? ' pr-8 border-r-2 [border-image:linear-gradient(to_bottom,#fff_0%,#4e8b45_100%)_1] ' : '' }`}
             >
               <span className="block text-[128px] font-bold bg-linear-to-b from-green-normal to-white bg-clip-text text-transparent">{number}</span>
               <h3 className="text-h2 text-4xl font-bold text-white mt-2">{title}</h3>

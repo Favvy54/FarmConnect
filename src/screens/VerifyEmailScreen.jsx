@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { verifyOtp } from "../services/auth.js";
 import AuthLayout from '../components/AuthLayout.jsx';
 import PrimaryButton from '../components/PrimaryButton.jsx';
 import BackToLogin from '../components/BackToLogin.jsx';
@@ -6,13 +7,14 @@ import BackToLogin from '../components/BackToLogin.jsx';
 const CODE_LENGTH = 6;
 
 export default function VerifyEmailScreen({
-  email = 'john@example.com',
+  email,
   onConfirm,
   onBack,
   onChangeEmail,
 }) {
   const [digits, setDigits] = useState(Array(CODE_LENGTH).fill(''));
   const [secondsLeft, setSecondsLeft] = useState(20);
+  const [loading, setLoading] = useState(false);
   const inputsRef = useRef([]);
 
   useEffect(() => {
@@ -63,9 +65,35 @@ export default function VerifyEmailScreen({
           ))}
         </div>
 
-        <PrimaryButton onClick={onConfirm} className="mt-8">
-          Confirm code
-        </PrimaryButton>
+        <PrimaryButton
+  onClick={async () => {
+    const otp = digits.join("");
+
+    if (otp.length !== 6) {
+      alert("Please enter the complete OTP.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const data = await verifyOtp(email, otp);
+
+      console.log(data);
+
+      onConfirm?.();
+
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }}
+  className="mt-8"
+  disabled={loading}
+>
+  {loading ? "Verifying..." : "Confirm code"}
+</PrimaryButton>
 
         <div className="text-center mt-4 text-body2">
           {secondsLeft > 0 ? (

@@ -8,7 +8,7 @@ const FOR_USERS = ['Find Food', 'List Food', 'Become a Vendor']
 export default function Footer() {
   return (
     <footer className=" text-white">
-      <div className="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-4 gap-10">
+      <div className=" px-6 py-16 grid md:grid-cols-4 gap-10">
         <div>
           <div className="flex items-center gap-2 mb-4">
             <AdvancedImage cldImg={logos.footer} />
