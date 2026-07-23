@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { login } from "../services/auth.js";
+import { listenForForegroundNotifications } from "../services/firebaseMessaging.js";
 import { logEvent } from "firebase/analytics";
 import { messaging, analytics } from "../firebase.js";
 import { Mail, Lock } from "lucide-react";
