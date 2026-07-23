@@ -1,28 +1,26 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp } from 'firebase/app';
 
-import { getMessaging } from "firebase/messaging";
-import { getAnalytics } from "firebase/analytics"
+import { getMessaging } from 'firebase/messaging';
+import { getAnalytics } from 'firebase/analytics';
 
 const firebaseConfig = {
+  apiKey: 'AIzaSyBI2Q-VAmeMdt7_jX375fB0YHS4TUB8e30',
 
-    apiKey: "AIzaSyBI2Q-VAmeMdt7_jX375fB0YHS4TUB8e30",
+  authDomain: 'farmconnect-9d62e.firebaseapp.com',
 
-    authDomain: "farmconnect-9d62e.firebaseapp.com",
+  projectId: 'farmconnect-9d62e',
 
-    projectId: "farmconnect-9d62e",
+  storageBucket: 'farmconnect-9d62e.firebasestorage.app',
 
-    storageBucket: "farmconnect-9d62e.firebasestorage.app",
+  messagingSenderId: '982731954682',
 
-    messagingSenderId: "982731954682",
+  appId: '1:982731954682:web:4b6031e71bb6a2846eac43',
 
-    appId: "1:982731954682:web:4b6031e71bb6a2846eac43",
-
-    measurementId: "G-F9C0587GVH",
-
+  measurementId: 'G-F9C0587GVH',
 };
 
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-export {app, analytics};
+export { app, analytics };
 export const messaging = getMessaging(app);

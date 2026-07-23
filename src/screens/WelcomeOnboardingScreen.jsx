@@ -1,12 +1,12 @@
-import AuthLayout from '../components/AuthLayout.jsx'
-import PrimaryButton from '../components/PrimaryButton.jsx'
+import AuthLayout from "../components/AuthLayout.jsx";
+import PrimaryButton from "../components/PrimaryButton.jsx";
 
 export default function WelcomeOnboardingScreen({ onContinue }) {
   return (
     <AuthLayout
       showTagline={false}
       showLogo={false}
-      photoSrc= {SignupImg}
+      photoSrc={SignupImg}
       photoAlt="Vendor plating a meal while a customer reserves it on their phone, with nearby, reserved, and pickup deadline callouts"
     >
       <div className="text-center">
@@ -23,5 +23,5 @@ export default function WelcomeOnboardingScreen({ onContinue }) {
         </PrimaryButton>
       </div>
     </AuthLayout>
-  )
+  );
 }

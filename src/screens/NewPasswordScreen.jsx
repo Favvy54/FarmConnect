@@ -1,103 +1,90 @@
-import { useState } from 'react';
-import { Lock } from 'lucide-react'
-import AuthLayout from '../components/AuthLayout.jsx'
-import TextField from '../components/TextField.jsx'
-import PrimaryButton from '../components/PrimaryButton.jsx'
-import BackToLogin from '../components/BackToLogin.jsx'
+import { useState } from "react";
+import { Lock } from "lucide-react";
+import AuthLayout from "../components/AuthLayout.jsx";
+import TextField from "../components/TextField.jsx";
+import PrimaryButton from "../components/PrimaryButton.jsx";
+import BackToLogin from "../components/BackToLogin.jsx";
 
 export default function NewPasswordScreen({ email, onUpdate, onBack }) {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
- const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [passwordError, setPasswordError] = useState('')
+  const [loading, setLoading] = useState(false);
 
-const [loading, setLoading] = useState(false);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+    if (!e.target.checkValidity()) {
+      e.target.reportValidity();
+      return;
+    }
 
-  if (!e.target.checkValidity()) {
-    e.target.reportValidity();
-    return;
-  }
+    if (password !== confirmPassword) {
+      setPasswordError("Passwords don't match");
+      return;
+    }
 
-  if (password !== confirmPassword) {
-    setPasswordError("Passwords don't match");
-    return;
-  }
+    setPasswordError("");
 
-  setPasswordError("");
+    try {
+      setLoading(true);
 
-  try {
-    setLoading(true);
+      const data = await resetPassword(email, password, confirmPassword);
 
-    const data = await resetPassword(
-      email,
-      password,
-      confirmPassword
-    );
+      console.log(data);
 
-    console.log(data);
-
-    onUpdate?.();
-
-  } catch (error) {
-    alert(error.message);
-  } finally {
-    setLoading(false);
-  }
-};
+      onUpdate?.();
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <AuthLayout>
       <BackToLogin onClick={onBack} />
       <div>
         <h1 className="text-h2 font-bold text-ink">Create a New Password</h1>
-      <p className="text-body1 text-body-text mt-3">
-        Your identity has been verified. Create a new password to secure your account.
-      </p>
+        <p className="text-body1 text-body-text mt-3">
+          Your identity has been verified. Create a new password to secure your
+          account.
+        </p>
 
-      <form
-        onSubmit={handleSubmit}
-        className="mt-8 flex flex-col gap-4"
-      >
-             <TextField
-          icon={Lock}
-          placeholder="Password"
-          isPassword
-          required
-          value={password}
-          onChange={(e) => {
-            setPassword(e.target.value)
-            if (passwordError) setPasswordError('')
-          }}
-        />
-                <div>
+        <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
           <TextField
             icon={Lock}
-            placeholder="Confirm Password"
+            placeholder="Password"
             isPassword
             required
-            value={confirmPassword}
+            value={password}
             onChange={(e) => {
-              setConfirmPassword(e.target.value)
-              if (passwordError) setPasswordError('')
+              setPassword(e.target.value);
+              if (passwordError) setPasswordError("");
             }}
           />
-          {passwordError && (
-            <p className="text-caption text-error mt-1">{passwordError}</p>
-          )}
-        </div>
-        <PrimaryButton
-  type="submit"
-  disabled={loading}
->
-  {loading ? "Updating..." : "Update Password"}
-</PrimaryButton>
-      </form>
+          <div>
+            <TextField
+              icon={Lock}
+              placeholder="Confirm Password"
+              isPassword
+              required
+              value={confirmPassword}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                if (passwordError) setPasswordError("");
+              }}
+            />
+            {passwordError && (
+              <p className="text-caption text-error mt-1">{passwordError}</p>
+            )}
+          </div>
+          <PrimaryButton type="submit" disabled={loading}>
+            {loading ? "Updating..." : "Update Password"}
+          </PrimaryButton>
+        </form>
       </div>
-
-      
     </AuthLayout>
-  )
+  );
 }

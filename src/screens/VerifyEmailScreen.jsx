@@ -1,8 +1,8 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from "react";
 import { verifyOtp } from "../services/auth.js";
-import AuthLayout from '../components/AuthLayout.jsx';
-import PrimaryButton from '../components/PrimaryButton.jsx';
-import BackToLogin from '../components/BackToLogin.jsx';
+import AuthLayout from "../components/AuthLayout.jsx";
+import PrimaryButton from "../components/PrimaryButton.jsx";
+import BackToLogin from "../components/BackToLogin.jsx";
 
 const CODE_LENGTH = 6;
 
@@ -12,7 +12,7 @@ export default function VerifyEmailScreen({
   onBack,
   onChangeEmail,
 }) {
-  const [digits, setDigits] = useState(Array(CODE_LENGTH).fill(''));
+  const [digits, setDigits] = useState(Array(CODE_LENGTH).fill(""));
   const [secondsLeft, setSecondsLeft] = useState(20);
   const [loading, setLoading] = useState(false);
   const inputsRef = useRef([]);
@@ -32,7 +32,7 @@ export default function VerifyEmailScreen({
   };
 
   const handleKeyDown = (i, e) => {
-    if (e.key === 'Backspace' && !digits[i] && i > 0) {
+    if (e.key === "Backspace" && !digits[i] && i > 0) {
       inputsRef.current[i - 1]?.focus();
     }
   };
@@ -40,10 +40,10 @@ export default function VerifyEmailScreen({
   return (
     <AuthLayout>
       <BackToLogin onClick={onBack} />
-      <div className='w-full'>
+      <div className="w-full">
         <h1 className="text-h2 font-bold text-ink">Verify your Email</h1>
         <p className="text-body1 text-body-text mt-3">
-          We've sent a 6-digit verification code to{' '}
+          We've sent a 6-digit verification code to{" "}
           <span className="text-green-normal">{email}</span>
         </p>
         <p className="text-body1 text-body-text mt-1">
@@ -66,51 +66,51 @@ export default function VerifyEmailScreen({
         </div>
 
         <PrimaryButton
-  onClick={async () => {
-    const otp = digits.join("");
+          onClick={async () => {
+            const otp = digits.join("");
 
-    if (otp.length !== 6) {
-      alert("Please enter the complete OTP.");
-      return;
-    }
+            if (otp.length !== 6) {
+              alert("Please enter the complete OTP.");
+              return;
+            }
 
-    try {
-      setLoading(true);
+            try {
+              setLoading(true);
 
-      const data = await verifyOtp(email, otp);
+              const data = await verifyOtp(email, otp);
 
-      console.log(data);
+              console.log(data);
 
-      onConfirm?.();
-
-    } catch (error) {
-      alert(error.message);
-    } finally {
-      setLoading(false);
-    }
-  }}
-  className="mt-8"
-  disabled={loading}
->
-  {loading ? "Verifying..." : "Confirm code"}
-</PrimaryButton>
+              onConfirm?.();
+            } catch (error) {
+              alert(error.message);
+            } finally {
+              setLoading(false);
+            }
+          }}
+          className="mt-8"
+          disabled={loading}
+        >
+          {loading ? "Verifying..." : "Confirm code"}
+        </PrimaryButton>
 
         <div className="text-center mt-4 text-body2">
           {secondsLeft > 0 ? (
             <span className="text-body-text">
-              Resend code{' '}
+              Resend code{" "}
               <span className="text-ink">in {secondsLeft} seconds</span>
             </span>
           ) : (
             <button
               onClick={() => setSecondsLeft(20)}
-              className="text-green-normal">
+              className="text-green-normal"
+            >
               Resend code
             </button>
           )}
         </div>
         <div className="text-center mt-2 text-body2 text-ink">
-          Wrong email?{' '}
+          Wrong email?{" "}
           <button onClick={onChangeEmail} className="text-green-normal">
             Change email
           </button>
