@@ -64,7 +64,7 @@ export const registerDeviceWithBackend = async (fcmToken, jwtToken) => {
 
   try {
     const response = await fetch(
-      'https://farmconnect-backend-1.onrender.com/api/v1/device',
+      'https://farmconnect-backend-1.onrender.com/api/user/device',
       {
         method: 'POST',
         headers: {
