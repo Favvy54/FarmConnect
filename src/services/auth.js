@@ -42,7 +42,7 @@ export async function login(email, password) {
     throw new Error(data.message || 'Login failed');
   }
 
-  return data;
+  return data.data;
 }
 
 // Forgot Passsword
