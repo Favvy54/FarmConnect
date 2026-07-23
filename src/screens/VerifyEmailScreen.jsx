@@ -50,7 +50,7 @@ export default function VerifyEmailScreen({
           Enter the code below to continue.
         </p>
 
-        <div className="flex gap-5 justify-center mt-8">
+        <div className="flex gap-2 w-100%  md:gap-5 justify-center mt-8">
           {digits.map((d, i) => (
             <input
               key={i}

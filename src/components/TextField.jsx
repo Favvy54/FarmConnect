@@ -24,7 +24,7 @@ export default function TextField({
         value={value}
         onChange={onChange}
         required={required}
-        className="w-full rounded-xl border border-ink bg-white pl-12 pr-12 py-2.5 text-body1 placeholder:text-ink focus:outline-none focus:border-2 focus:border-green-normal"
+        className="w-full rounded-xl border border-ink bg-white pl-12 pr-12 py-3 text-body1 placeholder:text-ink focus:outline-none focus:border-2 focus:border-green-normal"
       />
       {isPassword && (
         <button

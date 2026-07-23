@@ -10,7 +10,7 @@ const NAV_LINKS = ['How It Works', 'Benefits', "Who It's For"];
 export default function LandingHeader({ onLogin, onSignup }) {
   const [isOpen, setIsOPen] = useState(false);
   return (
-    <header className=" h-20 shadow shadow-green-normal-active py-3 px-3 bg-white flex items-center justify-between">
+    <header className=" h-20 shadow shadow-ink/10 py-5 px-3 bg-white flex items-center justify-between">
       <div className="flex items-center gap-2">
         <AdvancedImage
           cldImg={logos.header}

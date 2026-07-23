@@ -52,7 +52,7 @@ export default function NewPasswordScreen({ email, onUpdate, onBack }) {
           account.
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-6">
           <TextField
             icon={Lock}
             placeholder="Password"

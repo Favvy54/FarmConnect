@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { login } from "../services/auth.js";
-import { listenForForegroundNotifications } from "../services/firebaseMessaging.js";
+import { listenForForegroundNotifications, requestNotificationPermission } from "../services/firebaseMessaging.js";
 import { logEvent } from "firebase/analytics";
 import { messaging, analytics } from "../firebase.js";
 import { Mail, Lock } from "lucide-react";
@@ -61,6 +61,7 @@ export default function LoginScreen({ onLogin, onGoSignup, onForgotPassword }) {
                 // Listen for foreground notifications.
                
               listenForForegroundNotifications();
+              requestNotificationPermission();
 
               onLogin?.(data);
             } catch (error) {
