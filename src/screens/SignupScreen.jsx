@@ -160,7 +160,7 @@ export default function SignupScreen({ onSignup, onGoLogin }) {
             </div>
           </div>
 
-          <label className="flex items-start gap-2 text-body2 text-ink mt-2">
+          <label className="flex items-start text-body2 text-ink mt-2">
             <input
               type="checkbox"
               checked={agreed}

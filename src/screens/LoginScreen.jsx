@@ -43,8 +43,23 @@ export default function LoginScreen({ onLogin, onGoSignup, onForgotPassword }) {
               console.log(data);
 
               localStorage.setItem("token", data.token);
-
               localStorage.setItem("user", JSON.stringify(data.user));
+
+              //  Request notification permission and register this device.
+               
+              const fcmToken = await requestNotificationPermission();
+
+              if (fcmToken) {
+                await registerDeviceWithBackend(
+                  fcmToken,
+                  data.token
+                );
+              }
+
+              
+                // Listen for foreground notifications.
+               
+              listenForForegroundNotifications();
 
               onLogin?.(data);
             } catch (error) {

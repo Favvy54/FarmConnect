@@ -10,7 +10,7 @@ const NAV_LINKS = ['How It Works', 'Benefits', "Who It's For"];
 export default function LandingHeader({ onLogin, onSignup }) {
   const [isOpen, setIsOPen] = useState(false);
   return (
-    <header className=" py-3 px-3 bg-white flex items-center justify-between">
+    <header className=" h-20 shadow shadow-green-normal-active py-3 px-3 bg-white flex items-center justify-between">
       <div className="flex items-center gap-2">
         <AdvancedImage
           cldImg={logos.header}
@@ -53,7 +53,7 @@ export default function LandingHeader({ onLogin, onSignup }) {
 
       {isOpen && (
         <div
-          className="fixed pt-8  px-8 top-0 left-0 h-screen bg-white shadow-2xl transition-transform duration-300 ease-in-out  z-55 flex flex-col gap-8 w-[70%] sm:w-[30%] md:hidden
+          className="fixed pt-8 px-8 top-0 left-0 h-screen bg-white shadow-2xl transition-transform duration-300 ease-in-out  z-55 flex flex-col gap-8 w-[70%] sm:w-[30%] md:hidden
         ${isOpen ? 'translate-x-0' : '-translate-x-full'})">
           <div className="flex items-center gap-2">
             <AdvancedImage
