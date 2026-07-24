@@ -27,9 +27,44 @@ export async function requestNotificationPermission() {
 }
 
 export function listenForForegroundNotifications() {
-  onMessage(messaging, (payload) => {
-    console.log('Foreground Notification:', payload);
 
-    alert(`${payload.notification.title}\n\n${payload.notification.body}`);
-  });
+    onMessage(messaging, (payload) => {
+
+        console.log(
+            "Foreground Notification:",
+            payload
+        );
+
+        if (Notification.permission === "granted") {
+
+            new Notification(
+
+                payload.notification.title,
+
+                {
+
+                    body:
+                        payload.notification.body,
+
+                    icon: "/logo192.png",
+
+                    badge: "/logo192.png",
+
+                    tag:
+                        payload.data?.type ||
+
+                        "farmconnect",
+
+                    renotify: true,
+
+                }
+
+            );
+
+        }
+
+    });
+
 }
+
+    alert(`${payload.notif
