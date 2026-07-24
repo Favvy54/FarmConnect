@@ -99,6 +99,8 @@ export async function verifyOtp(email, otp) {
 // Updating Password
 
 export async function resetPassword(newPassword, confirmPassword) {
+  const email = localStorage.getItem('resetEmail');
+
   const response = await fetch(
     'https://farmconnect-backend-1.onrender.com/api/v1/auth/reset-password',
     {
@@ -107,72 +109,21 @@ export async function resetPassword(newPassword, confirmPassword) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        email,
         newPassword,
         confirmPassword,
       }),
     },
   );
 
-    newPassword,
+  const data = await response.json();
 
-    confirmPassword
+  if (!response.ok) {
+    throw new Error(data.message || 'Failed to reset password');
+  }
 
-) {
+  // Reset complete
+  localStorage.removeItem('resetEmail');
 
-    const email =
-        localStorage.getItem(
-            "resetEmail"
-        );
-
-    const response = await fetch(
-
-        "https://farmconnect-backend-1.onrender.com/api/v1/auth/reset-password",
-
-        {
-
-            method: "POST",
-
-            headers: {
-
-                "Content-Type":
-                    "application/json",
-
-            },
-
-            body: JSON.stringify({
-
-                email,
-
-                newPassword,
-
-                confirmPassword,
-
-            }),
-
-        }
-
-    );
-
-    const data =
-        await response.json();
-
-    if (!response.ok) {
-
-        throw new Error(
-
-            data.message ||
-
-            "Failed to reset password"
-
-        );
-
-    }
-
-    // Reset complete
-    localStorage.removeItem(
-        "resetEmail"
-    );
-
-    return data;
-
+  return data;
 }
