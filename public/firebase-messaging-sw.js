@@ -26,6 +26,30 @@ const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
 
-    console.log("Background Notification:", payload);
+    console.log(
+        "Background Notification:",
+        payload
+    );
+
+    self.registration.showNotification(
+
+        payload.notification.title,
+
+        {
+
+            body:
+                payload.notification.body,
+
+            icon: "/logo192.png",
+
+            badge: "/logo192.png",
+
+            data: payload.data,
+
+            requireInteraction: false,
+
+        }
+
+    );
 
 });
