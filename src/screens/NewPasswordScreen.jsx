@@ -6,7 +6,7 @@ import TextField from "../components/TextField.jsx";
 import PrimaryButton from "../components/PrimaryButton.jsx";
 import BackToLogin from "../components/BackToLogin.jsx";
 
-export default function NewPasswordScreen({ email, onUpdate, onBack }) {
+export default function NewPasswordScreen({onUpdate, onBack }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -31,7 +31,7 @@ export default function NewPasswordScreen({ email, onUpdate, onBack }) {
     try {
       setLoading(true);
 
-      const data = await resetPassword(email, password, confirmPassword);
+      const data = await resetPassword(password, confirmPassword);
 
       console.log(data);
 

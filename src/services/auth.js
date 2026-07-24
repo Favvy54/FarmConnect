@@ -98,7 +98,20 @@ export async function verifyOtp(email, otp) {
 
 // Updating Password
 
-export async function resetPassword(
+export async function resetPassword(newPassword, confirmPassword) {
+  const response = await fetch(
+    'https://farmconnect-backend-1.onrender.com/api/v1/auth/reset-password',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        newPassword,
+        confirmPassword,
+      }),
+    },
+  );
 
     newPassword,
 
