@@ -65,6 +65,6 @@ export function listenForForegroundNotifications() {
 
     });
 
-}
+};
 
-    alert(`${payload.notif
+

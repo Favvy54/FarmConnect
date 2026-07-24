@@ -25,50 +25,33 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
+  console.log('Background Notification:', payload);
 
-    console.log(
-        "Background Notification:",
-        payload
-    );
+  self.registration.showNotification(
+    payload.notification.title,
 
-    self.registration.showNotification(
+    {
+      body: payload.notification.body,
 
-        payload.notification.title,
+      icon: '/logo192.png',
 
-        {
+      badge: '/logo192.png',
 
-            body:
-                payload.notification.body,
+      data: payload.data,
 
-            icon: "/logo192.png",
-
-            badge: "/logo192.png",
-
-            data: payload.data,
-
-            requireInteraction: false,
-
-        }
-
-    );
-
+      requireInteraction: false,
+    },
+  );
 });
 
-
 self.addEventListener(
+  'notificationclick',
 
-    "notificationclick",
+  function (event) {
+    event.notification.close();
 
-    function(event){
-
-        event.notification.close();
-
-        event.waitUntil(
-
-            clients.openWindow("/")
-
-        );
-
-    }
-
+    event.waitUntil(clients.openWindow('/'));
+  },
 );
+
+
