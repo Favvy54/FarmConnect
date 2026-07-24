@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { resetPassword } from "../services/auth.js";
 import { Lock } from "lucide-react";
 import AuthLayout from "../components/AuthLayout.jsx";
 import TextField from "../components/TextField.jsx";
