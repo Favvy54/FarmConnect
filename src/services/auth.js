@@ -48,26 +48,27 @@ export async function login(email, password) {
 // Forgot Passsword
 
 export async function forgotPassword(email) {
-  const response = await fetch(
-    'https://farmconnect-backend-1.onrender.com/api/v1/auth/forgot-password',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-      }),
-    },
-  );
+    const response = await fetch(
+        "https://farmconnect-backend-1.onrender.com/api/v1/auth/forgot-password",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email }),
+        }
+    );
 
-  const data = await response.json();
+    const data = await response.json();
 
-  if (!response.ok) {
-    throw new Error(data.message || 'Failed to send OTP');
-  }
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to send OTP");
+    }
 
-  return data;
+    // Save email for the reset flow
+    localStorage.setItem("resetEmail", email);
+
+    return data;
 }
 
 // Verify Email
