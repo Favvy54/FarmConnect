@@ -91,14 +91,19 @@ export async function forgotPassword(email) {
   });
 
 
-  const data = await response.json();
+    const data = await response.json();
 
-  if (!response.ok) {
-    throw new Error(data.message || 'Failed to send OTP');
-  }
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to send OTP");
+    }
 
-  return data;
-};
+    // Save email for the reset flow
+    localStorage.setItem("resetEmail", email);
+
+    return data;
+}
+
+// Verify Email
 
 // Verify OTP
 export async function verifyOtp(email, otp) {
