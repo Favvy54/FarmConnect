@@ -1,65 +1,95 @@
-export async function register(userData) {
-  const response = await fetch(
-    'https://farmconnect-backend-1.onrender.com/api/v1/auth/register',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(userData),
-    },
-  );
+const BASE_URL = 'https://farmconnect-backend-1.onrender.com/api/v1';
 
-  const data = await response.json();
+const TOKEN_KEY = 'farmconnect_token';
+const ROLE_KEY = 'farmconnect_role';
+
+
+
+export function saveSession({ token, role }) {
+  if (token) {
+    localStorage.setItem(TOKEN_KEY, token);
+  }
+
+  if (role) {
+    localStorage.setItem(ROLE_KEY, role);
+  }
+}
+
+export function getToken() {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export function getRole() {
+  return localStorage.getItem(ROLE_KEY);
+}
+
+export function clearSession() {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(ROLE_KEY);
+}
+
+
+
+async function apiRequest(path, { method = 'POST', body, auth = false } = {}) {
+  const headers = {
+    'Content-Type': 'application/json',
+  };
+
+  if (auth && getToken()) {
+    headers.Authorization = `Bearer ${getToken()}`;
+  }
+
+  const response = await fetch(`${BASE_URL}${path}`, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new Error(data.message || 'Registration failed');
+    throw new Error(data?.message || `Request to ${path} failed`);
   }
 
   return data;
 }
 
-// Login Fuction
 
+// Authentication
+
+
+// Register
+export async function register(userData) {
+  return apiRequest('/auth/register', {
+    body: userData,
+  });
+}
+
+// Login
 export async function login(email, password) {
-  const response = await fetch(
-    'https://farmconnect-backend-1.onrender.com/api/v1/auth/login',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
+  const data = await apiRequest("/auth/login", {
+    body: {
+      email,
+      password,
     },
-  );
+  });
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message || 'Login failed');
-  }
+  saveSession({
+    token: data.data.token,
+    role: data.data.user?.role,
+  });
 
   return data.data;
 }
 
-// Forgot Passsword
-
+// Forgot Password
 export async function forgotPassword(email) {
-  const response = await fetch(
-    'https://farmconnect-backend-1.onrender.com/api/v1/auth/forgot-password',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-      }),
+  return apiRequest("/auth/forgot-password", {
+    body: {
+      email,
     },
-  );
+  });
+
 
   const data = await response.json();
 
@@ -68,71 +98,85 @@ export async function forgotPassword(email) {
   }
 
   return data;
-}
+};
 
-// Verify Email
-
+// Verify OTP
 export async function verifyOtp(email, otp) {
-  const response = await fetch(
-    'https://farmconnect-backend-1.onrender.com/api/v1/auth/verify-otp',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        otp,
-      }),
+  return apiRequest('/auth/verify-otp', {
+    body: {
+      email,
+      otp,
     },
-  );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message || 'Invalid OTP');
-  }
-
-  return data;
+  });
 }
 
-// Updating Password
-
-export async function resetPassword(
-  newPassword,
-
-  confirmPassword,
-) {
+// Reset Password
+export async function resetPassword(newPassword, confirmPassword) {
   const email = localStorage.getItem('resetEmail');
 
-  const response = await fetch(
-    'https://farmconnect-backend-1.onrender.com/api/v1/auth/reset-password',
-
-    {
-      method: 'POST',
-
-      headers: {
-        'Content-Type': 'application/json',
-      },
-
-      body: JSON.stringify({
-        email,
-
-        newPassword,
-
-        confirmPassword,
-      }),
-    },
-  );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message || 'Failed to reset password');
+  if (!email) {
+    throw new Error('Reset email not found. Please request a new OTP.');
   }
 
-  // Reset complete
+
+
+  const data = await apiRequest('/auth/reset-password', {
+    body: {
+      email,
+      newPassword,
+      confirmPassword,
+    },
+  });
+
   localStorage.removeItem('resetEmail');
 
   return data;
+}
+
+// Logout
+export async function logout() {
+  try {
+    await apiRequest('/auth/logout', {
+      auth: true,
+    });
+  } finally {
+    clearSession();
+  }
+}
+
+// =========================
+// Vendor Profile
+// =========================
+
+// Create Vendor Profile
+export async function createVendorProfile(payload) {
+  return apiRequest('/vendor/profile', {
+    body: payload,
+    auth: true,
+  });
+}
+
+// Get Vendor Profile
+export async function getVendorProfile() {
+  return apiRequest('/vendor/profile', {
+    method: 'GET',
+    auth: true,
+  });
+}
+
+// Update Vendor Profile
+export async function updateVendorProfile(payload) {
+  return apiRequest('/vendor/profile', {
+    method: 'PATCH',
+    body: payload,
+    auth: true,
+  });
+}
+
+// Delete Vendor Profile
+export async function deleteVendorProfile() {
+  return apiRequest('/vendor/profile', {
+    method: 'DELETE',
+    auth: true,
+  });
 }

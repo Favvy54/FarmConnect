@@ -47,6 +47,8 @@ export default function Hero({ onFindFood, onListSurplus }) {
      
       <div className="flex items-center justify-center lg:w-[55%]">
         <AdvancedImage cldImg={backgrounds.hero}
+          fetchPriority="high"
+          loading="eager"
           alt="Vendor preparing a meal and a customer reserving it on the FarmConnect app"
           className="w-full h-full object-contain"
         />

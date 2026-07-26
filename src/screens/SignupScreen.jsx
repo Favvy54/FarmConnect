@@ -68,8 +68,7 @@ export default function SignupScreen({ onSignup, onGoLogin }) {
       photoFit="contain"
       rightAlign="items-start"
       photoSrc={auth.signup}
-      photoAlt="Vendor plating a meal while a customer reserves it on their phone, with nearby, reserved, and pickup deadline callouts"
-    >
+      photoAlt="Vendor plating a meal while a customer reserves it on their phone, with nearby, reserved, and pickup deadline callouts">
       <div>
         <h1 className="text-h2 font-bold text-ink leading-tight">
           <span className="text-green-normal">Create your</span>
@@ -132,10 +131,9 @@ export default function SignupScreen({ onSignup, onGoLogin }) {
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
-                onClick={() => setRole("find")}
+                onClick={() => setRole('find')}
                 className={`flex flex-col items-center gap-2 rounded-xl border px-4 py-3 transition-colors
-                ${role === "find" ? "border-green-normal bg-green-light" : "border-border-muted"}`}
-              >
+                ${role === 'find' ? 'border-green-normal bg-green-light' : 'border-border-muted'}`}>
                 <UserIcon className="w-5 h-5 text-ink" />
                 <span className="text-body1 text-ink">I want to find food</span>
                 <span className="text-caption text-body-text">
@@ -145,10 +143,9 @@ export default function SignupScreen({ onSignup, onGoLogin }) {
 
               <button
                 type="button"
-                onClick={() => setRole("share")}
+                onClick={() => setRole('share')}
                 className={`flex flex-col items-center gap-2 rounded-xl border px-4 py-3 transition-colors
-                ${role === "share" ? "border-green-normal bg-green-light" : "border-border-muted"}`}
-              >
+                ${role === 'share' ? 'border-green-normal bg-green-light' : 'border-border-muted'}`}>
                 <Store className="w-5 h-5 text-ink" />
                 <span className="text-body1 text-ink">
                   I want to share food
@@ -160,7 +157,7 @@ export default function SignupScreen({ onSignup, onGoLogin }) {
             </div>
           </div>
 
-          <label className="flex gap-2 items-start text-body2 text-ink mt-2">
+          <label className="flex items-start text-body2 text-ink mt-2">
             <input
               type="checkbox"
               checked={agreed}
@@ -168,25 +165,26 @@ export default function SignupScreen({ onSignup, onGoLogin }) {
               required
               className="mt-1"
             />
-            I agree to the{" "}
-            <a href="#" className="text-green-normal">
-              Terms of Service
-            </a>{" "}
-            and{" "}
-            <a href="#" className="text-green-normal">
-              Privacy Policy
-            </a>
+            <span className="ml-2">
+              I agree to the{' '}
+              <a href="#" className="text-green-normal">
+                Terms of Service
+              </a>{' '}
+              and{' '}
+              <a href="#" className="text-green-normal">
+                Privacy Policy
+              </a>
+            </span>
           </label>
 
-          <PrimaryButton type="submit" className="mt-2" disabled={loading}>
-            {loading ? "Creating account..." : "Sign up"}
+          <PrimaryButton type="submit" disabled={loading}>
+            {loading ? 'Creating account...' : 'Sign up'}
           </PrimaryButton>
 
           <button
             type="button"
             onClick={onGoLogin}
-            className="text-center text-body1 text-green-normal"
-          >
+            className="text-center text-body1 text-green-normal">
             Already have an account? Log in
           </button>
         </form>

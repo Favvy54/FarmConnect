@@ -44,8 +44,7 @@ export default function LoginScreen({ onLogin, onGoSignup, onForgotPassword }) {
 
               console.log(data);
 
-              localStorage.setItem("token", data.token);
-              localStorage.setItem("user", JSON.stringify(data.user));
+             
 
               //  Request notification permission and register this device.
                
@@ -62,7 +61,6 @@ export default function LoginScreen({ onLogin, onGoSignup, onForgotPassword }) {
                 // Listen for foreground notifications.
                
               listenForForegroundNotifications();
-              requestNotificationPermission();
 
               onLogin?.(data);
             } catch (error) {
@@ -108,7 +106,7 @@ export default function LoginScreen({ onLogin, onGoSignup, onForgotPassword }) {
             </button>
           </div>
 
-          <PrimaryButton type="submit" className="mt-2" disabled={loading}>
+          <PrimaryButton type="submit"  disabled={loading}>
             {loading ? "Logging in..." : "Log in"}
           </PrimaryButton>
 
