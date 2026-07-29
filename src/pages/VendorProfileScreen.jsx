@@ -37,12 +37,33 @@ export default function VendorProfileScreen({ onComplete }) {
   };
 
   const validateForm = () => {
-    if (!businessType) return 'Please select a business type.';
-    if (selectedDays.length === 0)
-      return 'Please select at least one operating day.';
-    if (!photoFile) return 'Please upload a profile photo.';
-    return null;
-  };
+
+  if (!businessName.trim())
+    return "Business name is required.";
+
+  if (!businessType)
+    return "Please select a business type.";
+
+  if (!businessPhone.trim())
+    return "Business phone is required.";
+
+  if (!businessAddress.trim())
+    return "Business address is required.";
+
+  if (!description.trim())
+    return "Business description is required.";
+
+  if (!openTime || !closeTime)
+    return "Please select your operating hours.";
+
+  if (selectedDays.length === 0)
+    return "Please select at least one operating day.";
+
+  if (!photoFile)
+    return "Please upload a profile photo.";
+
+  return null;
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault()
