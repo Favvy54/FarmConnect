@@ -184,7 +184,7 @@ export async function logout() {
 
 // Create Vendor Profile
 export async function createVendorProfile(payload) {
-  return apiRequest('/vendors/profile', {
+  return profileRequest('/vendors/profile', {
     body: payload,
     auth: true,
   });
