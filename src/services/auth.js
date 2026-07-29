@@ -1,11 +1,8 @@
 const BASE_URL = 'https://farmconnect-backend-1.onrender.com/api/v1';
-
+const PROFILE_URL = 'https://farmconnect-backend-1.onrender.com/api';
 const TOKEN_KEY = 'farmconnect_token';
 const ROLE_KEY = 'farmconnect_role';
 const EMAIL_KEY = 'farmconnect_email';
-
-
-
 
 export function saveSession({ token, role, email }) {
   if (token) {
@@ -39,8 +36,6 @@ export function clearSession() {
   localStorage.removeItem(EMAIL_KEY);
 }
 
-
-
 async function apiRequest(path, { method = 'POST', body, auth = false } = {}) {
   const headers = {
     'Content-Type': 'application/json',
@@ -65,9 +60,36 @@ async function apiRequest(path, { method = 'POST', body, auth = false } = {}) {
   return data;
 }
 
+// Vendor resquest
+
+async function profileRequest(
+  path,
+  { method = 'POST', body, auth = false } = {},
+) {
+  const headers = {
+    'Content-Type': 'application/json',
+  };
+
+  if (auth && getToken()) {
+    headers.Authorization = `Bearer ${getToken()}`;
+  }
+
+  const response = await fetch(`${PROFILE_URL}${path}`, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(data?.message || `Request to ${path} failed`);
+  }
+
+  return data;
+}
 
 // Authentication
-
 
 // Register
 export async function register(userData) {
@@ -78,7 +100,7 @@ export async function register(userData) {
 
 // Login
 export async function login(email, password) {
-  const data = await apiRequest("/auth/login", {
+  const data = await apiRequest('/auth/login', {
     body: {
       email,
       password,
@@ -96,23 +118,22 @@ export async function login(email, password) {
 
 // Forgot Password
 export async function forgotPassword(email) {
-  return apiRequest("/auth/forgot-password", {
+  const response = await apiRequest('/auth/forgot-password', {
     body: {
       email,
     },
   });
 
+  const data = await response.json();
 
-    const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Failed to send OTP');
+  }
 
-    if (!response.ok) {
-        throw new Error(data.message || "Failed to send OTP");
-    }
+  // Save email for the reset flow
+  localStorage.setItem('resetEmail', email);
 
-    // Save email for the reset flow
-    localStorage.setItem("resetEmail", email);
-
-    return data;
+  return data;
 }
 
 // Verify Email
@@ -134,8 +155,6 @@ export async function resetPassword(newPassword, confirmPassword) {
   if (!email) {
     throw new Error('Reset email not found. Please request a new OTP.');
   }
-
-
 
   const data = await apiRequest('/auth/reset-password', {
     body: {
@@ -163,7 +182,6 @@ export async function logout() {
 
 // Vendor Profile
 
-
 // Create Vendor Profile
 export async function createVendorProfile(payload) {
   return apiRequest('/vendors/profile', {
@@ -174,7 +192,7 @@ export async function createVendorProfile(payload) {
 
 // Get Vendor Profile
 export async function getVendorProfile() {
-  return apiRequest('/vendors/profile', {
+  return profileRequest('/vendors/profile', {
     method: 'GET',
     auth: true,
   });
@@ -182,7 +200,7 @@ export async function getVendorProfile() {
 
 // Update Vendor Profile
 export async function updateVendorProfile(payload) {
-  return apiRequest('/vendors/profile', {
+  return profileRequest('/vendors/profile', {
     method: 'PATCH',
     body: payload,
     auth: true,
@@ -191,7 +209,7 @@ export async function updateVendorProfile(payload) {
 
 // Delete Vendor Profile
 export async function deleteVendorProfile() {
-  return apiRequest('/vendors/profile', {
+  return profileRequest('/vendors/profile', {
     method: 'DELETE',
     auth: true,
   });
