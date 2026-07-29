@@ -65,7 +65,7 @@ export default function SignupScreen({ onSignup, onGoLogin }) {
     <AuthLayout
       showTagline={false}
       showLogo={false}
-      photoFit="contain"
+      photoFit="fi"
       rightAlign="items-start"
       photoSrc={auth.signup}
       photoAlt="Vendor plating a meal while a customer reserves it on their phone, with nearby, reserved, and pickup deadline callouts">

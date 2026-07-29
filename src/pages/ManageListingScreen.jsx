@@ -80,22 +80,26 @@ export default function ManageListingScreen({
           <p className="text-body2 text-body-text mb-4">Loading listings...</p>
         )}
         {error && <p className="text-body2 text-red-500 mb-4">{error}</p>}
-        <div className="flex items-center gap-3">
+        <div className="flex w-full items-center justify-between mb-8 gap-7">
           <TextField
             icon={SearchIcon}
             placeholder="Search Listings"
-            type="search"
-            // value={phone}
-            // onChange={(e) => setPhone(e.target.value)}
-            className="flex items-center py-3"
+            variant="search"
+            className="md:w-[60%] lg:w-[80%] flex items-center py-3"
           />
           <PrimaryButton
             onClick={onCreateListing}
-            className=" w-20 flex items-center justify-center  py-2 px-2 rounded-xl">
-            <Plus className="w-6 h-6 text-center" />
+            className=" md:w-[35%] lg:w-[30%]  flex items-center justify-center  py-2 px-2 rounded-xl md:px-3 md:py-3">
+            <span
+              className="flex
+                            justify-center items-center
+                            md:text-normal text-white gap-1">
+              <Plus className="w-6 h-6 sm:text-center" />
+              <p className="hidden md:block">Create Listing </p>
+            </span>
           </PrimaryButton>
         </div>
-        <div className="flex gap-8 border-b-4 border-border-muted mb-6">
+        <div className="flex justify-between border-b-4 border-border-muted mb-6">
           {TABS.map((tab) => (
             <button
               key={tab}
@@ -129,7 +133,7 @@ export default function ManageListingScreen({
             </p>
             <PrimaryButton
               onClick={onCreateListing}
-              className="md:max-w-sm mt-4 w-auto px-6">
+              className="md:max-w-sm mt-4 w-auto rounded-xl px-6 py-3">
               <span
                 className="flex 
                             justify-center items-center

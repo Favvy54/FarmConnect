@@ -17,6 +17,7 @@ import WelcomeOnboardingScreen from './screens/WelcomeOnboardingScreen.jsx';
 import VendorProfileScreen from './pages/VendorProfileScreen.jsx';
 import VendorDashboardScreen from './pages/VendorDashboardScreen.jsx';
 import ManageListingScreen from './pages/ManageListingScreen.jsx';
+import UserProfileScreen from './pages/UserProfile.jsx';
 import { getRole } from './services/auth';
 
 //is edits possible
@@ -164,6 +165,16 @@ export default function App() {
             />
           }
         />
+
+        <Route
+          path="/user/profile"
+          element={
+            <UserProfileScreen
+              onComplete={() => navigate('/user/dashboard')}
+            />
+          }
+        />
+
       </Routes>
     </div>
   );

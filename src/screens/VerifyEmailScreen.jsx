@@ -60,7 +60,7 @@ export default function VerifyEmailScreen({
               onKeyDown={(e) => handleKeyDown(i, e)}
               maxLength={1}
               inputMode="numeric"
-              className="w-14 h-15 text-center text-h2 border-2 border-ink/40 rounded-xl focus:outline-none focus:border-2 focus:border-green-normal"
+              className="w-14 h-15 text-center text-h2 border-2 border-ink/40 rounded-xl focus:outline-none focus:border-2 focus:border-green-normal mb-8"
             />
           ))}
         </div>
@@ -88,7 +88,6 @@ export default function VerifyEmailScreen({
               setLoading(false);
             }
           }}
-          className="mt-8"
           disabled={loading}>
           {loading ? 'Verifying...' : 'Confirm code'}
         </PrimaryButton>

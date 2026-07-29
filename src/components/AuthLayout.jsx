@@ -10,7 +10,7 @@ export default function AuthLayout({
   children,
   showLogo = true,
   showTagline = true,
-  photoFit = 'cover', //Change object-fit to either cover or contain
+  photoFit = 'fixed', //Change object-fit to either cover or contain
   photoSrc = auth.login,
   rightAlign = 'items-center',
   photoAlt = 'Person checking a meal reservation on their phone',
@@ -34,9 +34,8 @@ export default function AuthLayout({
   cldImg={photoSrc}
           alt={photoAlt}
           
-  className={`absolute inset-0 w-full h-fill rounded-r-3xl ${
-    photoFit === "contain" ? "object-contain" : "object-cover"
-  }`}
+  className={`absolute inset-0 w-1/2 h-fill rounded-r-3xl ${photoFit}
+  `}
 />
 
         {showLogo && (

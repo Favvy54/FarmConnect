@@ -2,16 +2,22 @@ const BASE_URL = 'https://farmconnect-backend-1.onrender.com/api/v1';
 
 const TOKEN_KEY = 'farmconnect_token';
 const ROLE_KEY = 'farmconnect_role';
+const EMAIL_KEY = 'farmconnect_email';
 
 
 
-export function saveSession({ token, role }) {
+
+export function saveSession({ token, role, email }) {
   if (token) {
     localStorage.setItem(TOKEN_KEY, token);
   }
 
   if (role) {
     localStorage.setItem(ROLE_KEY, role);
+  }
+
+  if (role) {
+    localStorage.setItem(EMAIL_KEY, email);
   }
 }
 
@@ -23,9 +29,14 @@ export function getRole() {
   return localStorage.getItem(ROLE_KEY);
 }
 
+export function getEmail() {
+  return localStorage.getItem(EMAIL_KEY);
+}
+
 export function clearSession() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(ROLE_KEY);
+  localStorage.removeItem(EMAIL_KEY);
 }
 
 
@@ -77,6 +88,7 @@ export async function login(email, password) {
   saveSession({
     token: data.data.token,
     role: data.data.user?.role,
+    email: data.data.user?.email,
   });
 
   return data.data;
@@ -149,13 +161,12 @@ export async function logout() {
   }
 }
 
-// =========================
 // Vendor Profile
-// =========================
+
 
 // Create Vendor Profile
 export async function createVendorProfile(payload) {
-  return apiRequest('/vendor/profile', {
+  return apiRequest('/vendors/profile', {
     body: payload,
     auth: true,
   });
@@ -163,7 +174,7 @@ export async function createVendorProfile(payload) {
 
 // Get Vendor Profile
 export async function getVendorProfile() {
-  return apiRequest('/vendor/profile', {
+  return apiRequest('/vendors/profile', {
     method: 'GET',
     auth: true,
   });
@@ -171,7 +182,7 @@ export async function getVendorProfile() {
 
 // Update Vendor Profile
 export async function updateVendorProfile(payload) {
-  return apiRequest('/vendor/profile', {
+  return apiRequest('/vendors/profile', {
     method: 'PATCH',
     body: payload,
     auth: true,
@@ -180,7 +191,7 @@ export async function updateVendorProfile(payload) {
 
 // Delete Vendor Profile
 export async function deleteVendorProfile() {
-  return apiRequest('/vendor/profile', {
+  return apiRequest('/vendors/profile', {
     method: 'DELETE',
     auth: true,
   });
