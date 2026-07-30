@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import {
@@ -17,6 +17,7 @@ import WelcomeOnboardingScreen from './screens/WelcomeOnboardingScreen.jsx';
 import VendorProfileScreen from './pages/VendorProfileScreen.jsx';
 import VendorDashboardScreen from './pages/VendorDashboardScreen.jsx';
 import ManageListingScreen from './pages/ManageListingScreen.jsx';
+import CreateListingScreen from './pages/CreateListingScreen.jsx';
 import UserProfileScreen from './pages/UserProfile.jsx';
 import { getRole } from './services/auth';
 import { getCurrentUser } from "./services/auth";
@@ -114,25 +115,25 @@ export default function App() {
           element={
             <WelcomeOnboardingScreen
               onContinue={async () => {
-  try {
-    const role = getRole();
+                try {
+                  const role = getRole();
 
-    if (role === "vendor") {
-      const user = await getCurrentUser();
+                  if (role === 'vendor') {
+                    const user = await getCurrentUser();
 
-      if (user.profileCompleted) {
-        navigate("/vendor/dashboard");
-      } else {
-        navigate("/vendor/profile");
-      }
-    } else {
-      navigate("/user/profile");
-    }
-  } catch (error) {
-    console.error(error);
-    navigate("/login");
-  }
-}}
+                    if (user.profileCompleted) {
+                      navigate('/vendor/dashboard');
+                    } else {
+                      navigate('/vendor/profile');
+                    }
+                  } else {
+                    navigate('/user/profile');
+                  }
+                } catch (error) {
+                  console.error(error);
+                  navigate('/login');
+                }
+              }}
             />
           }
         />
@@ -150,7 +151,7 @@ export default function App() {
           path="/vendor/dashboard"
           element={
             <VendorDashboardScreen
-              onCreateListing={() => navigate('/vendor/listings')}
+              onCreateListing={() => navigate('/vendor/create-listing')}
               onManageListing={() => navigate('/vendor/listings')}
               onManageReservation={() => navigate('/vendor/dashboard')}
               onViewAnalytics={() => {}}
@@ -167,8 +168,22 @@ export default function App() {
           path="/vendor/listings"
           element={
             <ManageListingScreen
-              onCreateListing={() => {}}
+              onCreateListing={() => navigate('/vendor/create-listing')}
               onEditListing={() => {}}
+              onNavigate={(key) => {
+                if (key === 'home') navigate('/vendor/dashboard');
+                if (key === 'listings') navigate('/vendor/listings');
+              }}
+              onLogout={() => navigate('/login')}
+            />
+          }
+        />
+
+        <Route
+          path="/vendor/create-listing"
+          element={
+            <CreateListingScreen
+              onBack={() => navigate('/vendor/listings')}
               onNavigate={(key) => {
                 if (key === 'home') navigate('/vendor/dashboard');
                 if (key === 'listings') navigate('/vendor/listings');
@@ -181,12 +196,9 @@ export default function App() {
         <Route
           path="/user/profile"
           element={
-            <UserProfileScreen
-              onComplete={() => navigate('/user/dashboard')}
-            />
+            <UserProfileScreen onComplete={() => navigate('/user/dashboard')} />
           }
         />
-
       </Routes>
     </div>
   );

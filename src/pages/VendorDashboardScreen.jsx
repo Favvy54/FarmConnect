@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import PrimaryButton from '../components/PrimaryButton.jsx';
-import { getVendorProfile } from '@/services/auth.js';
+import { getToken } from '@/services/auth.js';
 
 const STAT_ICONS = {
   listings: Store,
@@ -146,23 +146,22 @@ return () => {
     Cancelled: 'bg-red-50 text-error',
   };
 
-  const displayName = vendorProfile?.businessName || 'there'
+ const displayName = vendor?.businessName || 'there';
 
   return (
     <DashboardLayout
       active="home"
       onNavigate={onNavigate}
       onLogout={onLogout}
-      title={`Welcome Back ${vendorName} 👋`}
-      subtitle="Here's what happening with your business today.">
+      title={`Welcome Back ${displayName} 👋`}
+      subtitle="Here's what happening with your business today."
+      profileImage={vendor?.profileImage}
+      >
       <div className="w-full md:pl-2 ">
-        {loading && (
-          <p className="text-body2 text-body-text mb-4">Loading dashboard...</p>
-        )}
         {error && <p className="text-body2 text-red-500 mb-4">{error}</p>}
 
         {/* Stat cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <div className="grid mt-10 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
           {statCards.map(({ key, label, value, note }) => {
             const Icon = STAT_ICONS[key];
             return (
@@ -291,7 +290,7 @@ return () => {
                 </p>
                 <PrimaryButton
                   onClick={onCreateListing}
-                  className="mt-4 w-auto px-6">
+                  >
                   <span
                     className="flex 
                   justify-center items-center

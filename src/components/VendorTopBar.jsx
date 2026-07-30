@@ -1,4 +1,9 @@
 import { MapPin, Bell, UserCircle } from 'lucide-react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 export default function VendorTopBar({
   title,
@@ -8,33 +13,64 @@ export default function VendorTopBar({
   profileImage
 }) {
   return (
-    <div className="flex flex-col gap-1 md:gap-2 mb-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-body2 md:text-body1 lg:text-[30px] text-2xl font-bold text-ink">
-            {title}
-          </h1>
-        </div>
+    <div className="flex items-start justify-between gap-4">
+      {/* LEFT SIDE — takes remaining width */}
+      <div className="min-w-0 flex-1">
+        <h1 className="text-2xl md:text-body1 lg:text-[30px] font-bold text-ink truncate">
+          {title}
+        </h1>
 
-        <div className="hidden md:flex md:items-center md:gap-4 md:shrink-0">
-          {rightSlot}
-          <span className="flex items-center gap-1 text-regular text-ink">
-            <MapPin className="w-6.5 h-6.5" />
-            {location}
-          </span>
-          <Bell className="w-8 h-8 text-ink" />
+        <p className="mt-1 text-body2 text-ink line-clamp-2">{subtitle}</p>
+      </div>
 
-          <span className='w-9 h-9 rounded-full'> {profileImage ? (
-            <img src={profileImage} alt="Profile" className='w-full h-full object-cover' />
+      {/* RIGHT SIDE — fixed width */}
+      <div className="hidden md:flex items-center gap-4 shrink-0">
+        {rightSlot}
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              className="flex items-center gap-1 rounded-lg px-2 py-1 hover:bg-green-normal transition-colors">
+              <MapPin className="w-5 h-5 text-green-normal shrink-0" />
+
+              <span className="max-w-35 truncate text-left text-regular text-ink">
+                {location}
+              </span>
+            </button>
+          </PopoverTrigger>
+
+          <PopoverContent align="end" className="w-72 p-4">
+            <div className="flex items-start gap-2">
+              <MapPin className="w-5 h-5 text-green-normal mt-0.5 shrink-0" />
+
+              <div>
+                <p className="text-sm font-semibold text-ink">
+                  Business location
+                </p>
+
+                <p className="text-sm text-body-text mt-1 wrap-break-word">
+                  {location}
+                </p>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        <Bell className="w-8 h-8 text-ink" />
+
+        <div className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center">
+          {profileImage ? (
+            <img
+              src={profileImage}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
           ) : (
             <UserCircle className="w-8 h-8 text-ink" />
           )}
-          </span>
-          
-            
         </div>
       </div>
-      <p className="text-body2 text-body-text">{subtitle}</p>
     </div>
   );
 }

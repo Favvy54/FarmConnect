@@ -1,75 +1,71 @@
-import { useState, useRef, useEffect} from 'react'
-import { Camera, Upload } from 'lucide-react'
-import TextField from '../components/TextField.jsx'
-import PrimaryButton from '../components/PrimaryButton.jsx'
+import { useState, useRef, useEffect } from 'react';
+import { Camera, Upload } from 'lucide-react';
+import TextField from '../components/TextField.jsx';
+import PrimaryButton from '../components/PrimaryButton.jsx';
 import {
   createVendorProfile,
   getEmail,
   getCurrentUser,
-} from "../services/auth.js";
+} from '../services/auth.js';
 
-/*
+const BUSINESS_TYPES = ['Restaurant', 'Event Caterer', 'Bakery'];
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+// Cloudinary upload helper
 const uploadImageToCloudinary = async (photoFile) => {
+  const formData = new FormData();
+  formData.append('file', photoFile);
+  formData.append('upload_preset', 'FarmConnect_profile');
 
-    const formData = new FormData();
+  const response = await fetch(
+    'https://api.cloudinary.com/v1_1/cfjvajqm/image/upload',
+    {
+      method: 'POST',
+      body: formData,
+    },
+  );
 
-    formData.append("file", photoFile);
+  if (!response.ok) {
+    throw new Error('Failed to upload image to Cloudinary.');
+  }
 
-    formData.append(
-        "upload_preset",
-        "YOUR_UPLOAD_PRESET"
-    );
-
-    const response = await fetch(
-        "https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload",
-        {
-            method: "POST",
-            body: formData,
-        }
-
-
-    const data = await response.json();
-
-    return data.secure_url;
+  const data = await response.json();
+  return data.secure_url;
 };
-*/
-
-const BUSINESS_TYPES = ['Restaurant', 'Event Caterer', 'Bakery']
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 
 export default function VendorProfileScreen({ onComplete }) {
-
-    useEffect(() => {
-  async function checkProfile() {
-    try {
-      const user = await getCurrentUser();
-
-      if (user.profileCompleted) {
-        onComplete?.();
+  useEffect(() => {
+    async function checkProfile() {
+      try {
+        const user = await getCurrentUser();
+        if (user.profileCompleted) {
+          onComplete?.();
+        }
+      } catch (err) {
+        console.error(err);
       }
-    } catch (err) {
-      console.error(err);
     }
-  }
 
-  checkProfile();
-}, [onComplete]);
+    checkProfile();
+  }, [onComplete]);
 
-    
-  const [businessType, setBusinessType] = useState(null)
-  const [selectedDays, setSelectedDays] = useState([])
-  const [businessName, setBusinessName] = useState('')
-  const [businessAddress, setBusinessAddress] = useState('')
-  const [businessPhone, setBusinessPhone] = useState('')
-  const [description, setDescription] = useState('')
-  const [openTime, setOpenTime] = useState('')
-  const [closeTime, setCloseTime] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  // Main form state
+  const [businessType, setBusinessType] = useState(null);
+  const [selectedDays, setSelectedDays] = useState([]);
+  const [businessName, setBusinessName] = useState('');
+  const [businessPhone, setBusinessPhone] = useState('');
+  const [description, setDescription] = useState('');
+  const [openTime, setOpenTime] = useState('');
+  const [closeTime, setCloseTime] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-// Image Upload
+  // Address inputs
+  const [currentAddressInput, setCurrentAddressInput] = useState('');
+  const [permanentAddressInput, setPermanentAddressInput] = useState('');
 
+  // Image upload
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const fileInputRef = useRef(null);
@@ -77,72 +73,69 @@ export default function VendorProfileScreen({ onComplete }) {
   const handlePhotoChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     setPhotoFile(file);
     setPhotoPreview(URL.createObjectURL(file));
   };
 
   const validateForm = () => {
+    if (!businessName.trim()) return 'Business name is required.';
+    if (!businessType) return 'Please select a business type.';
+    if (!businessPhone.trim()) return 'Business phone is required.';
+    if (!currentAddressInput.trim()) return 'Current address is required.';
+    if (!permanentAddressInput.trim()) return 'Permanent address is required.';
+    if (!description.trim()) return 'Business description is required.';
+    if (!openTime || !closeTime) return 'Please select your operating hours.';
+    if (selectedDays.length === 0)
+      return 'Please select at least one operating day.';
+    if (!photoFile) return 'Please upload a profile photo.';
 
-  if (!businessName.trim())
-    return "Business name is required.";
-
-  if (!businessType)
-    return "Please select a business type.";
-
-  if (!businessPhone.trim())
-    return "Business phone is required.";
-
-  if (!businessAddress.trim())
-    return "Business address is required.";
-
-  if (!description.trim())
-    return "Business description is required.";
-
-  if (!openTime || !closeTime)
-    return "Please select your operating hours.";
-
-  if (selectedDays.length === 0)
-    return "Please select at least one operating day.";
-
-  if (!photoFile)
-    return "Please upload a profile photo.";
-
-  return null;
-};
+    return null;
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    
-     const validationError = validateForm();
-     if (validationError) {
-       setError(validationError);
-       return;
-     }
+    e.preventDefault();
 
-    setError(null)
-    setLoading(true)
+    const validationError = validateForm();
+
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setError(null);
+    setLoading(true);
+
     try {
+      let profileImageUrl = 'https://placehold.co';
+
+      if (photoFile) {
+        profileImageUrl = await uploadImageToCloudinary(photoFile);
+      }
+
+      // Backend expects these exact field names
+      const currentLocation = currentAddressInput.trim();
+      const permanentAddress = permanentAddressInput.trim();
+
       await createVendorProfile({
         businessName,
         businessType,
         email: getEmail(),
         phone: businessPhone,
         description,
-        permanentAddress: businessAddress,
-        currentLocation: businessAddress,
-
-        // TODO: Replace "" with Cloudinary URL
-        // profileImage: profileImageUrl,
-        profileImage: "https://placehold.co/300x300/png",// Just Hard coded this to test the dashboard to see if its working 
+        permanentAddress,
+        currentLocation,
+        profileImage: profileImageUrl,
         operatingHours: `${openTime} - ${closeTime}`,
-     });
-      onComplete?.()
+      });
+
+      onComplete?.();
     } catch (err) {
-      setError(err.message || 'Something went wrong creating your profile.')
+      setError(err.message || 'Something went wrong creating your profile.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <form
@@ -154,6 +147,7 @@ export default function VendorProfileScreen({ onComplete }) {
           <h1 className="text-h2 font-bold text-ink">
             Complete your vendor profile
           </h1>
+
           <p className="mt-2 text-body1 text-body-text">
             This helps us personalize your experience
           </p>
@@ -165,6 +159,7 @@ export default function VendorProfileScreen({ onComplete }) {
           <label className="mb-2 block text-body1 font-bold text-ink">
             Business Name
           </label>
+
           <TextField
             placeholder="Business Name"
             required
@@ -178,18 +173,18 @@ export default function VendorProfileScreen({ onComplete }) {
           <label className="block text-body1 font-bold text-ink mb-2">
             Business Type
           </label>
+
           <div className="flex flex-wrap gap-3">
             {BUSINESS_TYPES.map((type) => (
               <button
                 key={type}
                 type="button"
                 onClick={() => setBusinessType(type)}
-                className={`rounded-xl border px-5 py-3 text-body1 transition-colors
-                    ${
-                      businessType === type
-                        ? 'border-green-normal bg-green-light text-ink'
-                        : 'border-border-muted text-body-text'
-                    }`}>
+                className={`rounded-xl border px-5 py-3 text-body1 transition-colors ${
+                  businessType === type
+                    ? 'border-green-normal bg-green-light text-ink'
+                    : 'border-border-muted text-body-text'
+                }`}>
                 {type}
               </button>
             ))}
@@ -200,25 +195,27 @@ export default function VendorProfileScreen({ onComplete }) {
           <label className="mb-2 block text-body1 font-bold text-ink">
             Current Address
           </label>
+
           <TextField
             placeholder="Current Address"
             required
             variant="profile"
-            value={currentLocation}
-            onChange={(e) => setBusinessAddress(e.target.value)}
+            value={currentAddressInput}
+            onChange={(e) => setCurrentAddressInput(e.target.value)}
           />
         </div>
 
-          <div>
+        <div>
           <label className="mb-2 block text-body1 font-bold text-ink">
             Permanent Address
           </label>
+
           <TextField
             placeholder="Permanent Address"
             required
             variant="profile"
-            value={permanentLocation}
-            onChange={(e) => setPermanentLocation(e.target.value)}
+            value={permanentAddressInput}
+            onChange={(e) => setPermanentAddressInput(e.target.value)}
           />
         </div>
 
@@ -226,6 +223,7 @@ export default function VendorProfileScreen({ onComplete }) {
           <label className="mb-2 block text-body1 font-bold text-ink">
             Business Phone Number
           </label>
+
           <TextField
             placeholder="Business Phone Number"
             type="tel"
@@ -248,6 +246,7 @@ export default function VendorProfileScreen({ onComplete }) {
               onChange={(e) => setOpenTime(e.target.value)}
               className="w-full rounded-xl border border-border-muted px-4 py-3">
               <option value="">Open at</option>
+
               {Array.from({ length: 24 }).map((_, h) => (
                 <option key={h} value={`${String(h).padStart(2, '0')}:00`}>
                   {String(h).padStart(2, '0')}:00
@@ -261,6 +260,7 @@ export default function VendorProfileScreen({ onComplete }) {
               onChange={(e) => setCloseTime(e.target.value)}
               className="w-full rounded-xl border border-border-muted px-4 py-3">
               <option value="">Close at</option>
+
               {Array.from({ length: 24 }).map((_, h) => (
                 <option key={h} value={`${String(h).padStart(2, '0')}:00`}>
                   {String(h).padStart(2, '0')}:00
@@ -269,6 +269,7 @@ export default function VendorProfileScreen({ onComplete }) {
             </select>
           </div>
         </div>
+
         <div className="flex flex-wrap gap-4 mt-4">
           {DAYS.map((day) => (
             <label
@@ -285,6 +286,7 @@ export default function VendorProfileScreen({ onComplete }) {
                   )
                 }
               />
+
               {day}
             </label>
           ))}
@@ -306,6 +308,7 @@ export default function VendorProfileScreen({ onComplete }) {
                 <img src="/img-placeholder.png" alt="Profile placeholder" />
               )}
             </div>
+
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
@@ -317,6 +320,7 @@ export default function VendorProfileScreen({ onComplete }) {
           <h2 className="text-3xl font-bold text-ink mt-6">
             Add a profile photo
           </h2>
+
           <p className="text-regular text-ink mt-2 max-w-sm">
             Adding a photo helps build trust in the community and makes your
             experience more personal
@@ -343,6 +347,7 @@ export default function VendorProfileScreen({ onComplete }) {
           <label className="block text-body1 font-bold text-ink mb-2">
             Description
           </label>
+
           <textarea
             placeholder="Enter a description that truly describes your business"
             rows={6}

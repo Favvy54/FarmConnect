@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import Button from './Button.jsx';
 import { AdvancedImage } from '@cloudinary/react';
 import { logos } from '../libs/cloudinaryImages';

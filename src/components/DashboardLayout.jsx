@@ -38,15 +38,45 @@ export default function DashboardLayout({
         <div className="flex items-center gap-2">
           <Popover>
             <PopoverTrigger asChild>
-              <button className="flex items-center">
-                <MapPin className="w-5 h-5" />
+              <button
+                type="button"
+                className="flex items-center gap-1 rounded-lg px-2 py-1 hover:bg-green-normal transition-colors">
+                <MapPin className="w-5 h-5 text-green-normal shrink-0" />
+
+                <span className="max-w-22.5 truncate text-sm text-ink">
+                  {location}
+                </span>
               </button>
             </PopoverTrigger>
 
-            <PopoverContent className="w-fit">{location}</PopoverContent>
+            <PopoverContent align="end" className="w-64 p-3">
+              <div className="flex items-start gap-2">
+                <MapPin className="w-5 h-5 text-green-normal mt-0.5 shrink-0" />
+
+                <div>
+                  <p className="text-sm font-semibold text-ink">
+                    Business location
+                  </p>
+
+                  <p className="text-sm text-body-text mt-1 wrap-break-word">
+                    {location}
+                  </p>
+                </div>
+              </div>
+            </PopoverContent>
           </Popover>
           <Bell className="w-5 h-5 text-ink" />
-          <UserCircle className="w-5 h-5 text-ink" />
+          <div className="w-8 h-8 rounded-full overflow-hidden  flex items-center justify-center">
+            {profileImage ? (
+              <img
+                src={profileImage}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <UserCircle className="w-5 h-5 text-ink" />
+            )}
+          </div>
         </div>
       </div>
 
@@ -71,14 +101,13 @@ export default function DashboardLayout({
           className="fixed top-0 left-0 h-screen w-64 z-30 bg-white"
         />
 
-        <div className="relative md:ml-64 px-4 md:py-9.5">
+        <div className="relative pt-20 md:pt-0 md:ml-64 px-4 md:py-9.5">
           <VendorTopBar
             title={title}
             subtitle={subtitle}
             location={location}
             rightSlot={topBarRight}
             profileImage={profileImage}
-
           />
           {children}
         </div>

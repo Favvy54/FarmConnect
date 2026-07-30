@@ -3,7 +3,6 @@ import {SearchIcon, Plus, Store, ChevronLeft, ChevronRight } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import PrimaryButton from '../components/PrimaryButton.jsx';
 import TextField from '@/components/TextField.jsx';
-import { getToken } from '../services/auth.js';
 
 const TABS = ['All', 'Active', 'Sold Out', 'Expired'];
 
@@ -76,11 +75,8 @@ export default function ManageListingScreen({
       subtitle="Here's what happening with your business today.">
       <div className=" w-full md:pl-2">
         {/* Tabs */}
-        {loading && (
-          <p className="text-body2 text-body-text mb-4">Loading listings...</p>
-        )}
         {error && <p className="text-body2 text-red-500 mb-4">{error}</p>}
-        <div className="flex w-full items-center justify-between mb-8 gap-7">
+        <div className="flex w-full items-center justify-between my-8 gap-7">
           <TextField
             icon={SearchIcon}
             placeholder="Search Listings"
