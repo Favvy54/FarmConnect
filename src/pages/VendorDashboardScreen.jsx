@@ -20,7 +20,6 @@ const STAT_ICONS = {
 };
 
 export default function VendorDashboardScreen({
-  vendorName = '',
   initialStats = { listings: 0, reservations: 0, saved: 0, discarded: 0 },
   initialReservations = [],
   initialActiveListings = [],
@@ -92,17 +91,26 @@ export default function VendorDashboardScreen({
     //   setActiveListings(data.activeListings);
     // }
 
-  } catch (err) {
+    } catch (err) {
     if (!cancelled) {
       setError(
         err.message || "Could not load dashboard data."
       );
+    }
+  } finally {
+    if (!cancelled) {
+      setLoading(false);
+    }
+  }
+}
 
-    loadDashboard();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+loadDashboard();
+
+return () => {
+  cancelled = true;
+};
+
+}, []);
 
   const statCards = [
     {
