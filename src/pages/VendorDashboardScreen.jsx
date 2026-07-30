@@ -20,7 +20,7 @@ const STAT_ICONS = {
 };
 
 export default function VendorDashboardScreen({
-  vendorName = 'Iya Teshubo Catering',
+  vendorName = '',
   initialStats = { listings: 0, reservations: 0, saved: 0, discarded: 0 },
   initialReservations = [],
   initialActiveListings = [],
@@ -42,30 +42,61 @@ export default function VendorDashboardScreen({
     let cancelled = false;
 
     async function loadDashboard() {
-      setLoading(true);
-      setError(null);
-      try {
-        // ==================== ENDPOINT HERE ====================
-        // Replace this block once the backend gives you the real
-        // dashboard/analytics + listings + reservations endpoints.
-        // Example shape, once you have it:
-        //
-        // const res = await fetch(`${BASE_URL}/analytics/dashboard`, {
-        //   headers: { Authorization: `Bearer ${getToken()}` },
-        // })
-        // const data = await res.json()
-        // if (!cancelled) {
-        //   setStats(data.stats)
-        //   setReservations(data.todaysReservations)
-        //   setActiveListings(data.activeListings)
-        // }
-      } catch (err) {
-        if (!cancelled)
-          setError(err.message || 'Could not load dashboard data.');
-      } finally {
-        if (!cancelled) setLoading(false);
+  setLoading(true);
+  setError(null);
+
+  try {
+    const token = getToken();
+
+    // ==================== VENDOR PROFILE ====================
+    // Loads the vendor's business information for the dashboard
+    // (Business Name, Location, etc.)
+
+    const vendorResponse = await fetch(
+      "https://farmconnect-backend-1.onrender.com/api/vendors/profile",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
+    );
+
+    const vendorData = await vendorResponse.json();
+
+    if (!vendorResponse.ok) {
+      throw new Error(
+        vendorData.message || "Failed to load vendor profile."
+      );
     }
+
+    if (!cancelled) {
+      setVendor(vendorData.data);
+    }
+
+    // ==================== ENDPOINT HERE ====================
+    // Replace this block once the backend gives you the real
+    // dashboard/analytics + listings + reservations endpoints.
+    // Example shape, once you have it:
+    //
+    // const res = await fetch(`${BASE_URL}/analytics/dashboard`, {
+    //   headers: {
+    //     Authorization: `Bearer ${getToken()}`,
+    //   },
+    // });
+    //
+    // const data = await res.json();
+    //
+    // if (!cancelled) {
+    //   setStats(data.stats);
+    //   setReservations(data.todaysReservations);
+    //   setActiveListings(data.activeListings);
+    // }
+
+  } catch (err) {
+    if (!cancelled) {
+      setError(
+        err.message || "Could not load dashboard data."
+      );
 
     loadDashboard();
     return () => {
@@ -111,7 +142,7 @@ export default function VendorDashboardScreen({
       active="home"
       onNavigate={onNavigate}
       onLogout={onLogout}
-      title={`Welcome Back ${vendorName} 👋`}
+      title={`Welcome Back ${vendor?.businessName || "Vendor"} 👋`}
       subtitle="Here's what happening with your business today.">
       <div className="w-full md:pl-2 ">
         {loading && (
