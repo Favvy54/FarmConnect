@@ -3,7 +3,10 @@ import {SearchIcon, Plus, Store, ChevronLeft, ChevronRight } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import PrimaryButton from '../components/PrimaryButton.jsx';
 import TextField from '@/components/TextField.jsx';
-import { getMyListings } from "../services/auth";
+import {
+  getMyListings,
+  getVendorProfile,
+} from "../services/auth";
 
 const TABS = ['All', 'Active', 'Sold Out', 'Expired'];
 
@@ -24,6 +27,7 @@ export default function ManageListingScreen({
   const [listings, setListings] = useState(initialListings);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [vendor, setVendor] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -33,6 +37,13 @@ async function loadListings() {
   setError(null);
 
   try {
+
+    const vendorProfile = await getVendorProfile();
+
+    if (!cancelled) {
+      setVendor(vendorProfile.data);
+    }
+    
     const listings = await getMyListings();
     if (!cancelled) {
       const formatted = listings.map((listing) => ({
