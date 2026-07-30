@@ -16,6 +16,7 @@ import {
   getToken,
   getVendorProfile,
   getDashboardAnalytics,
+  getVendorReservations,
 } from "@/services/auth.js";
 
 const STAT_ICONS = {
@@ -89,11 +90,24 @@ export default function VendorDashboardScreen({
     // ==================== DASHBOARD ANALYTICS ====================
 
 const analyticsResponse = await getDashboardAnalytics();
+const listingsResponse = await getMyListings();
+const reservationsResponse = await getVendorReservations();
 
 if (!cancelled) {
   const analytics = analyticsResponse.analytics;
 
   setAnalytics(analytics);
+
+  setActiveListings(
+    listingsResponse
+      .filter(...)
+      .map(...)
+  );
+
+  setReservations(
+    reservationsResponse
+      .map(...)
+  );
 
   setStats({
     listings: analytics.activeListings,
@@ -101,12 +115,6 @@ if (!cancelled) {
     saved: analytics.mealsShared,
     discarded: analytics.cancelledListings,
   });
-
-  // Temporary until reservations endpoint is connected
-  setReservations(initialReservations);
-
-  // Temporary until active listings endpoint is connected
-  setActiveListings(initialActiveListings);
 }
     } catch (err) {
     if (!cancelled) {
