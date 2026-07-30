@@ -122,9 +122,7 @@ export async function forgotPassword(email) {
     body: { email },
   });
 
-  if (!response.ok) {
-    throw new Error(data.message || 'Failed to send OTP');
-  }
+  
 
   // Save email for the reset flow
   localStorage.setItem('resetEmail', email);
