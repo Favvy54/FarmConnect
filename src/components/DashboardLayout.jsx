@@ -14,6 +14,7 @@ export default function DashboardLayout({
   onLogout,
   title,
   subtitle,
+  location,
   topBarRight,
   children,
 }) {
