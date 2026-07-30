@@ -111,16 +111,15 @@ async function loadListings() {
       : listings.filter((l) => l.status === activeTab.toUpperCase());
 
   return (
-    return (
-      <DashboardLayout
-        active="listings"
-        onNavigate={onNavigate}
-        onLogout={onLogout}
-        title="Manage Listings"
-        subtitle="Here's what happening with your business today."
-        location={vendor?.currentLocation || "Location unavailable"}
-        profileImage={vendor?.profileImage}
-      >
+    <DashboardLayout
+      active="listings"
+      onNavigate={onNavigate}
+      onLogout={onLogout}
+      title="Manage Listings"
+      subtitle="Here's what happening with your business today."
+      location={vendor?.currentLocation || "Location unavailable"}
+      profileImage={vendor?.profileImage}
+    >
       <div className=" w-full md:pl-2">
         {/* Tabs */}
         {error && <p className="text-body2 text-red-500 mb-4">{error}</p>}
