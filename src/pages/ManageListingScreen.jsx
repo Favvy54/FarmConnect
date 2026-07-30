@@ -35,6 +35,18 @@ export default function ManageListingScreen({
   useEffect(() => {
     let cancelled = false;
 
+  useEffect(() => {
+
+    const timeout = setTimeout(() => {
+
+        loadListings(search);
+
+    }, 400);
+
+    return () => clearTimeout(timeout);
+
+}, [search]);
+
 async function loadListings(searchTerm="") {
   setLoading(true);
   setError(null);
@@ -143,18 +155,12 @@ async function loadListings(searchTerm="") {
         {error && <p className="text-body2 text-red-500 mb-4">{error}</p>}
         <div className="flex w-full items-center justify-between my-8 gap-7">
           <TextField
-            icon={SearchIcon}
-            placeholder="Search Listings"
-            variant="search"
-            value={search}
-            onChange={(e) => {
-              const value = e.target.value;
-          
-              setSearch(value);
-          
-              loadListings(value);
-            }}
-            className="md:w-[60%] lg:w-[80%] flex items-center py-3"
+              icon={SearchIcon}
+              placeholder="Search Listings"
+              variant="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="md:w-[60%] lg:w-[80%] flex items-center py-3"
           />
           <PrimaryButton
             onClick={onCreateListing}
