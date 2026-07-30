@@ -19,6 +19,7 @@ import VendorDashboardScreen from './pages/VendorDashboardScreen.jsx';
 import ManageListingScreen from './pages/ManageListingScreen.jsx';
 import UserProfileScreen from './pages/UserProfile.jsx';
 import { getRole } from './services/auth';
+import { getCurrentUser } from "./services/auth";
 
 //is edits possible
 
@@ -112,14 +113,20 @@ export default function App() {
           path="/welcome-onboarding"
           element={
             <WelcomeOnboardingScreen
-              onContinue={() => {
+              onContinue={async () => {
                 const role = getRole();
 
-                if (role === 'vendor') {
-                  navigate('/vendor/profile');
-                } else {
-                  navigate('/user/profile');
+                if (role === "vendor") {
+                   const user = await getCurrentUser();
+
+                     if (user.profileCompleted) {
+                         navigate("/vendor/dashboard");
+                     } else {
+                         navigate("/vendor/profile");
                 }
+                     } else {
+                         navigate("/user/profile");
+                     }
               }}
             />
           }
