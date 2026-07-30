@@ -42,7 +42,7 @@ export default function DashboardLayout({
               </button>
             </PopoverTrigger>
 
-            <PopoverContent className="w-fit">Ikeja, Lagos</PopoverContent>
+            <PopoverContent className="w-fit">{location}</PopoverContent>
           </Popover>
           <Bell className="w-5 h-5 text-ink" />
           <UserCircle className="w-5 h-5 text-ink" />
@@ -74,6 +74,7 @@ export default function DashboardLayout({
           <VendorTopBar
             title={title}
             subtitle={subtitle}
+            location={location}
             rightSlot={topBarRight}
           />
           {children}
