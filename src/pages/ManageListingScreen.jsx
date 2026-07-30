@@ -46,11 +46,13 @@ async function loadListings() {
   createdOn: new Date(listing.createdAt).toLocaleDateString(),
 
   status:
-    listing.status === "available"
-      ? "ACTIVE"
-      : listing.status === "completed"
-      ? "SOLD OUT"
-      : "EXPIRED",
+  listing.status === "available"
+    ? "ACTIVE"
+    : listing.status === "completed"
+    ? "SOLD OUT"
+    : listing.status === "expired"
+    ? "EXPIRED"
+    : "CANCELLED",
 
   available:
     listing.quantity - listing.totalReservations,
