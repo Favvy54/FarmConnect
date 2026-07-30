@@ -34,6 +34,7 @@ export default function VendorDashboardScreen({
   const [stats, setStats] = useState(initialStats);
   const [reservations, setReservations] = useState(initialReservations);
   const [activeListings, setActiveListings] = useState(initialActiveListings);
+  const [vendor, setVendor] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
