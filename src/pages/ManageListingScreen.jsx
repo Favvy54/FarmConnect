@@ -111,8 +111,7 @@ async function loadListings() {
       : listings.filter((l) => l.status === activeTab.toUpperCase());
 
   return (
-    <DashboardLayout
-      active="listings"
+    return (
       <DashboardLayout
         active="listings"
         onNavigate={onNavigate}
