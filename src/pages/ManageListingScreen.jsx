@@ -33,91 +33,65 @@ export default function ManageListingScreen({
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    let cancelled = false;
+  let cancelled = false;
 
-  useEffect(() => {
+  async function loadListings(searchTerm = "") {
+    setLoading(true);
+    setError(null);
 
-    const timeout = setTimeout(() => {
+    try {
+      const vendorProfile = await getVendorProfile();
 
-        loadListings(search);
+      if (!cancelled) {
+        setVendor(vendorProfile.data);
+      }
 
-    }, 400);
+      const listings = await getMyListings(searchTerm);
 
-    return () => clearTimeout(timeout);
+      if (!cancelled) {
+        const formatted = listings.map((listing) => ({
+          id: listing._id,
+          image: listing.imageUrls?.[0] || "/img-placeholder.png",
+          name: listing.foodName,
+          createdOn: new Date(listing.createdAt).toLocaleDateString(),
 
-}, [search]);
+          status:
+            listing.status === "available"
+              ? "ACTIVE"
+              : listing.status === "completed"
+              ? "SOLD OUT"
+              : listing.status === "expired"
+              ? "EXPIRED"
+              : "CANCELLED",
 
-async function loadListings(searchTerm="") {
-  setLoading(true);
-  setError(null);
+          available: listing.quantity - listing.totalReservations,
+          reserved: listing.totalReservations,
+          left: listing.quantity - listing.totalReservations,
+          pickupEnds: new Date(listing.expiresAt).toLocaleString(),
+        }));
 
-  try {
-
-    const vendorProfile = await getVendorProfile(searchTerm);
-
-    if (!cancelled) {
-      setVendor(vendorProfile.data);
-    };
-
-    const analyticsResponse = await getDashboardAnalytics();
-
-    if (!cancelled) {
-      setAnalytics(analyticsResponse.analytics);
-    }
-    
-    const listings = await getMyListings();
-    if (!cancelled) {
-      const formatted = listings.map((listing) => ({
-  id: listing._id,
-
-  image:
-    listing.imageUrls?.[0] || "/img-placeholder.png",
-
-  name: listing.foodName,
-
-  createdOn: new Date(listing.createdAt).toLocaleDateString(),
-
-  status:
-  listing.status === "available"
-    ? "ACTIVE"
-    : listing.status === "completed"
-    ? "SOLD OUT"
-    : listing.status === "expired"
-    ? "EXPIRED"
-    : "CANCELLED",
-
-  available:
-    listing.quantity - listing.totalReservations,
-
-  reserved:
-    listing.totalReservations,
-
-  left:
-    listing.quantity - listing.totalReservations,
-
-  pickupEnds: new Date(
-    listing.expiresAt
-  ).toLocaleString(),
-}));
-
-      setListings(formatted);
-    }
-  } catch (err) {
-    if (!cancelled) {
-      setError(err.message || "Could not load listings.");
-    }
-  } finally {
-    if (!cancelled) {
-      setLoading(false);
+        setListings(formatted);
+      }
+    } catch (err) {
+      if (!cancelled) {
+        setError(err.message || "Could not load listings.");
+      }
+    } finally {
+      if (!cancelled) {
+        setLoading(false);
+      }
     }
   }
-}
 
-    loadListings();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const timeout = setTimeout(() => {
+    loadListings(search);
+  }, 400);
+
+  return () => {
+    cancelled = true;
+    clearTimeout(timeout);
+  };
+}, [search]);
 
   const counts = {
     All: analytics?.totalListings ?? listings.length,
