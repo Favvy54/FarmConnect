@@ -1,25 +1,70 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect} from 'react'
 import { Camera, Upload } from 'lucide-react'
 import TextField from '../components/TextField.jsx'
 import PrimaryButton from '../components/PrimaryButton.jsx'
-import { createVendorProfile, getEmail } from '../services/auth.js'
+import {
+  createVendorProfile,
+  getEmail,
+  getCurrentUser,
+} from "../services/auth.js";
+
+/*
+const uploadImageToCloudinary = async (photoFile) => {
+
+    const formData = new FormData();
+
+    formData.append("file", photoFile);
+
+    formData.append(
+        "upload_preset",
+        "YOUR_UPLOAD_PRESET"
+    );
+
+    const response = await fetch(
+        "https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload",
+        {
+            method: "POST",
+            body: formData,
+        }
+
+
+    const data = await response.json();
+
+    return data.secure_url;
+};
+*/
 
 const BUSINESS_TYPES = ['Restaurant', 'Event Caterer', 'Bakery']
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 
 export default function VendorProfileScreen({ onComplete }) {
+
+    useEffect(() => {
+  async function checkProfile() {
+    try {
+      const user = await getCurrentUser();
+
+      if (user.profileCompleted) {
+        onComplete?.();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  checkProfile();
+}, [onComplete]);
+
+    
   const [businessType, setBusinessType] = useState(null)
   const [selectedDays, setSelectedDays] = useState([])
   const [businessName, setBusinessName] = useState('')
   const [businessAddress, setBusinessAddress] = useState('')
   const [businessPhone, setBusinessPhone] = useState('')
   const [description, setDescription] = useState('')
-   const [profileImage, setprofileImage] = useState('');
   const [openTime, setOpenTime] = useState('')
   const [closeTime, setCloseTime] = useState('')
-  let required = false
-  const [imageUrl, setImageUrl] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -37,12 +82,33 @@ export default function VendorProfileScreen({ onComplete }) {
   };
 
   const validateForm = () => {
-    if (!businessType) return 'Please select a business type.';
-    if (selectedDays.length === 0)
-      return 'Please select at least one operating day.';
-    if (!photoFile) return 'Please upload a profile photo.';
-    return null;
-  };
+
+  if (!businessName.trim())
+    return "Business name is required.";
+
+  if (!businessType)
+    return "Please select a business type.";
+
+  if (!businessPhone.trim())
+    return "Business phone is required.";
+
+  if (!businessAddress.trim())
+    return "Business address is required.";
+
+  if (!description.trim())
+    return "Business description is required.";
+
+  if (!openTime || !closeTime)
+    return "Please select your operating hours.";
+
+  if (selectedDays.length === 0)
+    return "Please select at least one operating day.";
+
+  if (!photoFile)
+    return "Please upload a profile photo.";
+
+  return null;
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -61,12 +127,15 @@ export default function VendorProfileScreen({ onComplete }) {
         businessType,
         email: getEmail(),
         phone: businessPhone,
-        currentLocation,
         description,
-        permanentAddress,
-        profileImage,
+        permanentAddress: businessAddress,
+        currentLocation: businessAddress,
+
+        // TODO: Replace "" with Cloudinary URL
+        // profileImage: profileImageUrl,
+        profileImage: "https://placehold.co/300x300/png",// Just Hard coded this to test the dashboard to see if its working 
         operatingHours: `${openTime} - ${closeTime}`,
-      });
+     });
       onComplete?.()
     } catch (err) {
       setError(err.message || 'Something went wrong creating your profile.')
@@ -277,7 +346,7 @@ export default function VendorProfileScreen({ onComplete }) {
           <textarea
             placeholder="Enter a description that truly describes your business"
             rows={6}
-            required={required}
+            required
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="w-full rounded-xl border border-border-muted px-4 py-4 text-body1 text-body-text placeholder:text-body-text focus:outline-none focus:ring-2 focus:ring-green-normal"

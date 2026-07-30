@@ -13,7 +13,7 @@ export function saveSession({ token, role, email }) {
     localStorage.setItem(ROLE_KEY, role);
   }
 
-  if (role) {
+  if (email) {
     localStorage.setItem(EMAIL_KEY, email);
   }
 }
@@ -118,13 +118,9 @@ export async function login(email, password) {
 
 // Forgot Password
 export async function forgotPassword(email) {
-  const response = await apiRequest('/auth/forgot-password', {
-    body: {
-      email,
-    },
+  const data = await apiRequest('/auth/forgot-password', {
+    body: { email },
   });
-
-  const data = await response.json();
 
   if (!response.ok) {
     throw new Error(data.message || 'Failed to send OTP');
@@ -169,6 +165,26 @@ export async function resetPassword(newPassword, confirmPassword) {
   return data;
 }
 
+export const getCurrentUser = async () => {
+  const token = getToken();
+
+  const response = await fetch(
+    "https://farmconnect-backend-1.onrender.com/api/v1/auth/me",
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message);
+  }
+
+  return data.data;
+};
 // Logout
 export async function logout() {
   try {
