@@ -183,6 +183,28 @@ export const getCurrentUser = async () => {
 
   return data.data;
 };
+
+export const getMyListings = async () => {
+  const token = getToken();
+
+  const response = await fetch(
+    "https://farmconnect-backend-1.onrender.com/api/listings/my-listings",
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message);
+  }
+
+  return data.data;
+};
 // Logout
 export async function logout() {
   try {
