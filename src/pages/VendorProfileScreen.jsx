@@ -2,7 +2,13 @@ import { useState, useRef } from 'react'
 import { Camera, Upload } from 'lucide-react'
 import TextField from '../components/TextField.jsx'
 import PrimaryButton from '../components/PrimaryButton.jsx'
-import { createVendorProfile, getEmail } from '../services/auth.js'
+import {
+  createVendorProfile,
+  getEmail,
+  getCurrentUser,
+} from "../services/auth.js";
+import { useState, useRef } from 'react'
+
 
 /*
 const uploadImageToCloudinary = async (photoFile) => {
@@ -35,6 +41,20 @@ const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 
 export default function VendorProfileScreen({ onComplete }) {
+
+    useEffect(() => {
+    async function checkProfile() {
+      const user = await getCurrentUser();
+
+      if (user.profileCompleted) {
+        onComplete?.();
+      }
+    }
+
+    checkProfile();
+  }, [onComplete]);
+
+    
   const [businessType, setBusinessType] = useState(null)
   const [selectedDays, setSelectedDays] = useState([])
   const [businessName, setBusinessName] = useState('')
