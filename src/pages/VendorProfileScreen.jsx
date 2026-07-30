@@ -4,6 +4,32 @@ import TextField from '../components/TextField.jsx'
 import PrimaryButton from '../components/PrimaryButton.jsx'
 import { createVendorProfile, getEmail } from '../services/auth.js'
 
+/*
+const uploadImageToCloudinary = async (photoFile) => {
+
+    const formData = new FormData();
+
+    formData.append("file", photoFile);
+
+    formData.append(
+        "upload_preset",
+        "YOUR_UPLOAD_PRESET"
+    );
+
+    const response = await fetch(
+        "https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload",
+        {
+            method: "POST",
+            body: formData,
+        }
+    );
+
+    const data = await response.json();
+
+    return data.secure_url;
+};
+*/
+
 const BUSINESS_TYPES = ['Restaurant', 'Event Caterer', 'Bakery']
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
@@ -15,11 +41,8 @@ export default function VendorProfileScreen({ onComplete }) {
   const [businessAddress, setBusinessAddress] = useState('')
   const [businessPhone, setBusinessPhone] = useState('')
   const [description, setDescription] = useState('')
-   const [profileImage, setprofileImage] = useState('');
   const [openTime, setOpenTime] = useState('')
   const [closeTime, setCloseTime] = useState('')
-  let required = false
-  const [imageUrl, setImageUrl] = useState('') // set this once you wire actual image upload
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -82,13 +105,16 @@ export default function VendorProfileScreen({ onComplete }) {
         businessType,
         email: getEmail(),
         phone: businessPhone,
-        currentLocation: businessAddress,
         description,
         permanentAddress: businessAddress,
         currentLocation: businessAddress,
-        profileImage,
+
+        // TODO: Replace "" with Cloudinary URL
+        // profileImage: profileImageUrl,
+        profileImage: "",
+
         operatingHours: `${openTime} - ${closeTime}`,
-      });
+     });
       onComplete?.()
     } catch (err) {
       setError(err.message || 'Something went wrong creating your profile.')
@@ -286,7 +312,7 @@ export default function VendorProfileScreen({ onComplete }) {
           <textarea
             placeholder="Enter a description that truly describes your business"
             rows={6}
-            required={required}
+            required
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="w-full rounded-xl border border-border-muted px-4 py-4 text-body1 text-body-text placeholder:text-body-text focus:outline-none focus:ring-2 focus:ring-green-normal"
