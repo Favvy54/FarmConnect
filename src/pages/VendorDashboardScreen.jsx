@@ -154,9 +154,10 @@ return () => {
       onNavigate={onNavigate}
       onLogout={onLogout}
       title={`Welcome Back ${displayName} 👋`}
-      subtitle="Here's what happening with your business today."
+      subtitle="Here's what's happening with your business today."
+      location={vendor?.currentLocation || "Location unavailable"}
       profileImage={vendor?.profileImage}
-      >
+    />
       <div className="w-full md:pl-2 ">
         {error && <p className="text-body2 text-red-500 mb-4">{error}</p>}
 
