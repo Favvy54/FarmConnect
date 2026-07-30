@@ -294,3 +294,12 @@ export async function getDashboardAnalytics() {
     auth: true,
   });
 }
+
+//Reservations
+
+export async function getVendorReservations() {
+  return profileRequest("/reservations/vendor", {
+    method: "GET",
+    auth: true,
+  });
+}
