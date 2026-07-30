@@ -13,7 +13,7 @@ export function saveSession({ token, role, email }) {
     localStorage.setItem(ROLE_KEY, role);
   }
 
-  if (email) {
+  if (role) {
     localStorage.setItem(EMAIL_KEY, email);
   }
 }
