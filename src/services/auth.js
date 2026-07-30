@@ -168,8 +168,6 @@ export async function resetPassword(newPassword, confirmPassword) {
 export const getCurrentUser = async () => {
   const token = getToken();
 
-  alert("Token: " + token);
-
   const response = await fetch(
     "https://farmconnect-backend-1.onrender.com/api/v1/auth/me",
     {
@@ -180,8 +178,6 @@ export const getCurrentUser = async () => {
   );
 
   const data = await response.json();
-
-  alert(JSON.stringify(data));
 
   if (!response.ok) {
     throw new Error(data.message);
