@@ -252,7 +252,7 @@ export async function deleteVendorProfile() {
 }
 
 
-/ LISTINGS
+// LISTINGS
 
 // Create Listing
 export async function createListing(payload) {
@@ -260,15 +260,7 @@ export async function createListing(payload) {
     body: payload,
     auth: true,
   });
-}
-
-// Get Vendor Listings
-export async function getMyListings() {
-  return profileRequest('/listings/my-listings', {
-    method: 'GET',
-    auth: true,
-  });
-}
+};
 
 // Update Listing
 export async function updateListing(listingId, payload) {
