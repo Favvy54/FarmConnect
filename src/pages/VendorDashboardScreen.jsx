@@ -143,7 +143,9 @@ export default function VendorDashboardScreen({
       onNavigate={onNavigate}
       onLogout={onLogout}
       title={`Welcome Back ${vendor?.businessName || "Vendor"} 👋`}
-      subtitle="Here's what happening with your business today.">
+      subtitle="Here's what's happening with your business today."
+      location={vendor?.currentLocation || "Location unavailable"}
+    >
       <div className="w-full md:pl-2 ">
         {loading && (
           <p className="text-body2 text-body-text mb-4">Loading dashboard...</p>
