@@ -169,6 +169,27 @@ export async function resetPassword(newPassword, confirmPassword) {
   return data;
 }
 
+export const getCurrentUser = async () => {
+
+    const token = getToken();
+
+    const response = await fetch(
+        `https://farmconnect-backend-1.onrender.com/api/v1/auth/me`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message);
+    }
+
+    return data.data;
+};
 // Logout
 export async function logout() {
   try {
