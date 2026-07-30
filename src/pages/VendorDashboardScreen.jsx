@@ -17,6 +17,7 @@ import {
   getVendorProfile,
   getDashboardAnalytics,
   getVendorReservations,
+  getMyListings,
 } from "@/services/auth.js";
 
 const STAT_ICONS = {
@@ -99,15 +100,56 @@ if (!cancelled) {
   setAnalytics(analytics);
 
   setActiveListings(
-    listingsResponse
-      .filter(...)
-      .map(...)
-  );
+  listingsResponse
+    .filter(
+      (listing) =>
+        listing.status === "available" &&
+        listing.isActive === true
+    )
+    .map((listing) => ({
+      id: listing._id,
+      image: listing.imageUrls?.[0] || "/img-placeholder.png",
+      name: listing.foodName,
+      available:
+        listing.quantity - listing.totalReservations,
+      reserved:
+        listing.totalReservations,
+      status: "ACTIVE",
+    }))
+);
 
   setReservations(
-    reservationsResponse
-      .map(...)
-  );
+  reservationsResponse.data.map((reservation) => ({
+    id: reservation._id,
+
+    name: reservation.user?.fullName || "Customer",
+
+    meal: reservation.listing?.foodName || "Meal",
+
+    reservedAt: new Date(
+      reservation.createdAt
+    ).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+
+    pickupBefore: new Date(
+      reservation.listing?.expiresAt
+    ).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+
+    timeRemaining: reservation.timeRemaining || "—",
+
+    status:
+      reservation.status === "pending"
+        ? "Reserved"
+        : reservation.status === "completed"
+        ? "Completed"
+        : "Cancelled",
+  }))
+);
 
   setStats({
     listings: analytics.activeListings,
