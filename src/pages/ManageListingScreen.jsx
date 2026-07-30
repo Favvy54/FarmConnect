@@ -3,15 +3,16 @@ import {SearchIcon, Plus, Store, ChevronLeft, ChevronRight } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import PrimaryButton from '../components/PrimaryButton.jsx';
 import TextField from '@/components/TextField.jsx';
+import { getMyListings } from "../services/auth";
 
 const TABS = ['All', 'Active', 'Sold Out', 'Expired'];
 
 const statusStyles = {
-  ACTIVE: 'bg-green-light text-green-normal',
-  'SOLD OUT': 'bg-orange-light text-orange-dark',
-  EXPIRED: 'bg-gray-100 text-gray-500',
+  ACTIVE: "bg-green-light text-green-normal",
+  "SOLD OUT": "bg-orange-light text-orange-dark",
+  EXPIRED: "bg-gray-100 text-gray-500",
+  CANCELLED: "bg-red-100 text-red-500",
 };
-
 export default function ManageListingScreen({
   initialListings = [], // [{ image, name, createdOn, status, available, reserved, left, pickupEnds }]
   onCreateListing,
@@ -27,26 +28,56 @@ export default function ManageListingScreen({
   useEffect(() => {
     let cancelled = false;
 
-    async function loadListings() {
-      setLoading(true);
-      setError(null);
-      try {
-        // ==================== ENDPOINT HERE ====================
-        // Replace once the backend gives you the real listings endpoint.
-        // Example shape, once you have it:
-        //
-        // const res = await fetch(`${BASE_URL}/listings/vendor`, {
-        //   headers: { Authorization: `Bearer ${getToken()}` },
-        // })
-        // const data = await res.json()
-        // if (!cancelled) setListings(data.listings)
-        // ========================================================
-      } catch (err) {
-        if (!cancelled) setError(err.message || 'Could not load listings.');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+async function loadListings() {
+  setLoading(true);
+  setError(null);
+
+  try {
+    const listings = await getMyListings();
+    if (!cancelled) {
+      const formatted = listings.map((listing) => ({
+  id: listing._id,
+
+  image:
+    listing.imageUrls?.[0] || "/img-placeholder.png",
+
+  name: listing.foodName,
+
+  createdOn: new Date(listing.createdAt).toLocaleDateString(),
+
+  status:
+    listing.status === "available"
+      ? "ACTIVE"
+      : listing.status === "completed"
+      ? "SOLD OUT"
+      : "EXPIRED",
+
+  available:
+    listing.quantity - listing.totalReservations,
+
+  reserved:
+    listing.totalReservations,
+
+  left:
+    listing.quantity - listing.totalReservations,
+
+  pickupEnds: new Date(
+    listing.expiresAt
+  ).toLocaleString(),
+}));
+
+      setListings(formatted);
     }
+  } catch (err) {
+    if (!cancelled) {
+      setError(err.message || "Could not load listings.");
+    }
+  } finally {
+    if (!cancelled) {
+      setLoading(false);
+    }
+  }
+}
 
     loadListings();
     return () => {
