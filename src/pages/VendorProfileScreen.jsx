@@ -133,8 +133,7 @@ export default function VendorProfileScreen({ onComplete }) {
 
         // TODO: Replace "" with Cloudinary URL
         // profileImage: profileImageUrl,
-        profileImage: "",
-
+        profileImage: "https://placehold.co/300x300/png",// Just Hard coded this to test the dashboard to see if its working 
         operatingHours: `${openTime} - ${closeTime}`,
      });
       onComplete?.()
