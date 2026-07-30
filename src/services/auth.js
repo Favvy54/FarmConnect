@@ -230,3 +230,46 @@ export async function deleteVendorProfile() {
     auth: true,
   });
 }
+
+
+/ LISTINGS
+
+// Create Listing
+export async function createListing(payload) {
+  return profileRequest('/listings/', {
+    body: payload,
+    auth: true,
+  });
+}
+
+// Get Vendor Listings
+export async function getMyListings() {
+  return profileRequest('/listings/my-listings', {
+    method: 'GET',
+    auth: true,
+  });
+}
+
+// Update Listing
+export async function updateListing(listingId, payload) {
+  return profileRequest(`/listings/${listingId}`, {
+    method: 'PATCH',
+    body: payload,
+    auth: true,
+  });
+}
+
+// Delete Listing
+export async function deleteListing(listingId) {
+  return profileRequest(`/listings/${listingId}`, {
+    method: 'DELETE',
+    auth: true,
+  });
+}
+
+// Categories
+export async function getCategories() {
+  return profileRequest('/listings/categories', {
+    method: 'GET',
+  });
+}
