@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Store,
   Calendar,
@@ -7,10 +7,16 @@ import {
   CirclePlus,
   Plus,
   ArrowRight,
-} from 'lucide-react';
-import DashboardLayout from '../components/DashboardLayout.jsx';
-import PrimaryButton from '../components/PrimaryButton.jsx';
-import { getToken } from '@/services/auth.js';
+} from "lucide-react";
+
+import DashboardLayout from "../components/DashboardLayout.jsx";
+import PrimaryButton from "../components/PrimaryButton.jsx";
+
+import {
+  getToken,
+  getVendorProfile,
+  getDashboardAnalytics,
+} from "@/services/auth.js";
 
 const STAT_ICONS = {
   listings: Store,
@@ -20,7 +26,12 @@ const STAT_ICONS = {
 };
 
 export default function VendorDashboardScreen({
-  initialStats = { listings: 0, reservations: 0, saved: 0, discarded: 0 },
+  initialStats = {
+    listings: 0,
+    reservations: 0,
+    saved: 0,
+    discarded: 0,
+  },
   initialReservations = [],
   initialActiveListings = [],
   onCreateListing,
@@ -30,11 +41,13 @@ export default function VendorDashboardScreen({
   onNavigate,
   onLogout,
 }) {
-  const [vendorProfile, setVendorProfile] = useState(null);
   const [stats, setStats] = useState(initialStats);
   const [reservations, setReservations] = useState(initialReservations);
   const [activeListings, setActiveListings] = useState(initialActiveListings);
+
   const [vendor, setVendor] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -73,25 +86,28 @@ export default function VendorDashboardScreen({
       setVendor(vendorData.data);
     }
 
-    // ==================== ENDPOINT HERE ====================
-    // Replace this block once the backend gives you the real
-    // dashboard/analytics + listings + reservations endpoints.
-    // Example shape, once you have it:
-    //
-    // const res = await fetch(`${BASE_URL}/analytics/dashboard`, {
-    //   headers: {
-    //     Authorization: `Bearer ${getToken()}`,
-    //   },
-    // });
-    //
-    // const data = await res.json();
-    //
-    // if (!cancelled) {
-    //   setStats(data.stats);
-    //   setReservations(data.todaysReservations);
-    //   setActiveListings(data.activeListings);
-    // }
+    // ==================== DASHBOARD ANALYTICS ====================
 
+const analyticsResponse = await getDashboardAnalytics();
+
+if (!cancelled) {
+  const analytics = analyticsResponse.analytics;
+
+  setAnalytics(analytics);
+
+  setStats({
+    listings: analytics.activeListings,
+    reservations: analytics.totalReservations,
+    saved: analytics.mealsShared,
+    discarded: analytics.cancelledListings,
+  });
+
+  // Temporary until reservations endpoint is connected
+  setReservations(initialReservations);
+
+  // Temporary until active listings endpoint is connected
+  setActiveListings(initialActiveListings);
+}
     } catch (err) {
     if (!cancelled) {
       setError(
