@@ -15,6 +15,7 @@ export default function DashboardLayout({
   title,
   subtitle,
   topBarRight,
+  profileImage,
   children,
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -74,6 +75,8 @@ export default function DashboardLayout({
             title={title}
             subtitle={subtitle}
             rightSlot={topBarRight}
+            profileImage={profileImage}
+
           />
           {children}
         </div>

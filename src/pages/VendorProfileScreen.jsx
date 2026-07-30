@@ -19,7 +19,7 @@ export default function VendorProfileScreen({ onComplete }) {
   const [openTime, setOpenTime] = useState('')
   const [closeTime, setCloseTime] = useState('')
   let required = false
-  const [imageUrl, setImageUrl] = useState('') // set this once you wire actual image upload
+  const [imageUrl, setImageUrl] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -61,10 +61,9 @@ export default function VendorProfileScreen({ onComplete }) {
         businessType,
         email: getEmail(),
         phone: businessPhone,
-        currentLocation: businessAddress,
+        currentLocation,
         description,
-        permanentAddress: businessAddress,
-        currentLocation: businessAddress,
+        permanentAddress,
         profileImage,
         operatingHours: `${openTime} - ${closeTime}`,
       });
@@ -130,14 +129,27 @@ export default function VendorProfileScreen({ onComplete }) {
 
         <div>
           <label className="mb-2 block text-body1 font-bold text-ink">
-            Business Address
+            Current Address
           </label>
           <TextField
-            placeholder="Business Address"
+            placeholder="Current Address"
             required
             variant="profile"
-            value={businessAddress}
+            value={currentLocation}
             onChange={(e) => setBusinessAddress(e.target.value)}
+          />
+        </div>
+
+          <div>
+          <label className="mb-2 block text-body1 font-bold text-ink">
+            Permanent Address
+          </label>
+          <TextField
+            placeholder="Permanent Address"
+            required
+            variant="profile"
+            value={permanentLocation}
+            onChange={(e) => setPermanentLocation(e.target.value)}
           />
         </div>
 

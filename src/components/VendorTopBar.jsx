@@ -5,6 +5,7 @@ export default function VendorTopBar({
   subtitle,
   location = 'Ikeja, Lagos',
   rightSlot,
+  profileImage
 }) {
   return (
     <div className="flex flex-col gap-1 md:gap-2 mb-8">
@@ -22,8 +23,15 @@ export default function VendorTopBar({
             {location}
           </span>
           <Bell className="w-8 h-8 text-ink" />
-          
+
+          <span className='w-9 h-9 rounded-full'> {profileImage ? (
+            <img src={profileImage} alt="Profile" className='w-full h-full object-cover' />
+          ) : (
             <UserCircle className="w-8 h-8 text-ink" />
+          )}
+          </span>
+          
+            
         </div>
       </div>
       <p className="text-body2 text-body-text">{subtitle}</p>

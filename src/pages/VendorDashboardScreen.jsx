@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import PrimaryButton from '../components/PrimaryButton.jsx';
-import { getToken } from '../services/auth.js';
+import { getVendorProfile } from '@/services/auth.js';
 
 const STAT_ICONS = {
   listings: Store,
@@ -20,7 +20,7 @@ const STAT_ICONS = {
 };
 
 export default function VendorDashboardScreen({
-  vendorName = 'Iya Teshubo Catering',
+  vendorName = BusinessName,
   initialStats = { listings: 0, reservations: 0, saved: 0, discarded: 0 },
   initialReservations = [],
   initialActiveListings = [],
@@ -31,6 +31,7 @@ export default function VendorDashboardScreen({
   onNavigate,
   onLogout,
 }) {
+  const [vendorProfile, setVendorProfile] = useState(null);
   const [stats, setStats] = useState(initialStats);
   const [reservations, setReservations] = useState(initialReservations);
   const [activeListings, setActiveListings] = useState(initialActiveListings);
@@ -44,20 +45,8 @@ export default function VendorDashboardScreen({
       setLoading(true);
       setError(null);
       try {
-        // ==================== ENDPOINT HERE ====================
-        // Replace this block once the backend gives you the real
-        // dashboard/analytics + listings + reservations endpoints.
-        // Example shape, once you have it:
-        //
-        // const res = await fetch(`${BASE_URL}/analytics/dashboard`, {
-        //   headers: { Authorization: `Bearer ${getToken()}` },
-        // })
-        // const data = await res.json()
-        // if (!cancelled) {
-        //   setStats(data.stats)
-        //   setReservations(data.todaysReservations)
-        //   setActiveListings(data.activeListings)
-        // }
+        const data = await getVendorProfile()
+        setVendorProfile(data)
       } catch (err) {
         if (!cancelled)
           setError(err.message || 'Could not load dashboard data.');
@@ -105,12 +94,14 @@ export default function VendorDashboardScreen({
     Cancelled: 'bg-red-50 text-error',
   };
 
+  const displayName = vendorProfile?.businessName || 'there'
+
   return (
     <DashboardLayout
       active="home"
       onNavigate={onNavigate}
       onLogout={onLogout}
-      title={`Welcome Back ${vendorName} 👋`}
+      title={`Welcome Back ${displayName} 👋`}
       subtitle="Here's what happening with your business today.">
       <div className="w-full md:pl-2 ">
         {loading && (
