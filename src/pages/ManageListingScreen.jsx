@@ -3,6 +3,7 @@ import {SearchIcon, Plus, Store, ChevronLeft, ChevronRight } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import PrimaryButton from '../components/PrimaryButton.jsx';
 import TextField from '@/components/TextField.jsx';
+
 import {
   getMyListings,
   getVendorProfile,
@@ -28,6 +29,7 @@ export default function ManageListingScreen({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [vendor, setVendor] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,6 +44,12 @@ async function loadListings() {
 
     if (!cancelled) {
       setVendor(vendorProfile.data);
+    };
+
+    const analyticsResponse = await getDashboardAnalytics();
+
+    if (!cancelled) {
+      setAnalytics(analyticsResponse.analytics);
     }
     
     const listings = await getMyListings();
@@ -99,10 +107,19 @@ async function loadListings() {
   }, []);
 
   const counts = {
-    All: listings.length,
-    Active: listings.filter((l) => l.status === 'ACTIVE').length,
-    'Sold Out': listings.filter((l) => l.status === 'SOLD OUT').length,
-    Expired: listings.filter((l) => l.status === 'EXPIRED').length,
+    All: analytics?.totalListings ?? listings.length,
+  
+    Active:
+      analytics?.activeListings ??
+      listings.filter((l) => l.status === "ACTIVE").length,
+  
+    "Sold Out":
+      analytics?.completedListings ??
+      listings.filter((l) => l.status === "SOLD OUT").length,
+  
+    Expired:
+      analytics?.expiredListings ??
+      listings.filter((l) => l.status === "EXPIRED").length,
   };
 
   const filtered =
