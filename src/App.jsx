@@ -114,20 +114,25 @@ export default function App() {
           element={
             <WelcomeOnboardingScreen
               onContinue={async () => {
-                const role = getRole();
+  try {
+    const role = getRole();
 
-                if (role === "vendor") {
-                   const user = await getCurrentUser();
+    if (role === "vendor") {
+      const user = await getCurrentUser();
 
-                     if (user.profileCompleted) {
-                         navigate("/vendor/dashboard");
-                     } else {
-                         navigate("/vendor/profile");
-                }
-                     } else {
-                         navigate("/user/profile");
-                     }
-              }}
+      if (user.profileCompleted) {
+        navigate("/vendor/dashboard");
+      } else {
+        navigate("/vendor/profile");
+      }
+    } else {
+      navigate("/user/profile");
+    }
+  } catch (error) {
+    console.error(error);
+    navigate("/login");
+  }
+}}
             />
           }
         />
