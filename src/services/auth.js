@@ -285,3 +285,12 @@ export async function getCategories() {
     method: 'GET',
   });
 }
+
+// Analytics
+
+export async function getDashboardAnalytics() {
+  return profileRequest("/analytics/dashboard", {
+    method: "GET",
+    auth: true,
+  });
+}
