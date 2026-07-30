@@ -121,7 +121,7 @@ async function loadListings() {
       profileImage={vendor?.profileImage}
     >
       <div className=" w-full md:pl-2">
-        {/* Tabs */}
+        {/* Tabs */}g
         {error && <p className="text-body2 text-red-500 mb-4">{error}</p>}
         <div className="flex w-full items-center justify-between my-8 gap-7">
           <TextField

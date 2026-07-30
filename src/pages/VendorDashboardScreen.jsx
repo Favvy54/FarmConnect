@@ -98,16 +98,16 @@ if (!cancelled) {
 
   setAnalytics(analytics);
 
-  setActiveListings(
-    listingsResponse
-      .filter(...)
-      .map(...)
-  );
+  // setActiveListings(
+  //   listingsResponse
+  //     .filter(...)
+  //     .map(...)
+  // );
 
-  setReservations(
-    reservationsResponse
-      .map(...)
-  );
+  // setReservations(
+  //   reservationsResponse
+  //     .map(...)
+  // );
 
   setStats({
     listings: analytics.activeListings,
