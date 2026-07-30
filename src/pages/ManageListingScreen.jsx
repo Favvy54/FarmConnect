@@ -30,17 +30,18 @@ export default function ManageListingScreen({
   const [error, setError] = useState(null);
   const [vendor, setVendor] = useState(null);
   const [analytics, setAnalytics] = useState(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     let cancelled = false;
 
-async function loadListings() {
+async function loadListings(searchTerm="") {
   setLoading(true);
   setError(null);
 
   try {
 
-    const vendorProfile = await getVendorProfile();
+    const vendorProfile = await getVendorProfile(searchTerm);
 
     if (!cancelled) {
       setVendor(vendorProfile.data);
@@ -145,6 +146,14 @@ async function loadListings() {
             icon={SearchIcon}
             placeholder="Search Listings"
             variant="search"
+            value={search}
+            onChange={(e) => {
+              const value = e.target.value;
+          
+              setSearch(value);
+          
+              loadListings(value);
+            }}
             className="md:w-[60%] lg:w-[80%] flex items-center py-3"
           />
           <PrimaryButton
