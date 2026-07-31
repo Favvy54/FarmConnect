@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   Store,
   Calendar,
@@ -7,17 +7,18 @@ import {
   CirclePlus,
   Plus,
   ArrowRight,
-} from "lucide-react";
+} from 'lucide-react';
 
-import DashboardLayout from "../components/DashboardLayout.jsx";
-import PrimaryButton from "../components/PrimaryButton.jsx";
+import DashboardLayout from '../components/DashboardLayout.jsx';
+import PrimaryButton from '../components/PrimaryButton.jsx';
 
 import {
   getToken,
   getVendorProfile,
   getDashboardAnalytics,
   getVendorReservations,
-} from "@/services/auth.js";
+  getMyListings,
+} from '@/services/auth.js';
 
 const STAT_ICONS = {
   listings: Store,
@@ -56,86 +57,122 @@ export default function VendorDashboardScreen({
     let cancelled = false;
 
     async function loadDashboard() {
-  setLoading(true);
-  setError(null);
+      setLoading(true);
+      setError(null);
 
-  try {
-    const token = getToken();
+      try {
+        const token = getToken();
 
-    // ==================== VENDOR PROFILE ====================
-    // Loads the vendor's business information for the dashboard
-    // (Business Name, Location, etc.)
+        // ==================== VENDOR PROFILE ====================
+        // Loads the vendor's business information for the dashboard
+        // (Business Name, Location, etc.)
 
-    const vendorResponse = await fetch(
-      "https://farmconnect-backend-1.onrender.com/api/vendors/profile",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        const vendorResponse = await fetch(
+          'https://farmconnect-backend-1.onrender.com/api/vendors/profile',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        const vendorData = await vendorResponse.json();
+
+        if (!vendorResponse.ok) {
+          throw new Error(
+            vendorData.message || 'Failed to load vendor profile.',
+          );
+        }
+
+        if (!cancelled) {
+          setVendor(vendorData.data);
+        }
+
+        // ==================== DASHBOARD ANALYTICS ====================
+
+        const analyticsResponse = await getDashboardAnalytics();
+        const listingsResponse = await getMyListings();
+        const reservationsResponse = await getVendorReservations();
+
+        if (!cancelled) {
+          const analytics = analyticsResponse.analytics;
+
+          setAnalytics(analytics);
+
+          setActiveListings(
+            listingsResponse
+              .filter(
+                (listing) =>
+                  listing.status === 'available' && listing.isActive === true,
+              )
+              .map((listing) => ({
+                id: listing._id,
+                image: listing.imageUrls?.[0] || '/img-placeholder.png',
+                name: listing.foodName,
+                available: listing.quantity - listing.totalReservations,
+                reserved: listing.totalReservations,
+                status: 'ACTIVE',
+              })),
+          );
+
+          setReservations(
+            reservationsResponse.data.map((reservation) => ({
+              id: reservation._id,
+
+              name: reservation.user?.fullName || 'Customer',
+
+              meal: reservation.listing?.foodName || 'Meal',
+
+              reservedAt: new Date(reservation.createdAt).toLocaleTimeString(
+                [],
+                {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                },
+              ),
+
+              pickupBefore: new Date(
+                reservation.listing?.expiresAt,
+              ).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+              }),
+
+              timeRemaining: reservation.timeRemaining || '—',
+
+              status:
+                reservation.status === 'pending'
+                  ? 'Reserved'
+                  : reservation.status === 'completed'
+                    ? 'Completed'
+                    : 'Cancelled',
+            })),
+          );
+
+          setStats({
+            listings: analytics.activeListings,
+            reservations: analytics.totalReservations,
+            saved: analytics.mealsShared,
+            discarded: analytics.cancelledListings,
+          });
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err.message || 'Could not load dashboard data.');
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
-    );
-
-    const vendorData = await vendorResponse.json();
-
-    if (!vendorResponse.ok) {
-      throw new Error(
-        vendorData.message || "Failed to load vendor profile."
-      );
     }
 
-    if (!cancelled) {
-      setVendor(vendorData.data);
-    }
+    loadDashboard();
 
-    // ==================== DASHBOARD ANALYTICS ====================
-
-const analyticsResponse = await getDashboardAnalytics();
-const listingsResponse = await getMyListings();
-const reservationsResponse = await getVendorReservations();
-
-if (!cancelled) {
-  const analytics = analyticsResponse.analytics;
-
-  setAnalytics(analytics);
-
-  // setActiveListings(
-  //   listingsResponse
-  //     .filter(...)
-  //     .map(...)
-  // );
-
-  // setReservations(
-  //   reservationsResponse
-  //     .map(...)
-  // );
-
-  setStats({
-    listings: analytics.activeListings,
-    reservations: analytics.totalReservations,
-    saved: analytics.mealsShared,
-    discarded: analytics.cancelledListings,
-  });
-}
-    } catch (err) {
-    if (!cancelled) {
-      setError(
-        err.message || "Could not load dashboard data."
-      );
-    }
-  } finally {
-    if (!cancelled) {
-      setLoading(false);
-    }
-  }
-}
-
-loadDashboard();
-
-return () => {
-  cancelled = true;
-};
-
-}, []);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const statCards = [
     {
@@ -170,7 +207,7 @@ return () => {
     Cancelled: 'bg-red-50 text-error',
   };
 
- const displayName = vendor?.businessName || 'there';
+  const displayName = vendor?.businessName || 'there';
 
   return (
     <DashboardLayout
@@ -179,9 +216,8 @@ return () => {
       onLogout={onLogout}
       title={`Welcome Back ${displayName} 👋`}
       subtitle="Here's what's happening with your business today."
-      location={vendor?.currentLocation || "Location unavailable"}
-      profileImage={vendor?.profileImage}
-    >
+      location={vendor?.currentLocation || 'Location unavailable'}
+      profileImage={vendor?.profileImage}>
       <div className="w-full md:pl-2 ">
         {error && <p className="text-body2 text-red-500 mb-4">{error}</p>}
 
@@ -313,9 +349,7 @@ return () => {
                   Create your first surplus food listing and start reaching
                   nearby people
                 </p>
-                <PrimaryButton
-                  onClick={onCreateListing}
-                  >
+                <PrimaryButton onClick={onCreateListing}>
                   <span
                     className="flex 
                   justify-center items-center

@@ -3,6 +3,7 @@ import {SearchIcon, Plus, Store, ChevronLeft, ChevronRight } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import PrimaryButton from '../components/PrimaryButton.jsx';
 import TextField from '@/components/TextField.jsx';
+
 import {
   getMyListings,
   getVendorProfile,
@@ -28,81 +29,84 @@ export default function ManageListingScreen({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [vendor, setVendor] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    let cancelled = false;
+  let cancelled = false;
 
-async function loadListings() {
-  setLoading(true);
-  setError(null);
+  async function loadListings(searchTerm = "") {
+    setLoading(true);
+    setError(null);
 
-  try {
+    try {
+      const vendorProfile = await getVendorProfile();
 
-    const vendorProfile = await getVendorProfile();
+      if (!cancelled) {
+        setVendor(vendorProfile.data);
+      }
 
-    if (!cancelled) {
-      setVendor(vendorProfile.data);
-    }
-    
-    const listings = await getMyListings();
-    if (!cancelled) {
-      const formatted = listings.map((listing) => ({
-  id: listing._id,
+      const listings = await getMyListings(searchTerm);
 
-  image:
-    listing.imageUrls?.[0] || "/img-placeholder.png",
+      if (!cancelled) {
+        const formatted = listings.map((listing) => ({
+          id: listing._id,
+          image: listing.imageUrls?.[0] || "/img-placeholder.png",
+          name: listing.foodName,
+          createdOn: new Date(listing.createdAt).toLocaleDateString(),
 
-  name: listing.foodName,
+          status:
+            listing.status === "available"
+              ? "ACTIVE"
+              : listing.status === "completed"
+              ? "SOLD OUT"
+              : listing.status === "expired"
+              ? "EXPIRED"
+              : "CANCELLED",
 
-  createdOn: new Date(listing.createdAt).toLocaleDateString(),
+          available: listing.quantity - listing.totalReservations,
+          reserved: listing.totalReservations,
+          left: listing.quantity - listing.totalReservations,
+          pickupEnds: new Date(listing.expiresAt).toLocaleString(),
+        }));
 
-  status:
-  listing.status === "available"
-    ? "ACTIVE"
-    : listing.status === "completed"
-    ? "SOLD OUT"
-    : listing.status === "expired"
-    ? "EXPIRED"
-    : "CANCELLED",
-
-  available:
-    listing.quantity - listing.totalReservations,
-
-  reserved:
-    listing.totalReservations,
-
-  left:
-    listing.quantity - listing.totalReservations,
-
-  pickupEnds: new Date(
-    listing.expiresAt
-  ).toLocaleString(),
-}));
-
-      setListings(formatted);
-    }
-  } catch (err) {
-    if (!cancelled) {
-      setError(err.message || "Could not load listings.");
-    }
-  } finally {
-    if (!cancelled) {
-      setLoading(false);
+        setListings(formatted);
+      }
+    } catch (err) {
+      if (!cancelled) {
+        setError(err.message || "Could not load listings.");
+      }
+    } finally {
+      if (!cancelled) {
+        setLoading(false);
+      }
     }
   }
-}
 
-    loadListings();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const timeout = setTimeout(() => {
+    loadListings(search);
+  }, 400);
+
+  return () => {
+    cancelled = true;
+    clearTimeout(timeout);
+  };
+}, [search]);
 
   const counts = {
-    All: listings.length,
-    Active: listings.filter((l) => l.status === 'ACTIVE').length,
-    'Sold Out': listings.filter((l) => l.status === 'SOLD OUT').length,
-    Expired: listings.filter((l) => l.status === 'EXPIRED').length,
+    All: analytics?.totalListings ?? listings.length,
+  
+    Active:
+      analytics?.activeListings ??
+      listings.filter((l) => l.status === "ACTIVE").length,
+  
+    "Sold Out":
+      analytics?.completedListings ??
+      listings.filter((l) => l.status === "SOLD OUT").length,
+  
+    Expired:
+      analytics?.expiredListings ??
+      listings.filter((l) => l.status === "EXPIRED").length,
   };
 
   const filtered =
@@ -125,10 +129,12 @@ async function loadListings() {
         {error && <p className="text-body2 text-red-500 mb-4">{error}</p>}
         <div className="flex w-full items-center justify-between my-8 gap-7">
           <TextField
-            icon={SearchIcon}
-            placeholder="Search Listings"
-            variant="search"
-            className="md:w-[60%] lg:w-[80%] flex items-center py-3"
+              icon={SearchIcon}
+              placeholder="Search Listings"
+              variant="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="md:w-[60%] lg:w-[80%] flex items-center py-3"
           />
           <PrimaryButton
             onClick={onCreateListing}
