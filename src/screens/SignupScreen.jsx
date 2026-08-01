@@ -75,7 +75,7 @@ export default function SignupScreen({ onSignup, onGoLogin }) {
       console.log(data);
 
       onSignup?.(data);
-    catch (error) {
+    } catch (error) {
       setFormError(error.message || "Something went wrong.");
     } finally {
       setLoading(false);
