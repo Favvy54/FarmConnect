@@ -16,14 +16,34 @@ export default function SignupScreen({ onSignup, onGoLogin }) {
   const [passwordError, setPasswordError] = useState("");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [formError, setFormError] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setFormError("");
+
     if (!e.target.checkValidity()) {
       e.target.reportValidity();
+      return;
+    };
+
+    if (!email.trim()) {
+        setEmailError("Email is required.");
+        return;
+      }
+      
+      if (!emailRegex.test(email)) {
+        setEmailError("Please enter a valid email address.");
+        return;
+      }
+
+      setEmailError("");
+
+    if (!password.trim()) {
+      setPasswordError("Password is required.");
       return;
     }
 
@@ -55,7 +75,7 @@ export default function SignupScreen({ onSignup, onGoLogin }) {
 
       onSignup?.(data);
     } catch (error) {
-      alert(error.message);
+      setFormError(error.message);
     } finally {
       setLoading(false);
     }
@@ -81,6 +101,12 @@ export default function SignupScreen({ onSignup, onGoLogin }) {
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
+
+          {formError && (
+            <div className="bg-red-50 border border-red-300 text-red-600 rounded-lg px-4 py-3 mb-4">
+              {formError}
+            </div>
+          )}
           <TextField
             icon={User}
             placeholder="Full name"
