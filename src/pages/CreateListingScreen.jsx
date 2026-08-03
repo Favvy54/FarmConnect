@@ -7,16 +7,41 @@ import PrimaryButton from '../components/PrimaryButton.jsx';
 import { createListing, getVendorProfile } from '../services/auth.js';
 import { uploadImageToCloudinary } from '../services/uploadImage.js';
 
-const CATEGORY_OPTIONS = [
-  'Cooked Meals',
-  'Rice Dishes',
-  'Pastries',
-  'Bread',
-  'Drinks',
-  'Desserts',
-  'Fast Food',
-  'Snacks',
-];
+    const CATEGORY_OPTIONS = [
+    
+        "Cooked Meals",
+    
+        "Rice Dishes",
+    
+        "Soups",
+    
+        "Bakery",
+    
+        "Bread",
+    
+        "Pastries",
+    
+        "Snacks",
+    
+        "Fast Food",
+    
+        "Grilled Foods",
+    
+        "Seafood",
+    
+        "Vegetables",
+    
+        "Fruits",
+    
+        "Desserts",
+    
+        "Drinks",
+    
+        "Beverages",
+    
+        "Local Delicacies",
+    
+    ];
 
 export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
   const fileInputRef = useRef(null);
