@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import {SearchIcon, Plus, Store, ChevronLeft, ChevronRight } from 'lucide-react';
+import {SearchIcon, Plus, ChevronLeft, ChevronRight, CheckCircle2, X } from 'lucide-react';
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import PrimaryButton from '../components/PrimaryButton.jsx';
 import TextField from '@/components/TextField.jsx';
@@ -31,6 +31,14 @@ export default function ManageListingScreen({
   const [vendor, setVendor] = useState(null);
   const [analytics, setAnalytics] = useState(null);
   const [search, setSearch] = useState("");
+  const [showCreatedBanner, setShowCreatedBanner] = useState(() => {
+    const flag = sessionStorage.getItem('farmconnect_listing_created');
+    if (flag) {
+      sessionStorage.removeItem('farmconnect_listing_created');
+      return true;
+    }
+    return false;
+  });
 
   useEffect(() => {
   let cancelled = false;
@@ -121,20 +129,43 @@ export default function ManageListingScreen({
       onLogout={onLogout}
       title="Manage Listings"
       subtitle="Here's what happening with your business today."
-      location={vendor?.currentLocation || "Location unavailable"}
-      profileImage={vendor?.profileImage}
-    >
+      location={vendor?.currentLocation || 'Location unavailable'}
+      profileImage={vendor?.profileImage}>
       <div className=" w-full md:pl-2">
         {/* Tabs */}
         {error && <p className="text-body2 text-red-500 mb-4">{error}</p>}
-        <div className="flex w-full items-center justify-between my-8 gap-7">
+        {showCreatedBanner && (
+          <div className="mb-4 flex justify-end">
+            <div className="flex max-w-md items-start gap-3 rounded-2xl bg-green-light px-5 py-4">
+              <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-normal">
+                <CheckCircle2 className="h-4 w-4 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-ink">
+                  Listing published successfully!
+                </p>
+                <p className="text-sm text-body-text">
+                  Your food listing is now available to nearby users
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCreatedBanner(false)}
+                className="text-body-text">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="flex w-full items-center justify-between my-4 gap-7">
           <TextField
-              icon={SearchIcon}
-              placeholder="Search Listings"
-              variant="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="md:w-[60%] lg:w-[80%] flex items-center py-3"
+            icon={SearchIcon}
+            placeholder="Search Listings"
+            variant="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="md:w-[60%] lg:w-[80%] flex items-center py-3"
           />
           <PrimaryButton
             onClick={onCreateListing}
@@ -193,57 +224,62 @@ export default function ManageListingScreen({
           </div>
         ) : (
           <>
-            <div className="rounded-2xl border border-border-muted overflow-hidden">
-              <div className="grid grid-cols-[2fr_1fr_1.2fr_1fr_auto] bg-[#f3f3f3] px-6 py-3.25  text-charcoal text-normal font-bold">
-                <span>Listing</span>
-                <span>Status</span>
-                <span>Availability</span>
-                <span>Pickup ends</span>
-                <span>Action</span>
-              </div>
-
-              <div className="divide-y divide-border-muted">
-                {filtered.map((l, i) => (
-                  <div
-                    key={i}
-                    className="grid grid-cols-[2fr_1fr_1.2fr_1fr_auto] items-center px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={l.image}
-                        alt={l.name}
-                        className="w-14 h-14 rounded-xl object-cover"
-                      />
-                      <div>
-                        <p className="text-body1 font-bold text-ink">
-                          {l.name}
-                        </p>
-                        <p className="text-body2 text-body-text">
-                          Created on {l.createdOn}
-                        </p>
-                      </div>
-                    </div>
-                    <span
-                      className={`w-fit text-body2 font-medium rounded-full px-3 py-1 ${statusStyles[l.status] || ''}`}>
-                      {l.status}
-                    </span>
-                    <div className="text-body2 text-ink">
-                      {l.available} Available
-                      <br />
-                      {l.reserved} Reserved
-                      <br />
-                      {l.left} Left
-                    </div>
-                    <span className="text-body1 text-ink">{l.pickupEnds}</span>
-                    <button
-                      onClick={() => onEditListing?.(l)}
-                      className="rounded-lg border border-border-muted px-4 py-1.5 text-body2 text-ink w-fit">
-                      Edit
-                    </button>
+            <div className="rounded-2xl border border-border-muted overflow-auto">
+              <div className="overflow-auto">
+                <div className="min-w-180">
+                  <div className="grid grid-cols-[2fr_1fr_1.2fr_1fr_auto] bg-[#f3f3f3] px-6 py-3.25  text-charcoal text-normal font-bold">
+                    <span>Listing</span>
+                    <span>Status</span>
+                    <span>Availability</span>
+                    <span>Pickup ends</span>
+                    <span>Action</span>
                   </div>
-                ))}
+
+                  <div className="divide-y divide-border-muted">
+                    {filtered.map((l, i) => (
+                      <div
+                        key={i}
+                        className="grid grid-cols-[2fr_1fr_1.2fr_1fr_auto] items-center px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={l.image}
+                            alt={l.name}
+                            className=" w-12 h-12 lg:w-14 lg:h-14 rounded-xl object-cover"
+                          />
+                          <div>
+                            <p className="text-body1 font-bold text-ink">
+                              {l.name}
+                            </p>
+                            <p className="text-body2 text-charcoal">
+                              Created on {l.createdOn}
+                            </p>
+                          </div>
+                        </div>
+                        <span
+                          className={`w-fit text-body2 font-medium rounded-full px-3 py-1 ${statusStyles[l.status] || ''}`}>
+                          {l.status}
+                        </span>
+                        <div className="text-body2 text-ink">
+                          {l.available} Available
+                          <br />
+                          {l.reserved} Reserved
+                          <br />
+                          {l.left} Left
+                        </div>
+                        <span className="text-body2 lg:text-body1 text-ink">
+                          {l.pickupEnds}
+                        </span>
+                        <button
+                          onClick={() => onEditListing?.(l)}
+                          className="rounded-lg border border-border-muted px-4 py-1.5 text-body2 text-ink w-fit">
+                          Edit
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
-
             <div className="flex items-center justify-between mt-4 text-body2 text-body-text">
               <span>
                 Showing 1 to {filtered.length} of {filtered.length} listings

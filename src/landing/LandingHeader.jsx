@@ -22,7 +22,7 @@ export default function LandingHeader({ onLogin, onSignup }) {
         </span>
       </div>
 
-      <nav className="hidden md:flex items-center gap-8">
+      <nav className="hidden lg:flex items-center gap-8">
         {NAV_LINKS.map((link) => (
           <a
             key={link}
@@ -33,12 +33,12 @@ export default function LandingHeader({ onLogin, onSignup }) {
         ))}
       </nav>
 
-      <div className="hidden md:flex items-center gap-3">
+      <div className="hidden lg:flex items-center gap-3">
         <Button label="Log in" variant="filled" onClick={onLogin} />
         <Button label="Sign up" variant="outline" onClick={onSignup} />
       </div>
       <button
-        className=" md:hidden text-gray-600 hover:text-gray-900 transition-colors p-0.5 cursor-pointer"
+        className=" lg:hidden text-gray-600 hover:text-gray-900 transition-colors p-0.5 cursor-pointer"
         aria-label="Open navigation menu"
         onClick={() => setIsOPen(!isOpen)}>
         {isOpen ? (
@@ -52,7 +52,7 @@ export default function LandingHeader({ onLogin, onSignup }) {
 
       {isOpen && (
         <div
-          className="fixed pt-8 px-8 top-0 left-0 h-screen bg-white shadow-2xl transition-transform duration-300 ease-in-out  z-55 flex flex-col gap-8 w-[70%] sm:w-[30%] md:hidden
+          className="fixed pt-8 px-8 top-0 left-0 h-screen bg-white shadow-2xl transition-transform duration-300 ease-in-out  z-55 flex flex-col gap-8 w-[70%] md:w-[30%] lg:hidden
         ${isOpen ? 'translate-x-0' : '-translate-x-full'})">
           <div className="flex items-center gap-2">
             <AdvancedImage

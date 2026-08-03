@@ -14,6 +14,8 @@ import VerifyEmailScreen from './screens/VerifyEmailScreen.jsx';
 import NewPasswordScreen from './screens/NewPasswordScreen.jsx';
 import PasswordUpdatedScreen from './screens/PasswordUpdatedScreen.jsx';
 import WelcomeOnboardingScreen from './screens/WelcomeOnboardingScreen.jsx';
+import TermsAndConditionsScreen from './legal-pages/TermsAndConditionsScreen';
+import PrivacyPolicyScreen from './legal-pages/PrivacyPolicyScreen.jsx';
 import VendorProfileScreen from './pages/VendorProfileScreen.jsx';
 import VendorDashboardScreen from './pages/VendorDashboardScreen.jsx';
 import ManageListingScreen from './pages/ManageListingScreen.jsx';
@@ -137,6 +139,11 @@ export default function App() {
             />
           }
         />
+
+        <Route path="/terms" element={<TermsAndConditionsScreen />} />
+
+
+        <Route path="/privacy" element={<PrivacyPolicyScreen />} />
 
         <Route
           path="/vendor/profile"

@@ -308,3 +308,38 @@ export async function getVendorReservations() {
     auth: true,
   });
 }
+
+
+// User Flow
+
+
+// App User Profile
+
+export async function createAppUserProfile(payload) {
+  return profileRequest('/user/profile', {
+    body: payload,
+    auth: true,
+  });
+}
+
+export async function getAppUserProfile() {
+  return profileRequest('/user/profile', {
+    method: 'GET',
+    auth: true,
+  });
+}
+
+export async function updateAppUserProfile(payload) {
+  return profileRequest('/user/profile', {
+    method: 'PATCH',
+    body: payload,
+    auth: true,
+  });
+}
+
+export async function deleteAppUserProfile() {
+  return profileRequest('/user/profile', {
+    method: 'DELETE',
+    auth: true,
+  });
+}

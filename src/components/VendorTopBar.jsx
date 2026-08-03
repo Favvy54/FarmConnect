@@ -10,7 +10,7 @@ export default function VendorTopBar({
   subtitle,
   location = 'Ikeja, Lagos',
   rightSlot,
-  profileImage
+  profileImage,
 }) {
   return (
     <div className="flex items-start justify-between gap-4">
@@ -28,16 +28,15 @@ export default function VendorTopBar({
         {rightSlot}
 
         <Popover>
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              className="flex items-center gap-1 rounded-lg px-2 py-1 hover:bg-green-normal transition-colors">
-              <MapPin className="w-5 h-5 text-green-normal shrink-0" />
+          <PopoverTrigger
+            render={
+              <button
+                type="button"
+                className="flex items-center gap-1 rounded-lg px-2 py-1"
+              />
+            }>
+            <MapPin className="w-5 h-5 text-green-normal shrink-0" />
 
-              <span className="max-w-35 truncate text-left text-regular text-ink">
-                {location}
-              </span>
-            </button>
           </PopoverTrigger>
 
           <PopoverContent align="end" className="w-72 p-4">

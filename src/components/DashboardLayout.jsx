@@ -20,44 +20,50 @@ export default function DashboardLayout({
   children,
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [locationPopoverOpen, setLocationPopoverOpen] = useState(false);
 
   return (
     <>
-      <div className="fixed md:hidden top-0 left-0 w-full h-16 bg-white border-b border-border-muted z-30 flex items-center gap-4 justify-between px-4">
+      <div className="fixed max-w-screen h-16 md:hidden top-0 left-0 w-full  bg-white border-b border-border-muted z-30 flex items-center  gap-6 justify-between px-2 ">
         <button
           onClick={() => setSidebarOpen(true)}
-          className="w-10 h-10 flex items-center justify-center">
+          className="w-10 h-10 flex  items-center justify-center">
           <Menu className="w-6 h-6 text-ink" />
         </button>
-        <div className="flex items-center gap-2">
-          <p className="text-regular font-semibold text-ink">
+        <div>
+          <p className="text-body1 text-center font-semibold text-ink">
             Farm
-            <span className="font-normal text-regular">Connect</span>
+            <span className="font-normal text-body1">Connect</span>
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Popover>
-            <PopoverTrigger asChild>
-              <button
-                type="button"
-                className="flex items-center gap-1 rounded-lg px-2 py-1 hover:bg-green-normal transition-colors">
-                <MapPin className="w-5 h-5 text-green-normal shrink-0" />
-
-                <span className="max-w-22.5 truncate text-sm text-ink">
-                  {location}
-                </span>
-              </button>
+          <Popover
+            open={locationPopoverOpen}
+            onOpenChange={setLocationPopoverOpen}>
+            <PopoverTrigger
+              render={
+                <button
+                  type="button"
+                  className="flex items-center gap-1 rounded-lg px-2 py-1 transition-colors"
+                />
+              }>
+              <MapPin
+                className="w-7 h-7 shrink-0"
+                style={{
+                  color: locationPopoverOpen
+                    ? '#22C55E' /* your green-normal hex */
+                    : '#2e2e2e',
+                }}
+              />
             </PopoverTrigger>
 
-            <PopoverContent align="end" className="w-64 p-3">
+            <PopoverContent align="end" className="w-72 p-4">
               <div className="flex items-start gap-2">
                 <MapPin className="w-5 h-5 text-green-normal mt-0.5 shrink-0" />
-
                 <div>
                   <p className="text-sm font-semibold text-ink">
                     Business location
                   </p>
-
                   <p className="text-sm text-body-text mt-1 wrap-break-word">
                     {location}
                   </p>
@@ -65,7 +71,7 @@ export default function DashboardLayout({
               </div>
             </PopoverContent>
           </Popover>
-          <Bell className="w-5 h-5 text-ink" />
+          <Bell className="w-7 h-7 text-ink" />
           <div className="w-8 h-8 rounded-full overflow-hidden  flex items-center justify-center">
             {profileImage ? (
               <img
@@ -74,7 +80,7 @@ export default function DashboardLayout({
                 className="w-full h-full object-cover"
               />
             ) : (
-              <UserCircle className="w-5 h-5 text-ink" />
+              <UserCircle className="w-7 h-7 text-ink" />
             )}
           </div>
         </div>
@@ -101,7 +107,7 @@ export default function DashboardLayout({
           className="fixed top-0 left-0 h-screen w-64 z-30 bg-white"
         />
 
-        <div className="relative pt-20 md:pt-0 md:ml-64 px-4 md:py-9.5">
+        <div className="relative mt-20 md:mt-4 md:pt-0 md:ml-64 px-4 md:py-9.5">
           <VendorTopBar
             title={title}
             subtitle={subtitle}

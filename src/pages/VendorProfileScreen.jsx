@@ -7,31 +7,11 @@ import {
   getEmail,
   getCurrentUser,
 } from '../services/auth.js';
+import { uploadImageToCloudinary } from '@/services/uploadImage.js';
 
 const BUSINESS_TYPES = ['Restaurant', 'Event Caterer', 'Bakery'];
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-// Cloudinary upload helper
-const uploadImageToCloudinary = async (photoFile) => {
-  const formData = new FormData();
-  formData.append('file', photoFile);
-  formData.append('upload_preset', 'FarmConnect_profile');
-
-  const response = await fetch(
-    'https://api.cloudinary.com/v1_1/cfjvajqm/image/upload',
-    {
-      method: 'POST',
-      body: formData,
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error('Failed to upload image to Cloudinary.');
-  }
-
-  const data = await response.json();
-  return data.secure_url;
-};
 
 
 export default function VendorProfileScreen({ onComplete }) {

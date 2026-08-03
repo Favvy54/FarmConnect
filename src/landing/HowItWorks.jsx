@@ -27,9 +27,9 @@ export default function HowItWorks() {
   return (
     <section className="bg-center bg-cover bg-no-repeat min-h-screen px-3 py-3"
     style={{ backgroundImage: `url(${backgrounds.food.toURL()})` }}>
-      <div className="text-center min-h-screen my-20">
-        <h2 className="text-2xl md:text-h2 font-bold text-white md:text-left">How FarmConnect works</h2>
-        <p className="text-body2 text-center md:text-body1 text-white/85 mt-3 max-w-full  md:text-left">
+      <div className=" text-center min-h-screen my-20">
+        <h2 className="text-2xl md:text-h2 font-bold text-white md:text-center lg:text-left">How FarmConnect works</h2>
+        <p className="text-body2 text-center md:text-body1 text-white/85 mt-3 max-w-full md:text-center md:max-w-md md:mx-auto lg:w-full lg:mx-0 lg:text-left lg:pl-8">
           Whether you're finding food or sharing it, FarmConnect gets you there in three simple
           steps.
         </p>

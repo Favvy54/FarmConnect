@@ -1,11 +1,28 @@
-import { FaFacebookF, FaLinkedinIn, FaInstagram, FaXTwitter, } from "react-icons/fa6"
+import { Link } from "react-router";
+import { FaFacebookF, FaLinkedinIn, FaInstagram, FaXTwitter, } from "react-icons/fa6";
 import { AdvancedImage } from "@cloudinary/react";
 import { logos } from "../libs/cloudinaryImages"
 
-const QUICK_LINKS = ['How It Works', 'Benefits', 'Who Its For']
-const FOR_USERS = ['Find Food', 'List Food', 'Become a Vendor']
+
+const QUICK_LINKS = [
+  { label: 'How It Works', href: '#how-it-works' },
+  { label: 'Benefits', href: '#benefits' },
+  { label: 'Who Its For', href: '#who-its-for' },
+];
+const FOR_USERS = [
+  { label: 'Find Food', to: '/signup' },
+  { label: 'List Food', to: '/signup' },
+  { label: 'Become a Vendor', to: '/signup' }]
+
+
+const LEGAL_LINKS = [
+  { label: 'Terms of Service', to: '/terms' },
+  { label: 'Privacy Policy', to: '/privacy' },
+];
+
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
   return (
     <footer className=" text-white">
       <div className=" px-6 py-16 grid md:grid-cols-4 gap-10">
@@ -30,7 +47,7 @@ export default function Footer() {
           <ul className="flex flex-col gap-3 text-body2 text-white/85">
             {QUICK_LINKS.map((l) => (
               <li key={l}>
-                <a href="#">{l}</a>
+                <a href={l.href}>{l.label}</a>
               </li>
             ))}
           </ul>
@@ -41,7 +58,18 @@ export default function Footer() {
           <ul className="flex flex-col gap-3 text-body2 text-white/85">
             {FOR_USERS.map((l) => (
               <li key={l}>
-                <a href="#">{l}</a>
+                <a href={l.to}>{l.label}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="text-body1 font-bold mb-4">Legal</h4>
+          <ul className="flex flex-col gap-3 text-body2 text-white/85">
+            {LEGAL_LINKS.map((l) => (
+              <li key={l.label}>
+                <Link to={l.to}>{l.label}</Link>
               </li>
             ))}
           </ul>
@@ -58,8 +86,8 @@ export default function Footer() {
       </div>
 
       <div className="text-center text-caption text-white/70 pb-8">
-        ©2026 FarmConnect. All right reserved.
+        ©{currentYear} FarmConnect. All right reserved.
       </div>
     </footer>
-  )
+  );
 }

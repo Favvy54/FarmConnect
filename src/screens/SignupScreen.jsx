@@ -46,6 +46,9 @@ export default function SignupScreen({ onSignup, onGoLogin }) {
         role: role === "find" ? "user" : "vendor",
       });
 
+      sessionStorage.setItem('farmconnect_signup_fullName', fullName);
+      sessionStorage.setItem('farmconnect_signup_phone', phone);
+
       logEvent(analytics, "sign_up", {
         method: "email",
         role: role === "find" ? "user" : "vendor",
@@ -65,7 +68,7 @@ export default function SignupScreen({ onSignup, onGoLogin }) {
     <AuthLayout
       showTagline={false}
       showLogo={false}
-      photoFit="fi"
+      photoFit="contain"
       rightAlign="items-start"
       photoSrc={auth.signup}
       photoAlt="Vendor plating a meal while a customer reserves it on their phone, with nearby, reserved, and pickup deadline callouts">
@@ -167,11 +170,11 @@ export default function SignupScreen({ onSignup, onGoLogin }) {
             />
             <span className="ml-2">
               I agree to the{' '}
-              <a href="#" className="text-green-normal">
+              <a href="/terms" className="text-green-normal">
                 Terms of Service
               </a>{' '}
               and{' '}
-              <a href="#" className="text-green-normal">
+              <a href="/privacy" className="text-green-normal">
                 Privacy Policy
               </a>
             </span>
