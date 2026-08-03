@@ -326,7 +326,7 @@ export default function UserProfileScreen({ onComplete }) {
           </label>
       
           <textarea
-            placeholder="Tell customers a little about your business..."
+            placeholder="Drop a Simple Description about yourself..."
             rows={4}
             value={bio}
             onChange={(e) => setBio(e.target.value)}
