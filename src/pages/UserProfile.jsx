@@ -127,7 +127,7 @@ export default function UserProfileScreen({ onComplete }) {
         city,
         state,
         preferredFoodCategories,
-        bio: '',
+        bio,
       });
 
       onComplete?.();
