@@ -28,8 +28,8 @@ const CATEGORY_OPTIONS = [
 const STATES = nigerianStates.all().map((s) => s.state);
 
 export default function UserProfileScreen({ onComplete }) {
-  const [fullName, setFullName] = useState('');
-  const [phone, setPhone] = useState('');
+  //const [fullName, setFullName] = useState('');
+  //const [phone, setPhone] = useState('');
 
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [gender, setGender] = useState(null);
@@ -51,10 +51,12 @@ export default function UserProfileScreen({ onComplete }) {
 
   // Pull fullName/phone from the already-registered account 
 
+ /*
  useEffect(() => {
    setFullName(sessionStorage.getItem('farmconnect_signup_fullName') || '');
    setPhone(sessionStorage.getItem('farmconnect_signup_phone') || '');
  }, []);
+ */
 
   const handleStateChange = (e) => {
     const selectedState = e.target.value;
@@ -116,8 +118,8 @@ export default function UserProfileScreen({ onComplete }) {
       }
 
       await createAppUserProfile({
-        fullName,
-        phone,
+        //fullName,
+        //phone,
         profileImage: profileImageUrl,
         gender: gender.toLowerCase(),
         dateOfBirth,
