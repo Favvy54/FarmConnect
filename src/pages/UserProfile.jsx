@@ -28,14 +28,15 @@ const CATEGORY_OPTIONS = [
 const STATES = nigerianStates.all().map((s) => s.state);
 
 export default function UserProfileScreen({ onComplete }) {
-  const [fullName, setFullName] = useState('');
-  const [phone, setPhone] = useState('');
+  //const [fullName, setFullName] = useState('');
+  //const [phone, setPhone] = useState('');
 
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [gender, setGender] = useState(null);
 
   const [state, setState] = useState('');
   const [city, setCity] = useState('');
+  const [bio, setBio] = useState("");
   const [lgasList, setLgasList] = useState([]);
 
   const [streetAddress, setStreetAddress] = useState('');
@@ -47,14 +48,15 @@ export default function UserProfileScreen({ onComplete }) {
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const fileInputRef = useRef(null);
-  const [bio, setBio] = useState('');
 
   // Pull fullName/phone from the already-registered account 
 
-//  useEffect(() => {
-//    setFullName(sessionStorage.getItem('farmconnect_signup_fullName') || '');
-//    setPhone(sessionStorage.getItem('farmconnect_signup_phone') || '');
-//  }, []);
+ /*
+ useEffect(() => {
+   setFullName(sessionStorage.getItem('farmconnect_signup_fullName') || '');
+   setPhone(sessionStorage.getItem('farmconnect_signup_phone') || '');
+ }, []);
+ */
 
   const handleStateChange = (e) => {
     const selectedState = e.target.value;
@@ -320,25 +322,22 @@ export default function UserProfileScreen({ onComplete }) {
           </button>
         </div>
 
-        <div className="mt-8 mb-8">
+        {/* Bio */}
+        <div className="mt-8">
           <label className="block text-body1 font-bold text-ink mb-2">
             Bio
           </label>
-
+      
           <textarea
-            placeholder="Tell us a bit about yourself..."
-            rows={6}
-            required
+            placeholder="Drop a Simple Description about yourself..."
+            rows={4}
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             className="w-full rounded-xl border border-border-muted px-4 py-4 text-body1 text-body-text placeholder:text-body-text focus:outline-none focus:ring-2 focus:ring-green-normal"
           />
         </div>
 
-        <PrimaryButton
-          type="submit"
-          disabled={loading}
-          className="mt-6 rounded-2xl py-3 px-2 w-full text-regular">
+        <PrimaryButton type="submit" disabled={loading} className="mt-6 rounded-2xl py-3 px-2 w-full text-regular">
           {loading ? 'Saving...' : 'Complete Profile'}
         </PrimaryButton>
       </div>
