@@ -10,9 +10,7 @@ export default function AuthLayout({
   children,
   showLogo = true,
   showTagline = true,
-  photoFit = 'cover', //Change object-fit to either cover or contain
   photoSrc = auth.login,
-  rightAlign = 'items-center',
   photoAlt = 'Person checking a meal reservation on their phone',
   tagline = {
     heading: (
@@ -26,20 +24,19 @@ export default function AuthLayout({
   },
 }) {
   return (
-    <div className="h-screen w-full flex min-h-screen">
+    <div className="h-screen max-w-screen flex min-h-screen">
       {/* Left photo panel */}
 
-      <div className="hidden md:block relative w-1/2 h-full min-h-screen">
+      <div className="hidden md:block fixed left-0 top-0 w-[40%] h-screen overflow-hidden">
         <AdvancedImage
-  cldImg={photoSrc}
+          cldImg={photoSrc}
           alt={photoAlt}
-          
-  className={`absolute object-cover inset-0 w-full h-screen rounded-r-3xl ${photoFit}
-  `}
-/>
+          className={`absolute inset-0 w-full h-full rounded-r-3xl object-cover
+          }`}
+        />
 
         {showLogo && (
-          <div className="absolute top-10 left-10 flex items-center gap-2">
+          <div className="absolute top-10 left-10 flex items-center gap-2 z-10">
             <AdvancedImage
               cldImg={logos.header}
               alt="FarmConnect logo"
@@ -55,7 +52,7 @@ export default function AuthLayout({
         )}
 
         {showTagline && (
-          <div className="absolute bottom-12 left-8 right-8 text-white">
+          <div className="absolute bottom-12 left-8 right-8 text-white z-10">
             <h2 className="text-h2 font-bold leading-10">{tagline.heading}</h2>
             <p className="text-body1 mt-2 max-w-full">{tagline.body}</p>
           </div>
@@ -65,7 +62,7 @@ export default function AuthLayout({
       {/* Right form panel — scrolls internally only if content genuinely overflows */}
 
       <div
-        className={`w-full md:w-1/2 min-h-screen flex ${rightAlign === 'items-start' ? 'items-start' : 'items-center'}  px-6 py-6 md:px-16`}>
+        className='w-full pr-6 md:ml-[45%] md:w-[50%] h-screen   py-6 '>
         <div className={`w-full `}>{children}</div>
       </div>
     </div>
