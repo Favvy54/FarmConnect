@@ -21,6 +21,7 @@ import VendorDashboardScreen from './pages/VendorDashboardScreen.jsx';
 import ManageListingScreen from './pages/ManageListingScreen.jsx';
 import CreateListingScreen from './pages/CreateListingScreen.jsx';
 import UserProfileScreen from './pages/UserProfile.jsx';
+import UserDashboard from './pages/UserDashboard.jsx';
 import { getRole } from './services/auth';
 import { getCurrentUser } from "./services/auth";
 
@@ -142,7 +143,6 @@ export default function App() {
 
         <Route path="/terms" element={<TermsAndConditionsScreen />} />
 
-
         <Route path="/privacy" element={<PrivacyPolicyScreen />} />
 
         <Route
@@ -204,6 +204,19 @@ export default function App() {
           path="/user/profile"
           element={
             <UserProfileScreen onComplete={() => navigate('/user/dashboard')} />
+          }
+        />
+
+        <Route
+          path="/user/dashboard"
+          element={
+            <UserDashboard
+              onNavigate={(key) => {
+                if (key === 'home') navigate('/user/dashboard');
+                if (key === 'listings') navigate('/user/listings');
+              }}
+              onLogout={() => navigate('/login')}
+            />
           }
         />
       </Routes>

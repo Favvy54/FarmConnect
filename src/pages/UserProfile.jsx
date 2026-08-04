@@ -47,13 +47,14 @@ export default function UserProfileScreen({ onComplete }) {
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const fileInputRef = useRef(null);
+  const [bio, setBio] = useState('');
 
   // Pull fullName/phone from the already-registered account 
 
- useEffect(() => {
-   setFullName(sessionStorage.getItem('farmconnect_signup_fullName') || '');
-   setPhone(sessionStorage.getItem('farmconnect_signup_phone') || '');
- }, []);
+//  useEffect(() => {
+//    setFullName(sessionStorage.getItem('farmconnect_signup_fullName') || '');
+//    setPhone(sessionStorage.getItem('farmconnect_signup_phone') || '');
+//  }, []);
 
   const handleStateChange = (e) => {
     const selectedState = e.target.value;
@@ -90,6 +91,7 @@ export default function UserProfileScreen({ onComplete }) {
     if (!state) return 'Please select a state.';
     if (!city) return 'Please select a city.';
     if (!streetAddress.trim()) return 'Street address is required.';
+    if (!bio.trim()) return 'Bio is required.';
     if (preferredFoodCategories.length === 0)
       return 'Please select at least one preferred food category.';
     return null;
@@ -115,8 +117,8 @@ export default function UserProfileScreen({ onComplete }) {
       }
 
       await createAppUserProfile({
-        fullName,
-        phone,
+        // fullName,
+        // phone,
         profileImage: profileImageUrl,
         gender: gender.toLowerCase(),
         dateOfBirth,
@@ -124,7 +126,7 @@ export default function UserProfileScreen({ onComplete }) {
         city,
         state,
         preferredFoodCategories,
-        bio: '',
+        bio,
       });
 
       onComplete?.();
@@ -318,7 +320,25 @@ export default function UserProfileScreen({ onComplete }) {
           </button>
         </div>
 
-        <PrimaryButton type="submit" disabled={loading} className="mt-6 rounded-2xl py-3 px-2 w-full text-regular">
+        <div className="mt-8 mb-8">
+          <label className="block text-body1 font-bold text-ink mb-2">
+            Bio
+          </label>
+
+          <textarea
+            placeholder="Tell us a bit about yourself..."
+            rows={6}
+            required
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            className="w-full rounded-xl border border-border-muted px-4 py-4 text-body1 text-body-text placeholder:text-body-text focus:outline-none focus:ring-2 focus:ring-green-normal"
+          />
+        </div>
+
+        <PrimaryButton
+          type="submit"
+          disabled={loading}
+          className="mt-6 rounded-2xl py-3 px-2 w-full text-regular">
           {loading ? 'Saving...' : 'Complete Profile'}
         </PrimaryButton>
       </div>

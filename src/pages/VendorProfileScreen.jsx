@@ -8,9 +8,11 @@ import {
   getCurrentUser,
 } from '../services/auth.js';
 import { uploadImageToCloudinary } from '@/services/uploadImage.js';
+import * as nigerianStates from 'nigerian-states-and-lgas';
 
 const BUSINESS_TYPES = ['Restaurant', 'Event Caterer', 'Bakery'];
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const STATES = nigerianStates.all().map((s) => s.state);
 
 
 
@@ -42,6 +44,9 @@ export default function VendorProfileScreen({ onComplete }) {
   const [error, setError] = useState(null);
 
   // Address inputs
+  const [state, setState] = useState('');
+  const [city, setCity] = useState('');
+  const [lgasList, setLgasList] = useState([]);
   const [currentAddressInput, setCurrentAddressInput] = useState('');
   const [permanentAddressInput, setPermanentAddressInput] = useState('');
 
@@ -58,10 +63,25 @@ export default function VendorProfileScreen({ onComplete }) {
     setPhotoPreview(URL.createObjectURL(file));
   };
 
+ const handleStateChange = (e) => {
+    const selectedState = e.target.value;
+
+    setState(selectedState);
+    setCity('');
+
+    const foundState = nigerianStates
+      .all()
+      .find((s) => s.state === selectedState);
+
+    setLgasList(foundState ? foundState.lgas : []);
+  };
+
   const validateForm = () => {
     if (!businessName.trim()) return 'Business name is required.';
     if (!businessType) return 'Please select a business type.';
     if (!businessPhone.trim()) return 'Business phone is required.';
+    if (!state) return 'Please select a state.';
+    if (!city) return 'Please select a city.';
     if (!currentAddressInput.trim()) return 'Current address is required.';
     if (!permanentAddressInput.trim()) return 'Permanent address is required.';
     if (!description.trim()) return 'Business description is required.';
@@ -103,6 +123,8 @@ export default function VendorProfileScreen({ onComplete }) {
         email: getEmail(),
         phone: businessPhone,
         description,
+        city,
+        state,
         permanentAddress,
         currentLocation,
         profileImage: profileImageUrl,
@@ -168,6 +190,53 @@ export default function VendorProfileScreen({ onComplete }) {
                 {type}
               </button>
             ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          {/* State */}
+          <div>
+            <label className="mb-2 block text-body1 font-bold text-ink">
+              State
+            </label>
+
+            <select
+              required
+              value={state}
+              onChange={handleStateChange}
+              className="w-full rounded-xl border border-border-muted px-4 py-3 text-body1 text-ink focus:outline-none focus:ring-2 focus:ring-green-normal">
+              <option value="">Select State</option>
+
+              {STATES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* City / LGA */}
+          <div>
+            <label className="mb-2 block text-body1 font-bold text-ink">
+              City
+            </label>
+
+            <select
+              required
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              disabled={!state}
+              className="w-full rounded-xl border border-border-muted px-4 py-3 text-body1 text-ink disabled:bg-gray-100 disabled:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-normal">
+              <option value="">
+                {state ? 'Select LGA' : 'Select State First'}
+              </option>
+
+              {lgasList.map((lga) => (
+                <option key={lga} value={lga}>
+                  {lga}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
