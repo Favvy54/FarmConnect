@@ -55,9 +55,18 @@ export default function ManageListingScreen({
       }
 
       const listings = await getMyListings(searchTerm);
+      
+
+      console.log("API LISTINGS");
+      console.table(listings);
+      console.log(listings[0]);
+      console.log(listings[0].expiresAt);
+      console.log(typeof listings[0].expiresAt);
+      console.log(new Date(listings[0].expiresAt));
 
       if (!cancelled) {
         const formatted = listings.map((listing) => ({
+          
           id: listing._id,
           image: listing.imageUrls?.[0] || "/img-placeholder.png",
           name: listing.foodName,
