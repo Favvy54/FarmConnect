@@ -354,3 +354,11 @@ export async function getAllListings(search = '') {
   console.log('market-list response:', res); // TEMP — remove after checking shape
   return res?.data?.listings || res?.data || [];
 }
+
+export async function getNearbyListings() {
+  const res = await profileRequest('/listings/nearby', {
+    method: 'GET',
+    auth: true,
+  });
+  return res?.data?.listings || res?.data || [];
+}

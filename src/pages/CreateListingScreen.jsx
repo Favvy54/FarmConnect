@@ -41,7 +41,30 @@ import { uploadImageToCloudinary } from '../services/uploadImage.js';
     
         "Local Delicacies",
     
-    ];
+];
+    
+function buildPickupDeadline(timeString) {
+  // timeString is always "HH:mm" 24-hour, e.g. "01:00"
+  const [hours, minutes] = timeString.split(':').map(Number);
+
+  const now = new Date();
+  const deadline = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    hours,
+    minutes,
+    0,
+    0,
+  );
+
+  // If that time already happened today, it must mean tomorrow
+  if (deadline <= now) {
+    deadline.setDate(deadline.getDate() + 1);
+  }
+
+  return deadline.toISOString();
+}
 
 export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
   const fileInputRef = useRef(null);
@@ -132,6 +155,8 @@ export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
         );
       }
 
+      const pickupDeadlineISO = buildPickupDeadline(pickupDeadline);
+
       const payload = {
         foodName: mealName,
         category,
@@ -144,6 +169,7 @@ export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
         isHealthy: false,
         isFree,
         price: isFree ? 0 : Number(price),
+        pickupDeadline: buildPickupDeadline(pickupDeadline), 
       };
 
       const res = await createListing(payload);

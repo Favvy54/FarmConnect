@@ -27,7 +27,7 @@ export default function AuthLayout({
     <div className="h-screen max-w-screen flex min-h-screen">
       {/* Left photo panel */}
 
-      <div className="hidden md:block fixed left-0 top-0 w-[40%] h-screen overflow-hidden">
+      <div className="hidden lg:block fixed left-0 top-0 lg:w-[40%] h-screen overflow-hidden">
         <AdvancedImage
           cldImg={photoSrc}
           alt={photoAlt}
@@ -62,7 +62,7 @@ export default function AuthLayout({
       {/* Right form panel — scrolls internally only if content genuinely overflows */}
 
       <div
-        className='w-full pr-6 md:ml-[45%] md:w-[50%] h-screen   py-6 '>
+        className='w-full px-6 lg:ml-[45%]  lg:w-[50%] h-screen   py-6 '>
         <div className={`w-full `}>{children}</div>
       </div>
     </div>

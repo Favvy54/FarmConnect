@@ -75,7 +75,7 @@ export default function ManageListingScreen({
           available: listing.quantity - listing.totalReservations,
           reserved: listing.totalReservations,
           left: listing.quantity - listing.totalReservations,
-          pickupEnds: new Date(listing.expiresAt).toLocaleString(),
+          pickupEnds: listing.pickupDeadline || 'Not set',
         }));
 
         setListings(formatted);
