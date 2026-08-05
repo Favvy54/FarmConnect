@@ -345,14 +345,21 @@ export async function deleteAppUserProfile() {
 }
 
 // Browse all listings (market feed) — for the user-facing dashboard
-export async function getAllListings(search = '') {
-  const query = search ? `?search=${encodeURIComponent(search)}` : '';
-  const res = await profileRequest(`/listings/market-list${query}`, {
-    method: 'GET',
-    auth: true,
-  });
-  console.log('market-list response:', res); // TEMP — remove after checking shape
-  return res?.data?.listings || res?.data || [];
+export async function getAllListings(search = "") {
+
+  const query = search
+      ? `?search=${encodeURIComponent(search)}`
+      : "";
+
+  const res = await profileRequest(
+      `/listings/market-list${query}`,
+      {
+          method: "GET",
+          auth: true,
+      }
+  );
+
+  return res?.data?.data || [];
 }
 
 export async function getNearbyListings() {
@@ -360,5 +367,5 @@ export async function getNearbyListings() {
     method: 'GET',
     auth: true,
   });
-  return res?.data?.listings || res?.data || [];
+  return res?.data || [];
 }
