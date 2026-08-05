@@ -57,44 +57,55 @@ export default function ManageListingScreen({
       const listings = await getMyListings(searchTerm);
 
       if (!cancelled) {
+        
         const formatted = listings.map((listing) => ({
           id: listing._id,
-          image: listing.imageUrls?.[0] || "/img-placeholder.png",
+          image: listing.imageUrls?.[0] || '/img-placeholder.png',
           name: listing.foodName,
           createdOn: new Date(listing.createdAt).toLocaleDateString(),
 
           status:
-            listing.status === "available"
-              ? "ACTIVE"
-              : listing.status === "completed"
-              ? "SOLD OUT"
-              : listing.status === "expired"
-              ? "EXPIRED"
-              : "CANCELLED",
+            listing.status === 'available'
+              ? 'ACTIVE'
+              : listing.status === 'completed'
+                ? 'SOLD OUT'
+                : listing.status === 'expired'
+                  ? 'EXPIRED'
+                  : 'CANCELLED',
 
           available: listing.quantity - listing.totalReservations,
           reserved: listing.totalReservations,
           left: listing.quantity - listing.totalReservations,
           pickupEnds: (() => {
-            if (!listing.expiresAt) return "Not set";
-          
+            let expiry = null;
+
+            if (listing.expiresAt) {
+              expiry = new Date(listing.expiresAt);
+            } else if (listing.createdAt && listing.expiryDuration != null) {
+              expiry = new Date(
+                new Date(listing.createdAt).getTime() +
+                  listing.expiryDuration * 60000,
+              );
+            }
+
+            if (!expiry) return 'Not set';
+
             const now = new Date();
-            const expiry = new Date(listing.expiresAt);
-          
             const diff = Math.max(0, expiry - now);
             const minutes = Math.ceil(diff / 60000);
-          
-            if (minutes <= 0) return "Expired";
-            if (minutes < 60) return `${minutes} min${minutes > 1 ? "s" : ""} left`;
-          
+
+            if (minutes <= 0) return 'Expired';
+            if (minutes < 60)
+              return `${minutes} min${minutes > 1 ? 's' : ''} left`;
+
             const hours = Math.floor(minutes / 60);
             const remainingMinutes = minutes % 60;
-          
+
             if (remainingMinutes === 0) {
-              return `${hours} hr${hours > 1 ? "s" : ""} left`;
+              return `${hours} hr${hours > 1 ? 's' : ''} left`;
             }
-          
-            return `${hours} hr${hours > 1 ? "s" : ""} ${remainingMinutes} min left`;
+
+            return `${hours} hr${hours > 1 ? 's' : ''} ${remainingMinutes} min left`;
           })(),
         }));
 
