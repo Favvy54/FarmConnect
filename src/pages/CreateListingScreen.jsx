@@ -68,6 +68,7 @@ export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
 
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [pickupTime, setPickupTime] = useState("");
 
   // Fetch the vendor's business address so "Use Business Address" actually populates
   useEffect(() => {
@@ -340,19 +341,41 @@ export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
                   6. Pickup Deadline <span className="text-error">*</span>
                 </label>
                 <div className="relative">
-                  <select
-                        value={expiryDuration}
-                        onChange={(e) => setExpiryDuration(Number(e.target.value))}
-                        className="..."
-                    >
-                        <option value={30}>30 Minutes</option>
-                        <option value={60}>1 Hour</option>
-                        <option value={120}>2 Hours</option>
-                        <option value={180}>3 Hours</option>
-                        <option value={360}>6 Hours</option>
-                        <option value={720}>12 Hours</option>
-                        <option value={1440}>24 Hours</option>
-                    </select>
+                  <input
+                    type="time"
+                    value={pickupTime}
+                    onChange={(e) => {
+                      const selectedTime = e.target.value;
+                
+                      setPickupTime(selectedTime);
+                
+                      if (!selectedTime) return;
+                
+                      const [hours, minutes] = selectedTime.split(":").map(Number);
+                
+                      const now = new Date();
+                
+                      const expiry = new Date();
+                
+                      expiry.setHours(hours);
+                      expiry.setMinutes(minutes);
+                      expiry.setSeconds(0);
+                      expiry.setMilliseconds(0);
+                
+                      // If the selected time has already passed today,
+                      // use tomorrow.
+                      if (expiry <= now) {
+                        expiry.setDate(expiry.getDate() + 1);
+                      }
+                
+                      const duration = Math.ceil(
+                        (expiry - now) / (1000 * 60)
+                      );
+                
+                      setExpiryDuration(duration);
+                    }}
+                    className="w-full rounded-xl border border-border-muted px-4 py-3 text-body1 text-ink focus:outline-none focus:ring-2 focus:ring-green-normal"
+                  />
                 </div>
                 <p className="mt-1 text-caption text-body-text">
                   Listing would end at this time
