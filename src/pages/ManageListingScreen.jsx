@@ -75,7 +75,27 @@ export default function ManageListingScreen({
           available: listing.quantity - listing.totalReservations,
           reserved: listing.totalReservations,
           left: listing.quantity - listing.totalReservations,
-          pickupEnds: listing.pickupDeadline || 'Not set',
+          pickupEnds: (() => {
+            if (!listing.expiresAt) return "Not set";
+          
+            const now = new Date();
+            const expiry = new Date(listing.expiresAt);
+          
+            const diff = Math.max(0, expiry - now);
+            const minutes = Math.ceil(diff / 60000);
+          
+            if (minutes <= 0) return "Expired";
+            if (minutes < 60) return `${minutes} min${minutes > 1 ? "s" : ""} left`;
+          
+            const hours = Math.floor(minutes / 60);
+            const remainingMinutes = minutes % 60;
+          
+            if (remainingMinutes === 0) {
+              return `${hours} hr${hours > 1 ? "s" : ""} left`;
+            }
+          
+            return `${hours} hr${hours > 1 ? "s" : ""} ${remainingMinutes} min left`;
+          })(),
         }));
 
         setListings(formatted);
