@@ -359,7 +359,7 @@ export async function getAllListings(search = "") {
       }
   );
 
-  return res?.data?.data || [];
+  return res?.data || [];
 }
 
 export async function getNearbyListings() {
