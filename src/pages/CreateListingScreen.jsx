@@ -43,28 +43,6 @@ import { uploadImageToCloudinary } from '../services/uploadImage.js';
     
 ];
     
-function buildPickupDeadline(timeString) {
-  // timeString is always "HH:mm" 24-hour, e.g. "01:00"
-  const [hours, minutes] = timeString.split(':').map(Number);
-
-  const now = new Date();
-  const deadline = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate(),
-    hours,
-    minutes,
-    0,
-    0,
-  );
-
-  // If that time already happened today, it must mean tomorrow
-  if (deadline <= now) {
-    deadline.setDate(deadline.getDate() + 1);
-  }
-
-  return deadline.toISOString();
-}
 
 export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
   const fileInputRef = useRef(null);
@@ -77,7 +55,7 @@ export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
   const [description, setDescription] = useState('');
   const [error, setError] = useState(null);
 
-  const [pickupDeadline, setPickupDeadline] = useState('');
+  const [expiryDuration, setExpiryDuration] = useState(720); // minutes
   const [locationMode, setLocationMode] = useState('vendor'); // 'vendor' | 'custom'
   const [vendorAddress, setVendorAddress] = useState('');
   const [customStreet, setCustomStreet] = useState('');
@@ -155,8 +133,6 @@ export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
         );
       }
 
-      const pickupDeadlineISO = buildPickupDeadline(pickupDeadline);
-
       const payload = {
         foodName: mealName,
         category,
@@ -169,7 +145,7 @@ export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
         isHealthy: false,
         isFree,
         price: isFree ? 0 : Number(price),
-        pickupDeadline: buildPickupDeadline(pickupDeadline), 
+        expiryDuration, 
       };
 
       const res = await createListing(payload);
@@ -364,13 +340,19 @@ export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
                   6. Pickup Deadline <span className="text-error">*</span>
                 </label>
                 <div className="relative">
-                  <input
-                    type="time"
-                    required
-                    value={pickupDeadline}
-                    onChange={(e) => setPickupDeadline(e.target.value)}
-                    className="w-full rounded-xl border border-border-muted px-4 py-3 pr-10 text-body1 text-ink focus:outline-none focus:ring-2 focus:ring-green-normal"
-                  />
+                  <select
+                        value={expiryDuration}
+                        onChange={(e) => setExpiryDuration(Number(e.target.value))}
+                        className="..."
+                    >
+                        <option value={30}>30 Minutes</option>
+                        <option value={60}>1 Hour</option>
+                        <option value={120}>2 Hours</option>
+                        <option value={180}>3 Hours</option>
+                        <option value={360}>6 Hours</option>
+                        <option value={720}>12 Hours</option>
+                        <option value={1440}>24 Hours</option>
+                    </select>
                 </div>
                 <p className="mt-1 text-caption text-body-text">
                   Listing would end at this time
