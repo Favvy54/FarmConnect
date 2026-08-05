@@ -20,7 +20,14 @@ const CATEGORY_PILLS = [
 
 function MealCard({ listing }) {
   const image = listing.imageUrls?.[0] || '/img-placeholder.png';
-  const mealsLeft = listing.quantity - (listing.totalReservations || 0);
+  const mealsLeft =
+    Math.max(
+      0,
+      (listing.quantity || 0) -
+      (listing.totalReservations || 0)
+    );
+  const minutesLeft = listing.minutesLeft || 0;
+
   const location =
     listing.vendorId?.currentLocation ||
     listing.pickupLocation ||
@@ -49,16 +56,28 @@ function MealCard({ listing }) {
           </span>
         </div>
 
-        <div className="mt-2 flex items-center justify-between text-normal gap-3">
+        <div className="mt-2 flex items-center justify-between gap-3">
+        <div>
           <p
             className={
-              mealsLeft <= 3 ? 'text-error font-medium' : 'text-charcoal'
+              mealsLeft <= 3
+                ? 'text-error font-medium text-normal'
+                : 'text-charcoal text-normal'
             }>
             {mealsLeft} meals left
           </p>
-
-          <p className="text-charcoal truncate text-right">{location}</p>
+      
+          {minutesLeft > 0 && (
+            <p className="text-xs text-orange-normal font-medium">
+              {minutesLeft} mins left
+            </p>
+          )}
         </div>
+      
+        <p className="text-charcoal truncate text-right text-normal">
+          {location}
+        </p>
+      </div>
         <button className="mt-3 w-full rounded-xl bg-green-normal py-2.5 text-sm font-semibold text-normal text-white">
           Reserve now
         </button>
@@ -185,7 +204,9 @@ export default function UserDashboard({ onNavigate, onLogout }) {
   }, [viewMode]);
 
   const activeListings =
-    viewMode === 'market' ? marketListings : nearbyListings;
+    search.trim() || viewMode === 'market'
+        ? marketListings
+        : nearbyListings;
 
   const filteredListings = activeListings.filter((l) => {
     const matchesCategory = activeCategory
@@ -197,18 +218,23 @@ export default function UserDashboard({ onNavigate, onLogout }) {
   const exploreMeals = filteredListings;
 
  const lastChance = filteredListings.filter((listing) => {
-   const mealsLeft = (listing.quantity || 0) - (listing.totalReservations || 0);
-   const fewLeft = mealsLeft > 0 && mealsLeft <= 3;
+  const mealsLeft =
+    Math.max(
+      0,
+      (listing.quantity || 0) -
+      (listing.totalReservations || 0)
+    );
+  
+  const fewLeft =
+    mealsLeft > 0 &&
+    mealsLeft <= 3;
 
-   let endingSoon = false;
-   if (listing.pickupDeadline) {
-     const minutesLeft =
-       (new Date(listing.pickupDeadline) - new Date()) / 60000;
-     endingSoon = minutesLeft > 0 && minutesLeft <= 30;
-   }
+  const endingSoon =
+    listing.minutesLeft > 0 &&
+    listing.minutesLeft <= 30;
 
-   return fewLeft || endingSoon;
- });
+  return fewLeft || endingSoon;
+});
   
   
   const handleSelectViewMode = (mode) => {
@@ -305,6 +331,15 @@ export default function UserDashboard({ onNavigate, onLogout }) {
 
       {loading || searching ? (
         <p className="text-body-text">Loading listings…</p>
+      ) : filteredListings.length === 0 ? (
+        <div className="rounded-xl border border-border-muted bg-white p-8 text-center">
+          <p className="text-body1 font-medium text-ink">
+            No listings found
+          </p>
+          <p className="mt-2 text-body-text">
+            Try another search or category.
+          </p>
+        </div>
       ) : (
         <div className="space-y-6">
           <ListingRow
@@ -313,6 +348,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
             listings={exploreMeals}
             accentClass="text-green-normal"
           />
+      
           <ListingRow
             icon={<Clock className="h-5 w-5 text-orange-normal" />}
             title="Last Chance"
