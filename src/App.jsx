@@ -120,21 +120,25 @@ export default function App() {
               onContinue={async () => {
                 try {
                   const role = getRole();
-
-                  if (role === 'vendor') {
-                    const user = await getCurrentUser();
-
+              
+                  const user = await getCurrentUser();
+              
+                  if (role === "vendor") {
                     if (user.profileCompleted) {
-                      navigate('/vendor/dashboard');
+                      navigate("/vendor/dashboard");
                     } else {
-                      navigate('/vendor/profile');
+                      navigate("/vendor/profile");
                     }
                   } else {
-                    navigate('/user/profile');
+                    if (user.profileCompleted) {
+                      navigate("/user/dashboard");
+                    } else {
+                      navigate("/user/profile");
+                    }
                   }
                 } catch (error) {
                   console.error(error);
-                  navigate('/login');
+                  navigate("/login");
                 }
               }}
             />
