@@ -8,6 +8,7 @@ import { Mail, Lock } from "lucide-react";
 import AuthLayout from "../components/AuthLayout.jsx";
 import TextField from "../components/TextField.jsx";
 import PrimaryButton from "../components/PrimaryButton.jsx";
+import notify from "../services/toast";
 
 export default function LoginScreen({ onLogin, onGoSignup, onForgotPassword }) {
   const [remember, setRemember] = useState(false);
@@ -32,39 +33,34 @@ export default function LoginScreen({ onLogin, onGoSignup, onForgotPassword }) {
               return;
             }
 
+            const toastId = notify.loading("Logging you in...");
+
             try {
               setLoading(true);
-
+            
               const data = await login(email, password);
-
+            
               logEvent(analytics, "login", {
                 method: "email",
                 role: data.user.role,
               });
-
-              console.log(data);
-
-             
-
-              //  Request notification permission and register this device.
-               
+            
               const fcmToken = await requestNotificationPermission();
-
+            
               if (fcmToken) {
-                await registerDeviceWithBackend(
-                  fcmToken,
-                  data.token
-                );
+                await registerDeviceWithBackend(fcmToken, data.token);
               }
-
-              
-                // Listen for foreground notifications.
-               
+            
               listenForForegroundNotifications();
-
+            
+              notify.dismiss(toastId);
+              notify.success("Login successful.");
+            
               onLogin?.(data);
+            
             } catch (error) {
-              alert(error.message);
+              notify.dismiss(toastId);
+              notify.error(error.message);
             } finally {
               setLoading(false);
             }
