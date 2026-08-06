@@ -6,6 +6,7 @@ import TextField from '../components/TextField.jsx';
 import PrimaryButton from '../components/PrimaryButton.jsx';
 import { createListing, getVendorProfile } from '../services/auth.js';
 import { uploadImageToCloudinary } from '../services/uploadImage.js';
+import notify from "../services/toast";
 
     const CATEGORY_OPTIONS = [
     
@@ -53,7 +54,7 @@ export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
   const [price, setPrice] = useState('');
   const [isFree, setIsFree] = useState(false);
   const [description, setDescription] = useState('');
-  const [error, setError] = useState(null);
+  
 
   const [expiryDuration, setExpiryDuration] = useState(720); // minutes
   const [locationMode, setLocationMode] = useState('vendor'); // 'vendor' | 'custom'
@@ -96,7 +97,7 @@ export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
     if (!files.length) return;
 
     if (photoFile.length >= MAX_PHOTOS) {
-      setError(`You can only upload up to ${MAX_PHOTOS} photos.`);
+      notify.error(`You can only upload up to ${MAX_PHOTOS} photos.`);
       e.target.value = '';
       return;
     }
@@ -122,8 +123,9 @@ export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
     setLoading(true);
+
+    const toastId = notify.loading("Publishing listing...");
 
     try {
       let imageUrls = [];
@@ -152,10 +154,14 @@ export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
       const res = await createListing(payload);
       const created = res?.data?.listing || res?.data || res;
 
+      notify.dismiss(toastId);
+      notify.success("Listing published successfully!");
+
       setLoading(false);
       setShowSuccess(true);
     } catch (err) {
-      setError(err.message || 'Something went wrong publishing your listing.');
+      notify.dismiss(toastId);
+      notify.error(err.message || "Something went wrong publishing your listing.");
       setLoading(false);
     }
   };
@@ -173,8 +179,7 @@ export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
       title="Create New Listing"
       subtitle="Add details about the food you want to share"
       location="Ikeja, Lagos">
-      {error && <p className="mb-4 text-body2 text-error">{error}</p>}
-
+      
       <form
         onSubmit={handleSubmit}
         className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px]">
