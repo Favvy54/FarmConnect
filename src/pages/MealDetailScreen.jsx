@@ -150,7 +150,7 @@ export default function MealDetailScreen({ onNavigate, onLogout }) {
               alt={listing.foodName}
               className="h-72 w-full object-cover sm:h-96"
             />
-            <span className="absolute left-3 top-3 rounded-full bg-orange-normal px-3 py-1 text-caption font-semibold text-white">
+            <span className="absolute left-3 bottom-3 rounded-full bg-orange-dark px-3 py-1 text-caption font-semibold text-white">
               {mealsLeft} meals left
             </span>
           </div>
@@ -207,7 +207,7 @@ export default function MealDetailScreen({ onNavigate, onLogout }) {
 
             <div className="mt-4 flex items-center justify-between rounded-xl bg-orange-normal p-4">
               <div className="flex items-start gap-2">
-                <Clock className="mt-0.5 h-4 w-4 text-orange-dark" />
+                <Clock className="mt-0.5 h-4.75 w-4.75 text-orange-dark" />
                 <div>
                   <p className="text-normal font-medium text-orange-dark">
                     Pickup Deadline
@@ -228,10 +228,10 @@ export default function MealDetailScreen({ onNavigate, onLogout }) {
             </div>
 
             <div className="mt-4 flex items-start gap-3 rounded-xl bg-green-light p-4">
-              <Timer className="mt-0.5 h-4 w-4 shrink-0 text-green-normal" />
+              <Timer className="mt-0.5 h-4.75 w-4.75 shrink-0 text-green-normal" />
               <div>
-                <p className="text-body2 font-medium text-ink">Reservation Hold</p>
-                <p className="text-caption text-body-text">
+                <p className="text-body2 font-medium text-green-normal">Reservation Hold</p>
+                <p className="text-caption text-green-normal">
                   Your reservation would be held for 1 hour
                 </p>
               </div>
