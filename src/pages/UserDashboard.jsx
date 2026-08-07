@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Search, SlidersHorizontal, Zap, Clock, Check } from 'lucide-react';
+import { useNavigate } from 'react-router';
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import TextField from '../components/TextField.jsx';
 import {
@@ -9,16 +10,41 @@ import {
 } from '../services/auth.js';
 
 const CATEGORY_PILLS = [
-  'Rice Dishes',
-  'Cooked Meals',
-  'Pastries',
-  'Bread',
-  'Drinks',
-  'Fast Food',
-  'Local Delicacies',
+ "Cooked Meals",
+    
+        "Rice Dishes",
+    
+        "Soups",
+    
+        "Bakery",
+    
+        "Bread",
+    
+        "Pastries",
+    
+        "Snacks",
+    
+        "Fast Food",
+    
+        "Grilled Foods",
+    
+        "Seafood",
+    
+        "Vegetables",
+    
+        "Fruits",
+    
+        "Desserts",
+    
+        "Drinks",
+    
+        "Beverages",
+    
+        "Local Delicacies",
 ];
 
 function MealCard({ listing }) {
+  const navigate = useNavigate();
   const image = listing.imageUrls?.[0] || '/img-placeholder.png';
   const mealsLeft =
     Math.max(
@@ -33,8 +59,14 @@ function MealCard({ listing }) {
     listing.pickupLocation ||
     'Location unavailable';
 
+    const handleClick = () => {
+      navigate(`/user/meal/${listing._id}`, { state: { listing } });
+    };
+
   return (
-    <div className="w-[78vw]  max-w-[320px] min-w-60 sm:w-72 md:w-80 shrink-0 rounded-2xl border border-border-muted items-center bg-white overflow-hidden shadow-sm flex flex-col px-3 pb-3">
+    <div
+      onClick={handleClick}
+      className="w-[78vw]  max-w-[320px] min-w-60 sm:w-72 md:w-80 shrink-0 rounded-2xl border border-border-muted items-center bg-white overflow-hidden shadow-sm flex flex-col px-3 pb-3">
       <div className="flex-1">
         <img
           src={image}
@@ -44,7 +76,9 @@ function MealCard({ listing }) {
       </div>
       <div className="flex flex-1 flex-col justify-between w-full">
         <div className="mt-3 flex flex-col gap-1">
-          <p className=" text-regular font-bold text-ink ">{listing.foodName}</p>
+          <p className=" text-regular font-bold text-ink ">
+            {listing.foodName}
+          </p>
           <p className="text-normal text-charcoal">
             {listing.vendorName || listing.vendorId?.businessName}
           </p>
@@ -57,28 +91,33 @@ function MealCard({ listing }) {
         </div>
 
         <div className="mt-2 flex items-center justify-between gap-3">
-        <div>
-          <p
-            className={
-              mealsLeft <= 3
-                ? 'text-error font-medium text-normal'
-                : 'text-charcoal text-normal'
-            }>
-            {mealsLeft} meals left
-          </p>
-      
-          {minutesLeft > 0 && (
-            <p className="text-xs text-orange-normal font-medium">
-              {minutesLeft} mins left
+          <div>
+            <p
+              className={
+                mealsLeft <= 3
+                  ? 'text-error font-medium text-normal'
+                  : 'text-charcoal text-normal'
+              }>
+              {mealsLeft} meals left
             </p>
-          )}
+
+            {minutesLeft > 0 && (
+              <p className="text-xs text-orange-normal font-medium">
+                {minutesLeft} mins left
+              </p>
+            )}
+          </div>
+
+          <p className="text-charcoal truncate text-right text-normal">
+            {location}
+          </p>
         </div>
-      
-        <p className="text-charcoal truncate text-right text-normal">
-          {location}
-        </p>
-      </div>
-        <button className="mt-3 w-full rounded-xl bg-green-normal py-2.5 text-sm font-semibold text-normal text-white">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            // reserve logic here, once you have it
+          }}
+          className="mt-3 w-full rounded-xl bg-green-normal py-2.5 text-sm font-semibold text-normal text-white">
           Reserve now
         </button>
       </div>
@@ -308,6 +347,30 @@ export default function UserDashboard({ onNavigate, onLogout }) {
                     <Check className="h-4 w-4 text-green-normal" />
                   )}
                 </button>
+                <button
+                  onClick={() => handleSelectViewMode('market')}
+                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-light/40">
+                  Newest Listings
+                  {viewMode === 'market' && (
+                    <Check className="h-4 w-4 text-green-normal" />
+                  )}
+                </button>
+                <button
+                  onClick={() => handleSelectViewMode('market')}
+                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-light/40">
+                  Price: Low to High
+                  {viewMode === 'market' && (
+                    <Check className="h-4 w-4 text-green-normal" />
+                  )}
+                </button>
+                <button
+                  onClick={() => handleSelectViewMode('market')}
+                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-light/40">
+                  Price: High to Low
+                  {viewMode === 'market' && (
+                    <Check className="h-4 w-4 text-green-normal" />
+                  )}
+                </button>
               </div>
             </>
           )}
@@ -333,12 +396,8 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         <p className="text-body-text">Loading listings…</p>
       ) : filteredListings.length === 0 ? (
         <div className="rounded-xl border border-border-muted bg-white p-8 text-center">
-          <p className="text-body1 font-medium text-ink">
-            No listings found
-          </p>
-          <p className="mt-2 text-body-text">
-            Try another search or category.
-          </p>
+          <p className="text-body1 font-medium text-ink">No listings found</p>
+          <p className="mt-2 text-body-text">Try another search or category.</p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -348,7 +407,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
             listings={exploreMeals}
             accentClass="text-green-normal"
           />
-      
+
           <ListingRow
             icon={<Clock className="h-5 w-5 text-orange-normal" />}
             title="Last Chance"

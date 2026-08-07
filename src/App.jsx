@@ -22,6 +22,7 @@ import ManageListingScreen from './pages/ManageListingScreen.jsx';
 import CreateListingScreen from './pages/CreateListingScreen.jsx';
 import UserProfileScreen from './pages/UserProfile.jsx';
 import UserDashboard from './pages/UserDashboard.jsx';
+import MealDetailScreen from './pages/MealDetailScreen.jsx';
 import { getRole } from './services/auth';
 import { getCurrentUser } from "./services/auth";
 
@@ -120,25 +121,25 @@ export default function App() {
               onContinue={async () => {
                 try {
                   const role = getRole();
-              
+
                   const user = await getCurrentUser();
-              
-                  if (role === "vendor") {
+
+                  if (role === 'vendor') {
                     if (user.profileCompleted) {
-                      navigate("/vendor/dashboard");
+                      navigate('/vendor/dashboard');
                     } else {
-                      navigate("/vendor/profile");
+                      navigate('/vendor/profile');
                     }
                   } else {
                     if (user.profileCompleted) {
-                      navigate("/user/dashboard");
+                      navigate('/user/dashboard');
                     } else {
-                      navigate("/user/profile");
+                      navigate('/user/profile');
                     }
                   }
                 } catch (error) {
                   console.error(error);
-                  navigate("/login");
+                  navigate('/login');
                 }
               }}
             />
@@ -215,6 +216,19 @@ export default function App() {
           path="/user/dashboard"
           element={
             <UserDashboard
+              onNavigate={(key) => {
+                if (key === 'home') navigate('/user/dashboard');
+                if (key === 'listings') navigate('/user/listings');
+              }}
+              onLogout={() => navigate('/login')}
+            />
+          }
+        />
+
+        <Route
+          path="/user/meal/:id"
+          element={
+            <MealDetailScreen
               onNavigate={(key) => {
                 if (key === 'home') navigate('/user/dashboard');
                 if (key === 'listings') navigate('/user/listings');

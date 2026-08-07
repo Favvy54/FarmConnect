@@ -57,7 +57,6 @@ export default function ManageListingScreen({
       const listings = await getMyListings(searchTerm);
 
       if (!cancelled) {
-        
         const formatted = listings.map((listing) => ({
           id: listing._id,
           image: listing.imageUrls?.[0] || '/img-placeholder.png',
