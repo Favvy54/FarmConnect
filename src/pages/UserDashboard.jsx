@@ -46,12 +46,10 @@ const CATEGORY_PILLS = [
 function MealCard({ listing }) {
   const navigate = useNavigate();
   const image = listing.imageUrls?.[0] || '/img-placeholder.png';
-  const mealsLeft =
-    Math.max(
-      0,
-      (listing.quantity || 0) -
-      (listing.totalReservations || 0)
-    );
+  const mealsLeft = Math.max(
+    0,
+    (listing.quantity || 0) - (listing.totalReservations || 0),
+  );
   const minutesLeft = listing.minutesLeft || 0;
 
   const location =
@@ -59,26 +57,22 @@ function MealCard({ listing }) {
     listing.pickupLocation ||
     'Location unavailable';
 
-    const handleClick = () => {
-      navigate(`/user/meal/${listing._id}`, { state: { listing } });
-    };
+  const handleClick = () => {
+    navigate(`/user/meal/${listing._id}`, { state: { listing } });
+  };
 
   return (
     <div
       onClick={handleClick}
-      className="w-[78vw]  max-w-[320px] min-w-60 sm:w-72 md:w-80 shrink-0 rounded-2xl border border-border-muted items-center bg-white overflow-hidden shadow-sm flex flex-col px-3 pb-3">
-      <div className="flex-1">
-        <img
-          src={image}
-          alt={listing.foodName}
-          className=" max-w-[320px] w-full object-cover"
-        />
-      </div>
-      <div className="flex flex-1 flex-col justify-between w-full">
-        <div className="mt-3 flex flex-col gap-1">
-          <p className=" text-regular font-bold text-ink ">
-            {listing.foodName}
-          </p>
+      className="w-[78vw] max-w-[320px] min-w-60 sm:w-72 md:w-80 shrink-0 rounded-2xl border border-border-muted bg-white overflow-hidden shadow-sm flex flex-col cursor-pointer">
+      <img
+        src={image}
+        alt={listing.foodName}
+        className="h-40 w-full object-cover"
+      />
+      <div className="flex flex-1 flex-col justify-between px-3 pb-3 pt-3">
+        <div className="flex flex-col gap-1">
+          <p className="text-regular font-bold text-ink">{listing.foodName}</p>
           <p className="text-normal text-charcoal">
             {listing.vendorName || listing.vendorId?.businessName}
           </p>
@@ -112,12 +106,10 @@ function MealCard({ listing }) {
             {location}
           </p>
         </div>
+
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            // reserve logic here, once you have it
-          }}
-          className="mt-3 w-full rounded-xl bg-green-normal py-2.5 text-sm font-semibold text-normal text-white">
+          onClick={(e) => e.stopPropagation()}
+          className="mt-3 w-full rounded-xl bg-green-normal py-2.5 text-sm font-semibold text-white">
           Reserve now
         </button>
       </div>
