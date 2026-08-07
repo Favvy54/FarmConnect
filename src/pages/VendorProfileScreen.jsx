@@ -131,6 +131,13 @@ export default function VendorProfileScreen({ onComplete }) {
         operatingHours: `${openTime} - ${closeTime}`,
       });
 
+      logEvent(analytics, 'vendor_profile_created', {
+       business_name: businessName,
+        business_type: businessType,
+        city,
+        state,
+      });
+
       onComplete?.();
     } catch (err) {
       setError(err.message || 'Something went wrong creating your profile.');

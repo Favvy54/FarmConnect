@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { Camera, Upload} from 'lucide-react';
+import { logEvent } from 'firebase/analytics';
+import { analytics } from '../firebase.js';
+import { Camera, Upload } from 'lucide-react';
 import TextField from '../components/TextField.jsx';
 import PrimaryButton from '../components/PrimaryButton.jsx';
 import { createAppUserProfile } from '../services/auth.js';
@@ -28,15 +30,14 @@ const CATEGORY_OPTIONS = [
 const STATES = nigerianStates.all().map((s) => s.state);
 
 export default function UserProfileScreen({ onComplete }) {
-  //const [fullName, setFullName] = useState('');
-  //const [phone, setPhone] = useState('');
-
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [gender, setGender] = useState(null);
 
   const [state, setState] = useState('');
   const [city, setCity] = useState('');
-  const [bio, setBio] = useState("");
+  const [bio, setBio] = useState('');
   const [lgasList, setLgasList] = useState([]);
 
   const [streetAddress, setStreetAddress] = useState('');
@@ -49,14 +50,17 @@ export default function UserProfileScreen({ onComplete }) {
   const [photoPreview, setPhotoPreview] = useState(null);
   const fileInputRef = useRef(null);
 
-  // Pull fullName/phone from the already-registered account 
+  // Pull fullName/phone from the already-registered account
 
- /*
- useEffect(() => {
-   setFullName(sessionStorage.getItem('farmconnect_signup_fullName') || '');
-   setPhone(sessionStorage.getItem('farmconnect_signup_phone') || '');
- }, []);
- */
+  useEffect(() => {
+    const storedFullName = sessionStorage.getItem(
+      'farmconnect_signup_fullName',
+    );
+    const storedPhone = sessionStorage.getItem('farmconnect_signup_phone');
+
+    if (storedFullName) setFullName(storedFullName);
+    if (storedPhone) setPhone(storedPhone);
+  }, []);
 
   const handleStateChange = (e) => {
     const selectedState = e.target.value;
@@ -119,8 +123,8 @@ export default function UserProfileScreen({ onComplete }) {
       }
 
       await createAppUserProfile({
-        // fullName,
-        // phone,
+        fullName,
+        phone,
         profileImage: profileImageUrl,
         gender: gender.toLowerCase(),
         dateOfBirth,
@@ -129,6 +133,15 @@ export default function UserProfileScreen({ onComplete }) {
         state,
         preferredFoodCategories,
         bio,
+      });
+
+      logEvent(analytics, 'user_profile_created', {
+        username: fullName,
+        phone,
+        gender: gender.toLowerCase(),
+        date_of_birth: dateOfBirth,
+        city,
+        state,
       });
 
       onComplete?.();
@@ -327,7 +340,7 @@ export default function UserProfileScreen({ onComplete }) {
           <label className="block text-body1 font-bold text-ink mb-2">
             Bio
           </label>
-      
+
           <textarea
             placeholder="Drop a Simple Description about yourself..."
             rows={4}
@@ -337,7 +350,10 @@ export default function UserProfileScreen({ onComplete }) {
           />
         </div>
 
-        <PrimaryButton type="submit" disabled={loading} className="mt-6 rounded-2xl py-3 px-2 w-full text-regular">
+        <PrimaryButton
+          type="submit"
+          disabled={loading}
+          className="mt-6 rounded-2xl py-3 px-2 w-full text-regular">
           {loading ? 'Saving...' : 'Complete Profile'}
         </PrimaryButton>
       </div>

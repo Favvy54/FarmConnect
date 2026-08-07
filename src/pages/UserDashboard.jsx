@@ -178,7 +178,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
 
         setUserProfile({
           fullName: profile?.fullName || '',
-          phoneNumber: profile?.phoneNumber || '',
+          phoneNumber: profile?.phone || '',
           state: profile?.state || '',
           city: profile?.city || '',
         });

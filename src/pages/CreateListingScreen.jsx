@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { logEvent } from 'firebase/analytics';
+import { analytics } from '../firebase.js';
 import { Upload, Clock, MapPin, X, CheckCircle2 } from 'lucide-react';
 
 import DashboardLayout from '../components/DashboardLayout.jsx';
@@ -153,6 +155,11 @@ export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
 
       const res = await createListing(payload);
       const created = res?.data?.listing || res?.data || res;
+      logEvent(analytics, 'listing_created', {
+       listing_id: created?.id,
+       category: payload.category,
+       is_free: payload.isFree,
+     }); 
 
       notify.dismiss(toastId);
       notify.success("Listing published successfully!");
