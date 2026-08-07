@@ -52,15 +52,15 @@ export default function UserProfileScreen({ onComplete }) {
 
   // Pull fullName/phone from the already-registered account
 
-  useEffect(() => {
-    const storedFullName = sessionStorage.getItem(
-      'farmconnect_signup_fullName',
-    );
-    const storedPhone = sessionStorage.getItem('farmconnect_signup_phone');
+  // useEffect(() => {
+  //   const storedFullName = sessionStorage.getItem(
+  //     'farmconnect_signup_fullName',
+  //   );
+  //   const storedPhone = sessionStorage.getItem('farmconnect_signup_phone');
 
-    if (storedFullName) setFullName(storedFullName);
-    if (storedPhone) setPhone(storedPhone);
-  }, []);
+  //   if (storedFullName) setFullName(storedFullName);
+  //   if (storedPhone) setPhone(storedPhone);
+  // }, []);
 
   const handleStateChange = (e) => {
     const selectedState = e.target.value;
@@ -123,8 +123,8 @@ export default function UserProfileScreen({ onComplete }) {
       }
 
       await createAppUserProfile({
-        fullName,
-        phone,
+        // fullName,
+        // phone,
         profileImage: profileImageUrl,
         gender: gender.toLowerCase(),
         dateOfBirth,
