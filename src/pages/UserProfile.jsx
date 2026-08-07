@@ -135,14 +135,14 @@ export default function UserProfileScreen({ onComplete }) {
         bio,
       });
 
-      logEvent(analytics, 'user_profile_created', {
-        username: fullName,
-        phone,
-        gender: gender.toLowerCase(),
-        date_of_birth: dateOfBirth,
-        city,
-        state,
-      });
+      // logEvent(analytics, 'user_profile_created', {
+      //   username: fullName,
+      //   phone,
+      //   gender: gender.toLowerCase(),
+      //   date_of_birth: dateOfBirth,
+      //   city,
+      //   state,
+      // });
 
       onComplete?.();
     } catch (err) {
