@@ -3,8 +3,10 @@ import { useLocation, useNavigate, useParams } from 'react-router';
 import { Clock, Timer, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import { getAllListings } from '../services/auth.js';
+import { logEvent } from 'firebase/analytics';
+import { analytics } from '../firebase.js';
 
-// Same derivation used on ManageListingScreen / UserDashboardScreen.
+
 function computeMsLeft(listing) {
   let expiry = null;
 
@@ -77,9 +79,7 @@ export default function MealDetailScreen({ onNavigate, onLogout }) {
   const [msLeft, setMsLeft] = useState(() => computeMsLeft(location.state?.listing));
   const [moreListings, setMoreListings] = useState([]);
 
-  // If someone lands here directly (refresh / shared link) with no state,
-  // there's currently no "get one listing by id" endpoint to fall back on.
-  // Flagging this clearly rather than pretending it works.
+
   const missingListing = !listing;
 
   useEffect(() => {
@@ -88,6 +88,14 @@ export default function MealDetailScreen({ onNavigate, onLogout }) {
       setMsLeft(computeMsLeft(listing));
     }, 1000);
     return () => clearInterval(interval);
+  }, [listing]);
+
+  useEffect(() => {
+    if (!listing) return;
+
+    logEvent(analytics, 'meal_detail_viewed', {
+      food_name: listing.foodName,
+    });
   }, [listing]);
 
   useEffect(() => {
@@ -103,6 +111,8 @@ export default function MealDetailScreen({ onNavigate, onLogout }) {
       }
     })();
   }, [id]);
+
+  
 
   if (missingListing) {
     return (
