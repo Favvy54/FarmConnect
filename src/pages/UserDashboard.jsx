@@ -175,7 +175,60 @@ export default function UserDashboard({ onNavigate, onLogout }) {
           city: profile?.city || '',
         });
 
-        const nearby = await getNearbyListings();
+        // Use the browser's real GPS location for coordinate-based nearby search.
+        // If location access is unavailable/denied, fall back to the existing
+        // profile city/state nearby logic so the old behaviour is preserved.
+        let nearby;
+
+        if ("geolocation" in navigator) {
+          nearby = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(
+              async (position) => {
+                try {
+                  const { longitude, latitude } = position.coords;
+                  const results = await getNearbyListings(
+                    longitude,
+                    latitude
+                  );
+                  resolve(results);
+                } catch (err) {
+                  console.error(
+                    "Coordinate-based nearby search failed:",
+                    err
+                  );
+
+                  try {
+                    resolve(await getNearbyListings());
+                  } catch (fallbackErr) {
+                    reject(fallbackErr);
+                  }
+                }
+              },
+              async (geoError) => {
+                console.warn(
+                  "Browser location unavailable:",
+                  geoError.message
+                );
+
+                // Preserve the existing city/state nearby-search behaviour.
+                try {
+                  resolve(await getNearbyListings());
+                } catch (fallbackErr) {
+                  reject(fallbackErr);
+                }
+              },
+              {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 300000,
+              }
+            );
+          });
+        } else {
+          // Older browsers: preserve the existing nearby endpoint behaviour.
+          nearby = await getNearbyListings();
+        }
+
         setNearbyListings(Array.isArray(nearby) ? nearby : []);
       } catch (err) {
         setError(err.message || 'Could not load listings.');
