@@ -362,10 +362,30 @@ export async function getAllListings(search = "") {
   return res?.data || [];
 }
 
-export async function getNearbyListings() {
-  const res = await profileRequest('/listings/nearby', {
+export async function getNearbyListings(
+  longitude,
+  latitude,
+  maxDistance = 10000
+) {
+  let url = '/listings/nearby';
+
+  if (
+    longitude !== undefined &&
+    latitude !== undefined
+  ) {
+    const query = new URLSearchParams({
+      longitude: String(longitude),
+      latitude: String(latitude),
+      maxDistance: String(maxDistance),
+    });
+
+    url += `?${query.toString()}`;
+  }
+
+  const res = await profileRequest(url, {
     method: 'GET',
     auth: true,
   });
+
   return res?.data || [];
 }
