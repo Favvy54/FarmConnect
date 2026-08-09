@@ -12,7 +12,7 @@ const NAV_ITEMS = [
 
 export default function VendorSidebar({
   active = 'home',
-  role='vendor'
+  role='vendor',
   onNavigate,
   onLogout,
   isOpen = false,

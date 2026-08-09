@@ -12,7 +12,7 @@ import {
   createListing,
   getVendorProfile,
   updateCurrentVendorLocation,
-  getLocationFromCoordinates,
+  updateVendorLocation,
 } from '../services/auth.js';
 
 import { uploadImageToCloudinary } from '../services/uploadImage.js';
@@ -129,45 +129,20 @@ export default function CreateListingScreen({
     })();
   }, []);
 
-  /*
-   * NEW:
-   * Called when the vendor selects a location
-   * from the map.
-   */
-  const handleMapLocationSelect = async (
-    latitude,
-    longitude
-  ) => {
+ 
+  const handleMapLocationSelect = async (latitude, longitude) => {
     setCustomLatitude(latitude);
     setCustomLongitude(longitude);
 
     try {
-      const address =
-        await getLocationFromCoordinates(
-          longitude,
-          latitude
-        );
+      await updateVendorLocation(longitude, latitude);
 
-      if (address) {
-        setCustomStreet(
-          address.street || ''
-        );
-
-        setCustomCity(
-          address.city || ''
-        );
-
-        setCustomState(
-          address.state || ''
-        );
-      }
+      console.log('Vendor location updated from selected map location.');
     } catch (error) {
-      console.warn(
-        'Could not get address for selected location:',
-        error
-      );
+      console.warn('Could not update vendor location:', error);
     }
   };
+
 
   const MAX_PHOTOS = 3;
 
@@ -919,7 +894,7 @@ export default function CreateListingScreen({
                 </p>
 
                 <LocationPicker
-                  onLocationSelect={
+                  onSelect={
                     handleMapLocationSelect
                   }
                 />
