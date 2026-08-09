@@ -1,10 +1,5 @@
 import { useState } from 'react';
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  useMapEvents,
-} from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -39,35 +34,21 @@ function LocationMarker({ position, setPosition, onSelect }) {
 
   return position ? (
     <Marker
-      position={[
-        position.latitude,
-        position.longitude,
-      ]}
+      position={[position.latitude, position.longitude]}
       icon={defaultIcon}
     />
   ) : null;
 }
 
-export default function LocationPicker({
-  initialPosition = null,
-  onSelect,
-}) {
-  const [position, setPosition] =
-    useState(initialPosition);
+export default function LocationPicker({ initialPosition = null, onSelect }) {
+  const [position, setPosition] = useState(initialPosition);
 
   // Nigeria-centered default view.
-  const defaultCenter = [
-    9.082,
-    8.6753,
-  ];
+  const defaultCenter = [9.082, 8.6753];
 
-  const center =
-    position
-      ? [
-          position.latitude,
-          position.longitude,
-        ]
-      : defaultCenter;
+  const center = position
+    ? [position.latitude, position.longitude]
+    : defaultCenter;
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border-muted">
@@ -77,10 +58,9 @@ export default function LocationPicker({
         style={{
           height: '350px',
           width: '100%',
-        }}
-      >
+        }}>
         <TileLayer
-          attribution='&copy; OpenStreetMap contributors'
+          attribution="&copy; OpenStreetMap contributors"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
@@ -92,8 +72,7 @@ export default function LocationPicker({
       </MapContainer>
 
       <div className="bg-white p-3 text-sm text-body-text">
-        Click anywhere on the map to select the
-        pickup location.
+        Click anywhere on the map to select the pickup location.
       </div>
     </div>
   );
