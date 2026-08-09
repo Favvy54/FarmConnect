@@ -247,7 +247,55 @@ export async function updateVendorProfile(payload) {
     auth: true,
   });
 }
+export async function updateVendorLocation(
+  longitude,
+  latitude
+) {
+  return profileRequest("/vendors/location", {
+    method: "PATCH",
+    auth: true,
+    body: {
+      longitude,
+      latitude,
+    },
+  });
+}
 
+
+export async function updateCurrentVendorLocation() {
+
+  if (!("geolocation" in navigator)) {
+    throw new Error(
+      "Geolocation is not supported by this browser."
+    );
+  }
+
+  const position = await new Promise(
+    (resolve, reject) => {
+
+      navigator.geolocation.getCurrentPosition(
+        resolve,
+        reject,
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        }
+      );
+
+    }
+  );
+
+  const {
+    longitude,
+    latitude
+  } = position.coords;
+
+  return updateVendorLocation(
+    longitude,
+    latitude
+  );
+}
 // Delete Vendor Profile
 export async function deleteVendorProfile() {
   return profileRequest('/vendors/profile', {
