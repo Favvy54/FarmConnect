@@ -12,7 +12,7 @@ const NAV_ITEMS = [
 
 export default function VendorSidebar({
   active = 'home',
-  role='vendor',
+  // role='vendor',
   onNavigate,
   onLogout,
   isOpen = false,
@@ -20,7 +20,7 @@ export default function VendorSidebar({
   className = '',
 }) {
 
-  const visibleItems = NAV_ITEMS.filter((item) => item.roles.includes(role));
+  // const visibleItems = NAV_ITEMS.filter((item) => item.roles.includes(role));
 
   return (
     <aside

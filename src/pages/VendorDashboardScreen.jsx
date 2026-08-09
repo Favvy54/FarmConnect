@@ -63,9 +63,7 @@ export default function VendorDashboardScreen({
       try {
         const token = getToken();
 
-        // ==================== VENDOR PROFILE ====================
-        // Loads the vendor's business information for the dashboard
-        // (Business Name, Location, etc.)
+       
 
         const vendorResponse = await fetch(
           'https://farmconnect-backend-1.onrender.com/api/vendors/profile',
