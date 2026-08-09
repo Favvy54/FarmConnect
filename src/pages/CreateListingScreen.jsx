@@ -6,8 +6,16 @@ import { Upload, Clock, MapPin, X, CheckCircle2 } from 'lucide-react';
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import TextField from '../components/TextField.jsx';
 import PrimaryButton from '../components/PrimaryButton.jsx';
-import { createListing, getVendorProfile } from '../services/auth.js';
+import {
+  createListing,
+  getVendorProfile,
+  updateCurrentVendorLocation,
+  getLocationFromCoordinates,
+  updateVendorLocation,
+} from '../services/auth.js';
 import { uploadImageToCloudinary } from '../services/uploadImage.js';
+
+import LocationPicker from '../components/LocationPicker.jsx';
 import notify from "../services/toast";
 
     const CATEGORY_OPTIONS = [
@@ -59,12 +67,29 @@ export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
   
 
   const [expiryDuration, setExpiryDuration] = useState(720); // minutes
-  const [locationMode, setLocationMode] = useState('vendor'); // 'vendor' | 'custom'
-  const [vendorAddress, setVendorAddress] = useState('');
-  const [customStreet, setCustomStreet] = useState('');
-  const [customCity, setCustomCity] = useState('');
-  const [customState, setCustomState] = useState('');
-  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [locationMode, setLocationMode] =
+  useState('vendor');
+
+const [vendorAddress, setVendorAddress] =
+  useState('');
+
+const [customStreet, setCustomStreet] =
+  useState('');
+
+const [customCity, setCustomCity] =
+  useState('');
+
+const [customState, setCustomState] =
+  useState('');
+
+const [customLatitude, setCustomLatitude] =
+  useState(null);
+
+const [customLongitude, setCustomLongitude] =
+  useState(null);
+
+const [showLocationModal, setShowLocationModal] =
+  useState(false);
 
   const [photoFile, setPhotoFile] = useState([]);
   const [photoPreview, setPhotoPreview] = useState([]);
@@ -73,24 +98,94 @@ export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
   const [showSuccess, setShowSuccess] = useState(false);
   const [pickupTime, setPickupTime] = useState("");
 
-  // Fetch the vendor's business address so "Use Business Address" actually populates
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await getVendorProfile();
-        console.log('vendor profile response:', res); // TEMP — remove once shape is confirmed
+  const handleMapLocationSelect = async (
+  latitude,
+  longitude
+) => {
+  setCustomLatitude(latitude);
+  setCustomLongitude(longitude);
 
-        const vendor = res?.data;
-        const parts = [vendor?.businessName, vendor?.permanentAddress].filter(
-          Boolean,
-        );
-        setVendorAddress(parts.join(' — ') || 'No business address on file');
-      } catch (err) {
-        console.error('Failed to load vendor profile:', err);
-        setVendorAddress('Could not load business address');
-      }
-    })();
-  }, []);
+  try {
+    const address =
+      await getLocationFromCoordinates(
+        longitude,
+        latitude
+      );
+
+    if (address) {
+      setCustomStreet(
+        address.street || ''
+      );
+
+      setCustomCity(
+        address.city || ''
+      );
+
+      setCustomState(
+        address.state || ''
+      );
+    }
+  } catch (error) {
+    console.warn(
+      'Could not get address for selected location:',
+      error
+    );
+  }
+};  
+
+  // Fetch the vendor's business address so "Use Business Address" actually populates
+    useEffect(() => {
+      (async () => {
+        try {
+          const res = await getVendorProfile();
+    
+          console.log(
+            'vendor profile response:',
+            res
+          );
+    
+          const vendor = res?.data;
+    
+          const parts = [
+            vendor?.businessName,
+            vendor?.permanentAddress
+          ].filter(Boolean);
+    
+          setVendorAddress(
+            parts.join(' — ') ||
+            'No business address on file'
+          );
+    
+          // Update vendor's current GPS location
+          try {
+            await updateCurrentVendorLocation();
+    
+            console.log(
+              'Vendor GPS location updated.'
+            );
+    
+          } catch (locationError) {
+    
+            console.warn(
+              'Could not update vendor GPS location:',
+              locationError
+            );
+    
+          }
+    
+        } catch (err) {
+    
+          console.error(
+            'Failed to load vendor profile:',
+            err
+          );
+    
+          setVendorAddress(
+            'Could not load business address'
+          );
+        }
+      })();
+    }, []);
 
   const MAX_PHOTOS = 3;
 
@@ -152,6 +247,20 @@ export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
         price: isFree ? 0 : Number(price),
         expiryDuration, 
       };
+
+        if (locationMode === 'custom') {
+          if (
+            customLatitude === null ||
+            customLongitude === null
+          ) {
+            throw new Error(
+              'Please select a pickup location on the map.'
+            );
+          }
+        
+          payload.latitude = customLatitude;
+          payload.longitude = customLongitude;
+        }
 
       const res = await createListing(payload);
       const created = res?.data?.listing || res?.data || res;
@@ -548,6 +657,20 @@ export default function CreateListingScreen({ onNavigate, onBack, onLogout }) {
 
             {locationMode === 'custom' && (
               <div className="mt-4 space-y-4 border-t border-border-muted pt-4">
+                  <div className="mb-4">
+                      <label className="mb-2 block text-body1 font-semibold text-ink">
+                        Select Pickup Location
+                      </label>
+                    
+                      <p className="mb-3 text-sm text-body-text">
+                        Click the exact place where users should pick up
+                        this listing.
+                      </p>
+                    
+                      <LocationPicker
+                        onSelect={handleMapLocationSelect}
+                      />
+                    </div>
                 <div>
                   <label className="mb-2 block text-body1 font-semibold text-ink">
                     Street Name
