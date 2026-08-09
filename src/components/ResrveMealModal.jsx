@@ -186,7 +186,7 @@ export default function ReserveMealModal({ listing, isOpen, onClose }) {
             {isExpired ? 'Listing Expired' : 'Reserve Meal'}
           </button>
           <p className="mt-2 text-center text-caption text-body-text">
-            You won't be charged yet
+            You won't be charged yet. 
           </p>
         </div>
       </div>
