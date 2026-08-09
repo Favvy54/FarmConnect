@@ -247,7 +247,55 @@ export async function updateVendorProfile(payload) {
     auth: true,
   });
 }
+export async function updateVendorLocation(
+  longitude,
+  latitude
+) {
+  return profileRequest("/vendors/location", {
+    method: "PATCH",
+    auth: true,
+    body: {
+      longitude,
+      latitude,
+    },
+  });
+}
 
+
+export async function updateCurrentVendorLocation() {
+
+  if (!("geolocation" in navigator)) {
+    throw new Error(
+      "Geolocation is not supported by this browser."
+    );
+  }
+
+  const position = await new Promise(
+    (resolve, reject) => {
+
+      navigator.geolocation.getCurrentPosition(
+        resolve,
+        reject,
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        }
+      );
+
+    }
+  );
+
+  const {
+    longitude,
+    latitude
+  } = position.coords;
+
+  return updateVendorLocation(
+    longitude,
+    latitude
+  );
+}
 // Delete Vendor Profile
 export async function deleteVendorProfile() {
   return profileRequest('/vendors/profile', {
@@ -362,10 +410,30 @@ export async function getAllListings(search = "") {
   return res?.data || [];
 }
 
-export async function getNearbyListings() {
-  const res = await profileRequest('/listings/nearby', {
+export async function getNearbyListings(
+  longitude,
+  latitude,
+  maxDistance = 10000
+) {
+  let url = '/listings/nearby';
+
+  if (
+    longitude !== undefined &&
+    latitude !== undefined
+  ) {
+    const query = new URLSearchParams({
+      longitude: String(longitude),
+      latitude: String(latitude),
+      maxDistance: String(maxDistance),
+    });
+
+    url += `?${query.toString()}`;
+  }
+
+  const res = await profileRequest(url, {
     method: 'GET',
     auth: true,
   });
+
   return res?.data || [];
 }

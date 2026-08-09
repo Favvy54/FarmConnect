@@ -9,6 +9,8 @@ import {
 } from '../services/auth.js';
 import { uploadImageToCloudinary } from '@/services/uploadImage.js';
 import * as nigerianStates from 'nigerian-states-and-lgas';
+import { logEvent } from 'firebase/analytics';
+import { analytics } from '../firebase.js';
 
 const BUSINESS_TYPES = ['Restaurant', 'Event Caterer', 'Bakery'];
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -93,58 +95,101 @@ export default function VendorProfileScreen({ onComplete }) {
     return null;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const validationError = validateForm();
+  const validationError = validateForm();
 
-    if (validationError) {
-      setError(validationError);
-      return;
+  if (validationError) {
+    setError(validationError);
+    return;
+  }
+
+  setError(null);
+  setLoading(true);
+
+  try {
+    let profileImageUrl = 'https://placehold.co';
+
+    if (photoFile) {
+      profileImageUrl =
+        await uploadImageToCloudinary(photoFile);
     }
 
-    setError(null);
-    setLoading(true);
+    // Get the vendor's real physical GPS location
+    const position = await new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        resolve,
+        reject,
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        }
+      );
+    });
 
-    try {
-      let profileImageUrl = 'https://placehold.co';
+    const longitude = position.coords.longitude;
+    const latitude = position.coords.latitude;
 
-      if (photoFile) {
-        profileImageUrl = await uploadImageToCloudinary(photoFile);
-      }
+    const location = {
+      type: 'Point',
+      coordinates: [
+        longitude,
+        latitude,
+      ],
+    };
 
-      // Backend expects these exact field names
-      const currentLocation = currentAddressInput.trim();
-      const permanentAddress = permanentAddressInput.trim();
+    const currentLocation =
+      currentAddressInput.trim();
 
-      await createVendorProfile({
-        businessName,
-        businessType,
-        email: getEmail(),
-        phone: businessPhone,
-        description,
-        city,
-        state,
-        permanentAddress,
-        currentLocation,
-        profileImage: profileImageUrl,
-        operatingHours: `${openTime} - ${closeTime}`,
-      });
+    const permanentAddress =
+      permanentAddressInput.trim();
 
-      logEvent(analytics, 'vendor_profile_created', {
-       business_name: businessName,
+    await createVendorProfile({
+      businessName,
+      businessType,
+      email: getEmail(),
+      phone: businessPhone,
+      description,
+      city,
+      state,
+      permanentAddress,
+      currentLocation,
+      profileImage: profileImageUrl,
+      operatingHours: `${openTime} - ${closeTime}`,
+
+      location,
+    });
+
+    logEvent(
+      analytics,
+      'vendor_profile_created',
+      {
+        business_name: businessName,
         business_type: businessType,
         city,
         state,
-      });
+      }
+    );
 
-      onComplete?.();
-    } catch (err) {
-      setError(err.message || 'Something went wrong creating your profile.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    onComplete?.();
+
+  } catch (err) {
+    console.error(
+      'Vendor profile creation error:',
+      err
+    );
+
+    setError(
+      err.message ||
+      'Something went wrong creating your profile.'
+    );
+
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <form
