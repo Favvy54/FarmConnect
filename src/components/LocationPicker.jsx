@@ -1,5 +1,10 @@
 import { useState } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  useMapEvents,
+} from 'react-leaflet';
 
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -14,6 +19,7 @@ const defaultIcon = L.icon({
   shadowUrl: markerShadow,
   iconSize: [25, 41],
   iconAnchor: [12, 41],
+  shadowSize: [41, 41],
 });
 
 function LocationMarker({ position, setPosition, onSelect }) {
@@ -28,37 +34,50 @@ function LocationMarker({ position, setPosition, onSelect }) {
 
       setPosition(selectedLocation);
 
-      onSelect(lat, lng);
+      if (onSelect) {
+        onSelect(lat, lng);
+      }
     },
   });
 
   return position ? (
     <Marker
-      position={[position.latitude, position.longitude]}
+      position={[
+        position.latitude,
+        position.longitude,
+      ]}
       icon={defaultIcon}
     />
   ) : null;
 }
 
-export default function LocationPicker({ initialPosition = null, onSelect }) {
-  const [position, setPosition] = useState(initialPosition);
+export default function LocationPicker({
+  initialPosition = null,
+  onSelect,
+}) {
+  const [position, setPosition] =
+    useState(initialPosition);
 
-  // Nigeria-centered default view.
+  // Nigeria-centered default view
   const defaultCenter = [9.082, 8.6753];
 
   const center = position
-    ? [position.latitude, position.longitude]
+    ? [
+        position.latitude,
+        position.longitude,
+      ]
     : defaultCenter;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border-muted">
+    <div className="w-full overflow-hidden rounded-xl">
       <MapContainer
         center={center}
         zoom={position ? 15 : 6}
         style={{
           height: '350px',
           width: '100%',
-        }}>
+        }}
+      >
         <TileLayer
           attribution="&copy; OpenStreetMap contributors"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
