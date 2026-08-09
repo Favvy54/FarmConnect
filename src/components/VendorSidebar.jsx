@@ -12,12 +12,16 @@ const NAV_ITEMS = [
 
 export default function VendorSidebar({
   active = 'home',
+  role='vendor'
   onNavigate,
   onLogout,
   isOpen = false,
   onClose,
   className = '',
 }) {
+
+  const visibleItems = NAV_ITEMS.filter((item) => item.roles.includes(role));
+
   return (
     <aside
       className={`border border-border-muted p-6 flex flex-col 
@@ -39,7 +43,7 @@ export default function VendorSidebar({
       </div>
 
       <nav className="flex flex-col gap-1">
-        {NAV_ITEMS.map(({ icon: Icon, label, key }) => (
+        {visibleItems.map(({ icon: Icon, label, key }) => (
           <button
             key={key}
             onClick={() => onNavigate?.(key)}

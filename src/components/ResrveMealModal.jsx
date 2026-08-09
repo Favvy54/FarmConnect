@@ -1,0 +1,195 @@
+import { useState, useEffect } from 'react';
+import { X, Timer, Calendar, Clock, MapPin, Info } from 'lucide-react';
+
+// Same deadline math used everywhere else (ManageListingScreen, UserDashboardScreen, MealDetailScreen).
+function computeMsLeft(listing) {
+  let expiry = null;
+
+  if (listing?.expiresAt) {
+    expiry = new Date(listing.expiresAt);
+  } else if (listing?.createdAt && listing?.expiryDuration != null) {
+    expiry = new Date(
+      new Date(listing.createdAt).getTime() + listing.expiryDuration * 60000,
+    );
+  }
+
+  if (!expiry) return null;
+  return Math.max(0, expiry - new Date());
+}
+
+function formatDeadlineTime(listing) {
+  if (listing?.expiresAt) {
+    return new Date(listing.expiresAt).toLocaleTimeString([], {
+      hour: 'numeric',
+      minute: '2-digit',
+    });
+  }
+  if (listing?.createdAt && listing?.expiryDuration != null) {
+    const expiry = new Date(
+      new Date(listing.createdAt).getTime() + listing.expiryDuration * 60000,
+    );
+    return expiry.toLocaleTimeString([], {
+      hour: 'numeric',
+      minute: '2-digit',
+    });
+  }
+  return null;
+}
+
+export default function ReserveMealModal({ listing, isOpen, onClose }) {
+  const [quantity, setQuantity] = useState(0);
+
+  // Reset quantity each time a new listing is opened.
+  useEffect(() => {
+    if (isOpen) setQuantity(0);
+  }, [isOpen, listing?._id]);
+
+  if (!isOpen || !listing) return null;
+
+  const image = listing.imageUrls?.[0] || '/img-placeholder.png';
+  const mealsLeft = Math.max(
+    0,
+    (listing.quantity || 0) - (listing.totalReservations || 0),
+  );
+  const remainingAfterSelection = mealsLeft - quantity;
+  const totalPrice = listing.isFree ? 0 : (listing.price || 0) * quantity;
+  const deadlineTime = formatDeadlineTime(listing);
+  const msLeft = computeMsLeft(listing);
+  const isExpired = msLeft !== null && msLeft <= 0;
+
+  const today = new Date().toLocaleDateString('en-US', {
+    weekday: undefined,
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  const handleReserve = () => {
+    // TODO: wire to a real reservation endpoint once backend confirms one.
+    alert('Reservation flow not wired up yet — no backend endpoint confirmed.');
+  };
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div className="fixed inset-0 z-40 bg-black/40" onClick={onClose} />
+
+      {/* Panel — full screen on mobile, slide-in from the right on larger screens */}
+      <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md overflow-y-auto bg-white shadow-xl">
+        <div className="flex items-center justify-between border-b border-border-muted px-5 py-4">
+          <h2 className="text-lg font-bold text-ink">Reserve Meal</h2>
+          <button onClick={onClose} className="text-ink">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="p-5">
+          <img
+            src={image}
+            alt={listing.foodName}
+            className="h-48 w-full rounded-2xl object-cover"
+          />
+
+          <div className="mt-4 flex items-start gap-3 rounded-xl bg-green-light p-4">
+            <Timer className="mt-0.5 h-4 w-4 shrink-0 text-green-normal" />
+            <div>
+              <p className="text-body2 font-medium text-green-normal">
+                Reservation Hold
+              </p>
+              <p className="text-caption text-green-normal">
+                Your reservation would be held for 1 hour
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5">
+            <p className="mb-2 text-body1 font-semibold text-ink">Quantity</p>
+            <div className="flex items-center justify-between rounded-full border border-border-muted px-4 py-2">
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.max(0, q - 1))}
+                disabled={quantity === 0}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-green-normal text-white disabled:opacity-40">
+                −
+              </button>
+              <span className="text-body1 font-medium text-ink">
+                {quantity}
+              </span>
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.min(mealsLeft, q + 1))}
+                disabled={quantity >= mealsLeft}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-green-normal text-white disabled:opacity-40">
+                +
+              </button>
+            </div>
+            <p className="mt-1 text-caption text-body-text">
+              {remainingAfterSelection} more left
+            </p>
+          </div>
+
+          <div className="mt-5 rounded-2xl border border-border-muted p-4">
+            <h3 className="mb-3 text-body1 font-bold text-ink">
+              Pickup Information
+            </h3>
+
+            <div className="flex items-start gap-3">
+              <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-body-text" />
+              <div>
+                <p className="text-body2 font-medium text-ink">Pickup Today</p>
+                <p className="text-caption text-body-text">{today}</p>
+              </div>
+            </div>
+
+            <div className="mt-3 flex items-start gap-3">
+              <Clock className="mt-0.5 h-4 w-4 shrink-0 text-body-text" />
+              <div>
+                <p className="text-body2 font-medium text-ink">
+                  Pickup Deadline
+                </p>
+                <p className="text-caption text-body-text">
+                  {deadlineTime ? `Today, by ${deadlineTime}` : 'Not set'}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-3 flex items-start gap-3">
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-body-text" />
+              <p className="text-body2 text-ink">
+                {listing.pickupLocation || 'Pickup location unavailable'}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5 flex items-start gap-3 rounded-xl bg-orange-light p-4">
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-orange-normal" />
+            <p className="text-caption text-orange-dark">
+              Please arrive before the reservation hold expires. Your
+              reservation would be cancelled if not picked up on time.
+            </p>
+          </div>
+
+          <div className="mt-5 flex items-center justify-between">
+            <span className="text-body1 font-semibold text-ink">
+              Total Price:
+            </span>
+            <span className="text-body1 font-bold text-ink">
+              {listing.isFree ? 'Free' : `₦${totalPrice.toLocaleString()}`}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleReserve}
+            disabled={quantity === 0 || isExpired}
+            className="mt-4 w-full rounded-xl bg-green-normal py-3 text-body1 font-semibold text-white disabled:opacity-50">
+            {isExpired ? 'Listing Expired' : 'Reserve Meal'}
+          </button>
+          <p className="mt-2 text-center text-caption text-body-text">
+            You won't be charged yet
+          </p>
+        </div>
+      </div>
+    </>
+  );
+}

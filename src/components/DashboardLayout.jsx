@@ -10,6 +10,7 @@ import { Menu, X, MapPin, Bell, UserCircle } from 'lucide-react';
 
 export default function DashboardLayout({
   active,
+  role = 'vendor',
   onNavigate,
   onLogout,
   title,
@@ -97,6 +98,7 @@ export default function DashboardLayout({
       <div className="relative">
         <VendorSidebar
           active={active}
+          role={role}
           onNavigate={(key) => {
             setSidebarOpen(false);
             onNavigate?.(key);

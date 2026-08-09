@@ -8,6 +8,8 @@ import {
   getNearbyListings,
   getAppUserProfile,
 } from '../services/auth.js';
+import ReserveMealModal from '../components/ReserveMealModal.jsx';
+
 
 const CATEGORY_PILLS = [
  "Cooked Meals",
@@ -43,7 +45,7 @@ const CATEGORY_PILLS = [
         "Local Delicacies",
 ];
 
-function MealCard({ listing }) {
+function MealCard({ listing, variant = 'grid' }) {
   const navigate = useNavigate();
   const image = listing.imageUrls?.[0] || '/img-placeholder.png';
   const mealsLeft = Math.max(
@@ -61,15 +63,28 @@ function MealCard({ listing }) {
     navigate(`/user/meal/${listing._id}`, { state: { listing } });
   };
 
+  const buttonColor =
+    variant === 'urgent' ? 'bg-orange-normal' : 'bg-green-normal';
+
   return (
     <div
       onClick={handleClick}
-      className="w-[78vw] max-w-[320px] min-w-60 sm:w-72 md:w-80 shrink-0 rounded-2xl border border-border-muted bg-white overflow-hidden shadow-sm flex flex-col cursor-pointer">
-      <img
-        src={image}
-        alt={listing.foodName}
-        className="h-40 w-full object-cover"
-      />
+      className={`rounded-2xl border border-border-muted bg-white overflow-hidden shadow-sm flex flex-col cursor-pointer ${
+        variant === 'urgent' ? 'w-56 shrink-0' : 'w-full'
+      }`}>
+      <div className="relative">
+        <img
+          src={image}
+          alt={listing.foodName}
+          className="h-40 w-full object-cover"
+        />
+        {variant === 'urgent' && minutesLeft > 0 && (
+          <span className="absolute right-2 top-2 rounded-full bg-white px-2 py-1 text-xs font-semibold text-orange-normal shadow">
+            {minutesLeft} mins left
+          </span>
+        )}
+      </div>
+
       <div className="flex flex-1 flex-col justify-between px-3 pb-3 pt-3">
         <div className="flex flex-col gap-1">
           <p className="text-regular font-bold text-ink">{listing.foodName}</p>
@@ -78,38 +93,26 @@ function MealCard({ listing }) {
           </p>
         </div>
 
-        <div className="flex items-center justify-between">
-          <span className="text-normal font-semibold text-green-normal">
-            {listing.isFree ? 'Free' : `₦${listing.price}`}
-          </span>
-        </div>
+        <span className="text-normal font-semibold text-green-normal">
+          {listing.isFree ? 'Free' : `₦${listing.price}`}
+        </span>
 
-        <div className="mt-2 flex items-center justify-between gap-3">
-          <div>
-            <p
-              className={
-                mealsLeft <= 3
-                  ? 'text-error font-medium text-normal'
-                  : 'text-charcoal text-normal'
-              }>
-              {mealsLeft} meals left
-            </p>
-
-            {minutesLeft > 0 && (
-              <p className="text-xs text-orange-normal font-medium">
-                {minutesLeft} mins left
-              </p>
-            )}
-          </div>
-
-          <p className="text-charcoal truncate text-right text-normal">
-            {location}
+        <div className="mt-1 flex items-center justify-between text-normal">
+          <p
+            className={
+              mealsLeft <= 5 ? 'text-error font-medium' : 'text-charcoal'
+            }>
+            {mealsLeft} meals left
           </p>
+          <p className="text-charcoal truncate text-right">{location}</p>
         </div>
 
         <button
-          onClick={(e) => e.stopPropagation()}
-          className="mt-3 w-full rounded-xl bg-green-normal py-2.5 text-sm font-semibold text-white">
+          onClick={(e) =>{ e.stopPropagation()
+          onReserve?.(listing);
+
+          }}
+          className={`mt-3 w-full rounded-xl ${buttonColor} py-2.5 text-sm font-semibold text-white`}>
           Reserve now
         </button>
       </div>
@@ -117,7 +120,9 @@ function MealCard({ listing }) {
   );
 }
 
-function ListingRow({ icon, title, listings, accentClass }) {
+function GridListingRow({ icon, title, listings, accentClass, onViewMore }) {
+  const displayListings = listings.slice(0, 12);
+
   return (
     <div className="rounded-2xl border border-border-muted bg-white p-5">
       <div className="mb-4 flex items-center justify-between">
@@ -125,18 +130,61 @@ function ListingRow({ icon, title, listings, accentClass }) {
           {icon}
           <h2 className="text-lg font-semibold text-ink">{title}</h2>
         </div>
-        <a href="#" className={`text-sm font-medium ${accentClass}`}>
+        <button
+          onClick={onViewMore}
+          className={`text-sm font-medium ${accentClass}`}>
           View more →
-        </a>
+        </button>
       </div>
-      <div className="flex gap-4 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden pb-2">
-        {listings.map((l) => (
-          <MealCard key={l._id} listing={l} />
+      <div
+        className="grid grid-cols-2 gap-4
+          sm:grid-cols-3
+          lg:grid-cols-4
+          [&>*:nth-child(n+5)]:hidden
+          sm:[&>*:nth-child(n+7)]:hidden
+          lg:[&>*:nth-child(n+13)]:hidden">
+        {displayListings.map((l, index) => (
+          <MealCard
+            key={l._id || l.id || index}
+            listing={l}
+            variant="grid"
+            onReserve={onReserve}
+          />
         ))}
       </div>
     </div>
   );
 }
+
+function ScrollListingRow({ icon, title, listings, accentClass, onViewMore }) {
+  return (
+    <div className="rounded-2xl border border-border-muted bg-white p-5">
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {icon}
+          <h2 className="text-lg font-semibold text-ink">{title}</h2>
+        </div>
+        <button
+          onClick={onViewMore}
+          className={`text-sm font-medium ${accentClass}`}>
+          View more →
+        </button>
+      </div>
+      <div className="flex gap-4 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden pb-2">
+        {listings.map((l, index) => (
+          <MealCard
+            key={l._id || l.id || index}
+            listing={l}
+            variant="urgent"
+            onReserve={onReserve}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
 
 export default function UserDashboard({ onNavigate, onLogout }) {
   const [search, setSearch] = useState('');
@@ -147,6 +195,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
     state: '',
     city: '',
   });
+  const [sortBy, setSortBy] = useState('newest'); // 'newest' | 'price_low' | 'price_high'
 
   // 'nearby' = default dashboard view, 'market' = full marketplace
   const [viewMode, setViewMode] = useState('nearby');
@@ -158,6 +207,8 @@ export default function UserDashboard({ onNavigate, onLogout }) {
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState(null);
+  
+  const [reserveListing, setReserveListing] = useState(null);
 
   // Initial load: profile + nearby listings
   useEffect(() => {
@@ -185,15 +236,10 @@ export default function UserDashboard({ onNavigate, onLogout }) {
     })();
   }, []);
 
-  // Typing in search always searches the full marketplace, per product decision.
-  // Switch view to 'market' automatically once there's a query; fall back to
-  // 'nearby' when the box is cleared (unless the user explicitly picked
-  // "Market Listings" from the filter dropdown, tracked separately below).
   useEffect(() => {
     const trimmed = search.trim();
 
     if (!trimmed) {
-      // No active search — respect whatever the filter dropdown last set.
       return;
     }
 
@@ -210,13 +256,11 @@ export default function UserDashboard({ onNavigate, onLogout }) {
       } finally {
         setSearching(false);
       }
-    }, 350); // light debounce so we're not firing a request per keystroke
+    }, 350);
 
     return () => clearTimeout(timeout);
   }, [search]);
 
-  // Explicitly switching to "Market Listings" from the dropdown with an empty
-  // search box should still load the full marketplace (unfiltered).
   useEffect(() => {
     if (viewMode !== 'market' || search.trim()) return;
 
@@ -235,39 +279,37 @@ export default function UserDashboard({ onNavigate, onLogout }) {
   }, [viewMode]);
 
   const activeListings =
-    search.trim() || viewMode === 'market'
-        ? marketListings
-        : nearbyListings;
+    search.trim() || viewMode === 'market' ? marketListings : nearbyListings;
 
-  const filteredListings = activeListings.filter((l) => {
-    const matchesCategory = activeCategory
-      ? l.category === activeCategory
-      : true;
-    return matchesCategory;
-  });
+  const filteredListings = activeListings
+    .filter((l) => {
+      const matchesCategory = activeCategory
+        ? l.category === activeCategory
+        : true;
+      return matchesCategory;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'price_low') return (a.price || 0) - (b.price || 0);
+      if (sortBy === 'price_high') return (b.price || 0) - (a.price || 0);
+      // newest first by default
+      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    });
 
   const exploreMeals = filteredListings;
 
- const lastChance = filteredListings.filter((listing) => {
-  const mealsLeft =
-    Math.max(
+  const lastChance = filteredListings.filter((listing) => {
+    const mealsLeft = Math.max(
       0,
-      (listing.quantity || 0) -
-      (listing.totalReservations || 0)
+      (listing.quantity || 0) - (listing.totalReservations || 0),
     );
-  
-  const fewLeft =
-    mealsLeft > 0 &&
-    mealsLeft <= 3;
 
-  const endingSoon =
-    listing.minutesLeft > 0 &&
-    listing.minutesLeft <= 30;
+    const fewLeft = mealsLeft > 0 && mealsLeft <= 5;
 
-  return fewLeft || endingSoon;
-});
-  
-  
+    const endingSoon = listing.minutesLeft > 0 && listing.minutesLeft <= 30;
+
+    return fewLeft || endingSoon;
+  });
+
   const handleSelectViewMode = (mode) => {
     setViewMode(mode);
     setIsFilterOpen(false);
@@ -279,6 +321,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
   return (
     <DashboardLayout
       active="home"
+      role="user"
       onNavigate={onNavigate}
       onLogout={onLogout}
       title={
@@ -339,24 +382,36 @@ export default function UserDashboard({ onNavigate, onLogout }) {
                     <Check className="h-4 w-4 text-green-normal" />
                   )}
                 </button>
+
+                <div className="my-1 border-t border-border-muted" />
+
                 <button
-                  onClick={() => handleSelectViewMode('market')}
+                  onClick={() => {
+                    setSortBy('newest');
+                    setIsFilterOpen(false);
+                  }}
                   className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-light/40">
                   Newest Listings
-                  {viewMode === 'market' && (
+                  {sortBy === 'newest' && (
                     <Check className="h-4 w-4 text-green-normal" />
                   )}
                 </button>
                 <button
-                  onClick={() => handleSelectViewMode('market')}
+                  onClick={() => {
+                    setSortBy('price_low');
+                    setIsFilterOpen(false);
+                  }}
                   className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-light/40">
                   Price: Low to High
-                  {viewMode === 'market' && (
+                  {sortBy === 'price_low' && (
                     <Check className="h-4 w-4 text-green-normal" />
                   )}
                 </button>
                 <button
-                  onClick={() => handleSelectViewMode('market')}
+                  onClick={() => {
+                    setSortBy('price_high');
+                    setIsFilterOpen(false);
+                  }}
                   className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-light/40">
                   Price: High to Low
                   {viewMode === 'market' && (
@@ -393,19 +448,30 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         </div>
       ) : (
         <div className="space-y-6">
-          <ListingRow
+          <GridListingRow
             icon={<Zap className="h-5 w-5 text-green-normal" />}
             title={viewMode === 'market' ? 'Marketplace' : 'Explore Meals'}
             listings={exploreMeals}
             accentClass="text-green-normal"
+            onViewMore={() => onNavigate?.('listings')}
+            onReserve={(listing) => setReserveListing(listing)}
           />
 
-          <ListingRow
+          <ScrollListingRow
             icon={<Clock className="h-5 w-5 text-orange-normal" />}
             title="Last Chance"
             listings={lastChance}
             accentClass="text-orange-normal"
+            onViewMore={() => onNavigate?.('listings')}
+            onReserve={(listing) => setReserveListing(listing)}
           />
+
+          <ReserveMealModal
+            listing={reserveListing}
+            isOpen={!!reserveListing}
+            onClose={() => setReserveListing(null)}
+              />
+              
         </div>
       )}
     </DashboardLayout>

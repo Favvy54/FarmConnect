@@ -118,6 +118,7 @@ export default function MealDetailScreen({ onNavigate, onLogout }) {
     return (
       <DashboardLayout
         active="home"
+        role="user"
         onNavigate={onNavigate}
         onLogout={onLogout}
         title="Meal not found"
