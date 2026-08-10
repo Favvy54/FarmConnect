@@ -79,7 +79,7 @@ export default function ReserveMealModal({ listing, isOpen, onClose }) {
          quantityRequested: quantity,
        });
        const reservation = res?.data || res;
-       onReserved?.(reservation); // parent decides what happens next (e.g. show ReservationConfirmedModal with reservation.pickupCode)
+       onReserved?.(reservation);
        onClose?.();
      } catch (err) {
        setReserveError(err.message || 'Could not complete your reservation.');
@@ -91,7 +91,7 @@ export default function ReserveMealModal({ listing, isOpen, onClose }) {
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 z-40 bg-black/40" onClick={onClose} />
+      <div className="fixed min-h-screen inset-0 z-40 bg-black/40" onClick={onClose} />
 
       {/* Panel — full screen on mobile, slide-in from the right on larger screens */}
       <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md overflow-y-auto bg-white shadow-xl">
