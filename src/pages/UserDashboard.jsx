@@ -45,7 +45,7 @@ const CATEGORY_PILLS = [
         "Local Delicacies",
 ];
 
-function MealCard({ listing, variant = 'grid' }) {
+function MealCard({ listing, variant = 'grid', onReserve }) {
   const navigate = useNavigate();
   const image = listing.imageUrls?.[0] || '/img-placeholder.png';
   const mealsLeft = Math.max(
@@ -108,9 +108,9 @@ function MealCard({ listing, variant = 'grid' }) {
         </div>
 
         <button
-          onClick={(e) =>{ e.stopPropagation()
-          onReserve?.(listing);
-
+          onClick={(e) => {
+            e.stopPropagation();
+            onReserve?.(listing);
           }}
           className={`mt-3 w-full rounded-xl ${buttonColor} py-2.5 text-sm font-semibold text-white`}>
           Reserve now
@@ -120,7 +120,14 @@ function MealCard({ listing, variant = 'grid' }) {
   );
 }
 
-function GridListingRow({ icon, title, listings, accentClass, onViewMore }) {
+function GridListingRow({
+  icon,
+  title,
+  listings,
+  accentClass,
+  onViewMore,
+  onReserve,
+}) {
   const displayListings = listings.slice(0, 12);
 
   return (
@@ -156,7 +163,14 @@ function GridListingRow({ icon, title, listings, accentClass, onViewMore }) {
   );
 }
 
-function ScrollListingRow({ icon, title, listings, accentClass, onViewMore }) {
+function ScrollListingRow({
+  icon,
+  title,
+  listings,
+  accentClass,
+  onViewMore,
+  onReserve,
+}) {
   return (
     <div className="rounded-2xl border border-border-muted bg-white p-5">
       <div className="mb-4 flex items-center justify-between">
