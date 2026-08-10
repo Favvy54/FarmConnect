@@ -162,38 +162,48 @@ const handleAddressChange = async () => {
     !customCity.trim() ||
     !customState.trim()
   ) {
+    notify.error('Please enter street, city and state.');
     return;
   }
 
   try {
-    const coordinates =
-      await getCoordinatesFromLocation(
-        customStreet,
-        customCity,
-        customState
-      );
+    const coordinates = await getCoordinatesFromLocation(
+      customStreet.trim(),
+      customCity.trim(),
+      customState.trim()
+    );
+
+    console.log('ADDRESS → COORDINATES:', coordinates);
+
+    const latitude = Number(coordinates?.latitude);
+    const longitude = Number(coordinates?.longitude);
 
     if (
-      coordinates?.latitude !== undefined &&
-      coordinates?.longitude !== undefined
+      !Number.isFinite(latitude) ||
+      !Number.isFinite(longitude)
     ) {
-      setCustomLatitude(
-        Number(coordinates.latitude)
-      );
-
-      setCustomLongitude(
-        Number(coordinates.longitude)
-      );
-
-      console.log(
-        'Coordinates obtained from address:',
-        coordinates
-      );
+      notify.error('Could not find coordinates for this address.');
+      return;
     }
+
+    setCustomLatitude(latitude);
+    setCustomLongitude(longitude);
+
+    console.log('MAP SHOULD MOVE TO:', {
+      latitude,
+      longitude,
+    });
+
+    notify.success('Location found.');
   } catch (error) {
-    console.warn(
+    console.error(
       'Could not get coordinates from address:',
       error
+    );
+
+    notify.error(
+      error.message ||
+        'Could not find this location.'
     );
   }
 };
@@ -990,8 +1000,9 @@ const handleAddressChange = async () => {
                   <p className="mb-3 text-sm font-medium text-ink">
                     Or select the exact pickup point on the map
                   </p>
-            
+                
                   <LocationPicker
+                    key={`${customLatitude}-${customLongitude}`}
                     initialPosition={
                       customLatitude !== null &&
                       customLongitude !== null
