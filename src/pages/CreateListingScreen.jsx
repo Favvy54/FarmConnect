@@ -129,20 +129,25 @@ export default function CreateListingScreen({
     })();
   }, []);
 
- 
   const handleMapLocationSelect = async (latitude, longitude) => {
     setCustomLatitude(latitude);
     setCustomLongitude(longitude);
 
-    try {
-      await updateVendorLocation(longitude, latitude);
 
-      console.log('Vendor location updated from selected map location.');
+    try {
+        await updateVendorLocation( longitude, latitude);
+      const address = await getLocationFromCoordinates(longitude, latitude);
+
+      if (address) {
+        setCustomStreet(address.street || '');
+        setCustomCity(address.city || '');
+        setCustomState(address.state || '');
+      }
     } catch (error) {
-      console.warn('Could not update vendor location:', error);
+      console.warn('Could not get address for selected location:', error);
     }
   };
-
+ 
 
   const MAX_PHOTOS = 3;
 

@@ -33,6 +33,7 @@ export default function TextField({
   isPassword = false,
   value,
   onChange,
+  disabled = false,
   required = false,
   className = "w-full"
 }) {
@@ -53,12 +54,14 @@ export default function TextField({
         value={value}
         onChange={onChange}
         required={required}
+        disabled={disabled}
         className={`${styles.border} ${styles.text} ${styles.placeholder} ${styles.padding}
         ${styles.rounded}  w-full border x bg-white pl-12 focus:outline-none focus:border-2 focus:border-green-normal`}
       />
       {isPassword && (
         <button
           type="button"
+          disabled={disabled}
           onClick={() => setShow((s) => !s)}
           className="absolute right-4 top-1/2 -translate-y-1/2 text-body-text">
           {show ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}

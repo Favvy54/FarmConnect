@@ -43,7 +43,7 @@ export default function VendorSidebar({
       </div>
 
       <nav className="flex flex-col gap-1">
-        {visibleItems.map(({ icon: Icon, label, key }) => (
+        {NAV_ITEMS.map(({ icon: Icon, label, key }) =>(
           <button
             key={key}
             onClick={() => onNavigate?.(key)}
