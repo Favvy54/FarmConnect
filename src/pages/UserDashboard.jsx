@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import ReserveMealModal, { formatDeadlineTime} from '../components/ReserveMealModal.jsx';
 import { Search, SlidersHorizontal, Zap, Clock, Check } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import DashboardLayout from '../components/DashboardLayout.jsx';
@@ -65,6 +66,9 @@ function MealCard({ listing, variant = 'grid', onReserve }) {
 
   const buttonColor =
     variant === 'urgent' ? 'bg-orange-normal' : 'bg-green-normal';
+  
+
+
 
   return (
     <div
@@ -223,6 +227,29 @@ export default function UserDashboard({ onNavigate, onLogout }) {
   const [error, setError] = useState(null);
   
   const [reserveListing, setReserveListing] = useState(null);
+  const [confirmedReservation, setConfirmedReservation] = useState(null);
+
+    <ReserveMealModal
+      listing={reserveListing}
+      isOpen={!!reserveListing}
+      onClose={() => setReserveListing(null)}
+      onReserved={(reservation) => setConfirmedReservation(reservation)}
+    />;
+
+    {
+      confirmedReservation && (
+        <ReservationConfirmedModal
+          pickupCode={confirmedReservation.pickupCode}
+          holdMinutes={60}
+          pickupDeadlineLabel={formatDeadlineTime(reserveListing) || 'Not set'}
+          onClose={() => setConfirmedReservation(null)}
+          onViewReservation={() => {
+            setConfirmedReservation(null);
+            onNavigate?.('reservations');
+          }}
+        />
+      );
+    }
 
   // Initial load: profile + nearby listings
   useEffect(() => {

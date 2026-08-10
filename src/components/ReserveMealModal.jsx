@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { X, Timer, Calendar, Clock, MapPin, Info } from 'lucide-react';
+import { createReservation } from '@/services/auth';
 
-// Same deadline math used everywhere else (ManageListingScreen, UserDashboardScreen, MealDetailScreen).
+
 function computeMsLeft(listing) {
   let expiry = null;
 
@@ -17,7 +18,7 @@ function computeMsLeft(listing) {
   return Math.max(0, expiry - new Date());
 }
 
-function formatDeadlineTime(listing) {
+export function formatDeadlineTime(listing) {
   if (listing?.expiresAt) {
     return new Date(listing.expiresAt).toLocaleTimeString([], {
       hour: 'numeric',
@@ -38,10 +39,15 @@ function formatDeadlineTime(listing) {
 
 export default function ReserveMealModal({ listing, isOpen, onClose }) {
   const [quantity, setQuantity] = useState(0);
+    const [reserving, setReserving] = useState(false);
+    const [reserveError, setReserveError] = useState(null);
 
   // Reset quantity each time a new listing is opened.
   useEffect(() => {
-    if (isOpen) setQuantity(0);
+    if (isOpen) {
+      setQuantity(0);
+      setReserveError(null);
+    };
   }, [isOpen, listing?._id]);
 
   if (!isOpen || !listing) return null;
@@ -64,10 +70,23 @@ export default function ReserveMealModal({ listing, isOpen, onClose }) {
     day: 'numeric',
   });
 
-  const handleReserve = () => {
-    // TODO: wire to a real reservation endpoint once backend confirms one.
-    alert('Reservation flow not wired up yet — no backend endpoint confirmed.');
-  };
+   const handleReserve = async () => {
+     setReserveError(null);
+     setReserving(true);
+     try {
+       const res = await createReservation({
+         listingId: listing._id,
+         quantityRequested: quantity,
+       });
+       const reservation = res?.data || res;
+       onReserved?.(reservation); // parent decides what happens next (e.g. show ReservationConfirmedModal with reservation.pickupCode)
+       onClose?.();
+     } catch (err) {
+       setReserveError(err.message || 'Could not complete your reservation.');
+     } finally {
+       setReserving(false);
+     }
+   };
 
   return (
     <>
@@ -178,15 +197,19 @@ export default function ReserveMealModal({ listing, isOpen, onClose }) {
             </span>
           </div>
 
+          {reserveError && (
+            <p className="mt-3 text-body2 text-error">{reserveError}</p>
+          )}
+
           <button
             type="button"
             onClick={handleReserve}
-            disabled={quantity === 0 || isExpired}
+            disabled={quantity === 0 || isExpired || reserving}
             className="mt-4 w-full rounded-xl bg-green-normal py-3 text-body1 font-semibold text-white disabled:opacity-50">
-            {isExpired ? 'Listing Expired' : 'Reserve Meal'}
+            {isExpired ? 'Listing Expired' : reserving ?  'Reserving...' : 'Reserve Meal'}
           </button>
           <p className="mt-2 text-center text-caption text-body-text">
-            You won't be charged yet. 
+            You won't be charged yet.
           </p>
         </div>
       </div>

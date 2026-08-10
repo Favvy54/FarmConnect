@@ -436,6 +436,16 @@ export async function deleteAppUserProfile() {
   });
 }
 
+// Reservation
+
+export async function createReservation({ listingId, quantityRequested }) {
+  return apiRequest('/api/reservations', {
+    method: 'POST',
+    auth: true,
+    body: { listingId, quantityRequested },
+  });
+}
+
 // Browse all listings (market feed) — for the user-facing dashboard
 export async function getAllListings(search = "") {
 
