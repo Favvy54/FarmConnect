@@ -297,46 +297,6 @@ export async function updateCurrentVendorLocation() {
   );
 }
 
-export async function getLocationFromCoordinates(longitude, latitude) {
-  const query = new URLSearchParams({
-    longitude: String(longitude),
-    latitude: String(latitude),
-  });
-
-  const res = await apiRequest(`/location/reverse?${query.toString()}`, {
-    method: 'GET',
-  });
-
-  return res?.data || null;
-}
-
-
-
-export async function getLocationFromCoordinates(longitude, latitude) {
-  const query = new URLSearchParams({
-    longitude: String(longitude),
-    latitude: String(latitude),
-  });
-
-  const res = await apiRequest(`/location/reverse?${query.toString()}`, {
-    method: 'GET',
-  });
-
-  return res?.data || null;
-}
-
-export async function getLocationFromCoordinates(longitude, latitude) {
-  const query = new URLSearchParams({
-    longitude: String(longitude),
-    latitude: String(latitude),
-  });
-
-  const res = await apiRequest(`/location/reverse?${query.toString()}`, {
-    method: 'GET',
-  });
-
-  return res?.data || null;
-}
 
 
 export async function getLocationFromCoordinates(longitude, latitude) {
