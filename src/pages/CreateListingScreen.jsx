@@ -13,6 +13,8 @@ import {
   getVendorProfile,
   updateCurrentVendorLocation,
   updateVendorLocation,
+  getLocationFromCoordinates,
+  getCoordinatesFromLocation,
 } from '../services/auth.js';
 
 import { uploadImageToCloudinary } from '../services/uploadImage.js';
@@ -129,24 +131,80 @@ export default function CreateListingScreen({
     })();
   }, []);
 
-  const handleMapLocationSelect = async (latitude, longitude) => {
+const handleMapLocationSelect = async (latitude, longitude) => {
+  setCustomLatitude(latitude);
+  setCustomLongitude(longitude);
+
+  try {
+
+    await updateVendorLocation(longitude, latitude);
+    const address = await getLocationFromCoordinates(
+      longitude,
+      latitude
+    );
+
+    if (address) {
+      setCustomStreet(address.street || '');
+      setCustomCity(address.city || '');
+      setCustomState(address.state || '');
+    }
+  } catch (error) {
+    console.warn(
+      'Could not get address for selected location:',
+      error
+    );
+  }
+};
+
+const handleAddressChange = async () => {
+  if (
+    !customCity.trim() ||
+    !customState.trim()
+  ) {
+    notify.error('Please enter street, city and state.');
+    return;
+  }
+
+  try {
+    const coordinates = await getCoordinatesFromLocation(
+      customCity.trim(),
+      customState.trim()
+    );
+
+    console.log('CITY/STATE → COORDINATES:', coordinates);
+
+    const latitude = Number(coordinates?.latitude);
+    const longitude = Number(coordinates?.longitude);
+
+    if (
+      !Number.isFinite(latitude) ||
+      !Number.isFinite(longitude)
+    ) {
+      notify.error('Could not find coordinates for this address.');
+      return;
+    }
+
     setCustomLatitude(latitude);
     setCustomLongitude(longitude);
 
+    console.log('MAP SHOULD MOVE TO:', {
+      latitude,
+      longitude,
+    });
 
-    try {
-        await updateVendorLocation( longitude, latitude);
-      const address = await getLocationFromCoordinates(longitude, latitude);
+    notify.success('Location found.');
+  } catch (error) {
+    console.error(
+      'Could not get coordinates from address:',
+      error
+    );
 
-      if (address) {
-        setCustomStreet(address.street || '');
-        setCustomCity(address.city || '');
-        setCustomState(address.state || '');
-      }
-    } catch (error) {
-      console.warn('Could not get address for selected location:', error);
-    }
-  };
+    notify.error(
+      error.message ||
+        'Could not find this location.'
+    );
+  }
+};
  
 
   const MAX_PHOTOS = 3;
@@ -270,15 +328,12 @@ export default function CreateListingScreen({
           customLongitude === null
         ) {
           throw new Error(
-            'Please select a pickup location on the map.'
+            'Please select a pickup location on the map or enter a valid address.'
           );
         }
-
-        payload.latitude =
-          Number(customLatitude);
-
-        payload.longitude =
-          Number(customLongitude);
+      
+        payload.latitude = Number(customLatitude);
+        payload.longitude = Number(customLongitude);
       }
 
       console.log(
@@ -890,46 +945,94 @@ export default function CreateListingScreen({
               </label>
             </div>
 
-            {/* MAP FOR CUSTOM LOCATION */}
-            {locationMode ===
-              'custom' && (
+            {/* CUSTOM LOCATION */}
+            {locationMode === 'custom' && (
               <div className="mt-4 border-t border-border-muted pt-4">
-                <p className="mb-3 text-sm font-medium text-ink">
-                  Select pickup location on the map
-                </p>
-
-                <LocationPicker
-                  onSelect={
-                    handleMapLocationSelect
-                  }
-                />
-
-                {/* SELECTED COORDINATES */}
-                {customLatitude !==
-                    null &&
-                  customLongitude !==
-                    null && (
+            
+                {/* MANUAL ADDRESS */}
+                <div className="space-y-3">
+            
+                  <p className="text-sm font-medium text-ink">
+                    Enter pickup address
+                  </p>
+            
+                  <TextField
+                    placeholder="Street address"
+                    variant="profile"
+                    value={customStreet}
+                    onChange={(e) =>
+                      setCustomStreet(e.target.value)
+                    }
+                  />
+            
+                  <TextField
+                    placeholder="City"
+                    variant="profile"
+                    value={customCity}
+                    onChange={(e) =>
+                      setCustomCity(e.target.value)
+                    }
+                  />
+            
+                  <TextField
+                    placeholder="State"
+                    variant="profile"
+                    value={customState}
+                    onChange={(e) =>
+                      setCustomState(e.target.value)
+                    }
+                  />
+            
+                  <button
+                    type="button"
+                    onClick={handleAddressChange}
+                    className="w-full rounded-xl border border-green-normal bg-white px-4 py-3 text-sm font-semibold text-green-normal hover:bg-green-light"
+                  >
+                    Find Location From Address
+                  </button>
+            
+                </div>
+            
+                {/* MAP */}
+                <div className="mt-5">
+                  <p className="mb-3 text-sm font-medium text-ink">
+                    Or select the exact pickup point on the map
+                  </p>
+                
+                  <LocationPicker
+                    key={`${customLatitude}-${customLongitude}`}
+                    initialPosition={
+                      customLatitude !== null &&
+                      customLongitude !== null
+                        ? {
+                            latitude: customLatitude,
+                            longitude: customLongitude,
+                          }
+                        : null
+                    }
+                    onSelect={handleMapLocationSelect}
+                  />
+                </div>
+            
+                {/* COORDINATES */}
+                {customLatitude !== null &&
+                  customLongitude !== null && (
                     <div className="mt-3 rounded-xl bg-green-light p-3 text-sm text-ink">
                       <p className="font-semibold">
-                        Selected location
+                        Pickup location confirmed
                       </p>
-
+            
                       <p>
-                        Latitude:{' '}
-                        {customLatitude}
+                        Latitude: {customLatitude}
                       </p>
-
+            
                       <p>
-                        Longitude:{' '}
-                        {customLongitude}
+                        Longitude: {customLongitude}
                       </p>
-
+            
                       {customAddress && (
                         <p className="mt-1">
-                          Address:{' '}
-                          {
-                            customAddress
-                          }
+                          Address: {customAddress}
                         </p>
                       )}
                     </div>
