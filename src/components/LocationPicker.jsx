@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   MapContainer,
   TileLayer,
   Marker,
   useMapEvents,
+  useMap,
 } from 'react-leaflet';
 
 import L from 'leaflet';
@@ -22,7 +23,11 @@ const defaultIcon = L.icon({
   shadowSize: [41, 41],
 });
 
-function LocationMarker({ position, setPosition, onSelect }) {
+function LocationMarker({
+  position,
+  setPosition,
+  onSelect,
+}) {
   useMapEvents({
     click(event) {
       const { lat, lng } = event.latlng;
@@ -51,6 +56,24 @@ function LocationMarker({ position, setPosition, onSelect }) {
   ) : null;
 }
 
+function MapController({ position }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!position) return;
+
+    map.setView(
+      [
+        position.latitude,
+        position.longitude,
+      ],
+      15
+    );
+  }, [position, map]);
+
+  return null;
+}
+
 export default function LocationPicker({
   initialPosition = null,
   onSelect,
@@ -58,7 +81,21 @@ export default function LocationPicker({
   const [position, setPosition] =
     useState(initialPosition);
 
-  // Nigeria-centered default view
+  /*
+   * IMPORTANT:
+   * When the parent gets new coordinates from
+   * "Find Location From Address", update the map's
+   * internal position.
+   */
+  useEffect(() => {
+    if (!initialPosition) return;
+
+    setPosition(initialPosition);
+  }, [
+    initialPosition?.latitude,
+    initialPosition?.longitude,
+  ]);
+
   const defaultCenter = [9.082, 8.6753];
 
   const center = position
@@ -69,7 +106,7 @@ export default function LocationPicker({
     : defaultCenter;
 
   return (
-    <div className="w-full overflow-hidden rounded-xl">
+    <div>
       <MapContainer
         center={center}
         zoom={position ? 15 : 6}
@@ -79,9 +116,11 @@ export default function LocationPicker({
         }}
       >
         <TileLayer
-          attribution="&copy; OpenStreetMap contributors"
+          attribution='&copy; OpenStreetMap contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+
+        <MapController position={position} />
 
         <LocationMarker
           position={position}
