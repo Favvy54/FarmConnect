@@ -439,7 +439,7 @@ export async function deleteAppUserProfile() {
 // Reservation
 
 export async function createReservation({ listingId, quantityRequested }) {
-  return profileRequest('/api/reservations', {
+  return profileRequest('/reservations', {
     method: 'POST',
     auth: true,
     body: { listingId, quantityRequested },

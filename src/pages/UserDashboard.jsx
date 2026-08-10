@@ -74,7 +74,7 @@ function MealCard({ listing, variant = 'grid', onReserve }) {
     <div
       onClick={handleClick}
       className={`rounded-2xl border border-border-muted bg-white overflow-hidden shadow-sm flex flex-col cursor-pointer ${
-        variant === 'urgent' ? 'w-56 shrink-0' : 'w-full'
+        variant === 'urgent' ? 'w- shrink-0' : 'w-full'
       }`}>
       <div className="relative">
         <img
@@ -89,7 +89,7 @@ function MealCard({ listing, variant = 'grid', onReserve }) {
         )}
       </div>
 
-      <div className="flex flex-1 flex-col justify-between px-3 pb-3 pt-3">
+      <div className="flex flex-1  flex-col justify-between px-3 pb-3 pt-3">
         <div className="flex flex-col gap-1">
           <p className="text-regular font-bold text-ink">{listing.foodName}</p>
           <p className="text-normal text-charcoal">
@@ -101,14 +101,15 @@ function MealCard({ listing, variant = 'grid', onReserve }) {
           {listing.isFree ? 'Free' : `₦${listing.price}`}
         </span>
 
-        <div className="mt-1 flex items-center justify-between text-normal">
+        <div className="mt-1 flex gap-4 items-center justify-between text-normal">
           <p
             className={
-              mealsLeft <= 5 ? 'text-error font-medium' : 'text-charcoal'
+          
+              mealsLeft <= 5 ? 'text-error font-medium whitespace-nowrap' : 'text-charcoal whitespace-nowrap'
             }>
             {mealsLeft} meals left
           </p>
-          <p className="text-charcoal truncate text-right">{location}</p>
+          <p className="text-charcoal ellipse">{location}</p>
         </div>
 
         <button
@@ -148,9 +149,9 @@ function GridListingRow({
         </button>
       </div>
       <div
-        className="grid grid-cols-2 gap-4
-          sm:grid-cols-3
-          lg:grid-cols-4
+        className="grid grid-cols-1 gap-4
+          sm:grid-cols-2
+          lg:grid-cols-3
           [&>*:nth-child(n+5)]:hidden
           sm:[&>*:nth-child(n+7)]:hidden
           lg:[&>*:nth-child(n+13)]:hidden">

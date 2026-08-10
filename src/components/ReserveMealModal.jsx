@@ -91,7 +91,7 @@ export default function ReserveMealModal({ listing, isOpen, onClose }) {
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed min-h-screen inset-0 z-40 bg-black/40" onClick={onClose} />
+      <div className="fixed inset-0 z-40 bg-black/40" onClick={onClose} />
 
       {/* Panel — full screen on mobile, slide-in from the right on larger screens */}
       <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md overflow-y-auto bg-white shadow-xl">
@@ -110,7 +110,7 @@ export default function ReserveMealModal({ listing, isOpen, onClose }) {
           />
 
           <div className="mt-4 flex items-start gap-3 rounded-xl bg-green-light p-4">
-            <Timer className="mt-0.5 h-4 w-4 shrink-0 text-green-normal" />
+            <Timer className="mt-0.5 h-10 w-10 shrink-0 text-green-normal" />
             <div>
               <p className="text-body2 font-medium text-green-normal">
                 Reservation Hold
