@@ -299,17 +299,46 @@ export async function updateCurrentVendorLocation() {
 
 
 
-export async function getLocationFromCoordinates(longitude, latitude) {
-  const query = new URLSearchParams({
+export async function getLocationFromCoordinates(
+  longitude,
+  latitude
+) {
+  const params = new URLSearchParams({
     longitude: String(longitude),
     latitude: String(latitude),
   });
 
-  const res = await apiRequest(`/location/reverse?${query.toString()}`, {
-    method: 'GET',
+  const res = await apiRequest(
+    `/location/reverse?latitude=${latitude}&longitude=${longitude}`,
+    {
+      method: 'GET',
+      auth: true,
+    }
+  );
+
+  return res?.data;
+}
+
+export async function getCoordinatesFromLocation(
+  street,
+  city,
+  state
+) {
+  const params = new URLSearchParams({
+    street,
+    city,
+    state,
   });
 
-  return res?.data || null;
+  const res = await apiRequest(
+    `/location/search?${params.toString()}`,
+    {
+      method: 'GET',
+      auth: true,
+    }
+  );
+
+  return res?.data;
 }
 
 
