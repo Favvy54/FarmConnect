@@ -158,7 +158,6 @@ const handleMapLocationSelect = async (latitude, longitude) => {
 
 const handleAddressChange = async () => {
   if (
-    !customStreet.trim() ||
     !customCity.trim() ||
     !customState.trim()
   ) {
@@ -168,12 +167,11 @@ const handleAddressChange = async () => {
 
   try {
     const coordinates = await getCoordinatesFromLocation(
-      customStreet.trim(),
       customCity.trim(),
       customState.trim()
     );
 
-    console.log('ADDRESS → COORDINATES:', coordinates);
+    console.log('CITY/STATE → COORDINATES:', coordinates);
 
     const latitude = Number(coordinates?.latitude);
     const longitude = Number(coordinates?.longitude);
