@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Timer, Calendar, Clock, MapPin, Info } from 'lucide-react';
-import { createReservation } from '@/services/auth';
+import { createReservation } from '../services/auth';
 
 
 function computeMsLeft(listing) {

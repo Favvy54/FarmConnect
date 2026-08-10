@@ -9,7 +9,7 @@ import {
   getNearbyListings,
   getAppUserProfile,
 } from '../services/auth.js';
-import ReserveMealModal from '../components/ReserveMealModal.jsx';
+
 
 
 const CATEGORY_PILLS = [
