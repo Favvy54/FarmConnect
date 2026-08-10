@@ -320,12 +320,10 @@ export async function getLocationFromCoordinates(
 }
 
 export async function getCoordinatesFromLocation(
-  street,
   city,
   state
 ) {
   const params = new URLSearchParams({
-    street,
     city,
     state,
   });
