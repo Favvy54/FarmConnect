@@ -490,4 +490,23 @@ export async function getNearbyListings(
   });
 
   return res?.data || [];
-}
+};
+
+export async function updateAppUserLocation(
+  longitude,
+  latitude
+) {
+  const res = await profileRequest(
+    '/user/profile/location',
+    {
+      method: 'PATCH',
+      auth: true,
+      body: {
+        longitude,
+        latitude,
+      },
+    }
+  );
+
+  return res?.data;
+};
