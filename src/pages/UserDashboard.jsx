@@ -109,7 +109,7 @@ function MealCard({ listing, variant = 'grid', onReserve }) {
             }>
             {mealsLeft} meals left
           </p>
-          <p className="text-charcoal ellipse">{location}</p>
+          <p className="text-charcoal truncate">{location}</p>
         </div>
 
         <button

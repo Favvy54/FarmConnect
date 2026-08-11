@@ -270,7 +270,6 @@ export default function MealDetailScreen({ onNavigate, onLogout }) {
             <button
               type="button"
               disabled={quantity === 0 || isExpired}
-              // TODO: wire to a real reservation endpoint once backend confirms one
               onClick={() => alert('Reservation flow not wired up yet — no backend endpoint confirmed.')}
               className="mt-4 w-full rounded-xl bg-green-normal py-3 text-body1 font-semibold text-white disabled:opacity-50">
               {isExpired ? 'Listing Expired' : 'Reserve Meal'}

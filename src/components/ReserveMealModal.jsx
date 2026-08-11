@@ -110,12 +110,12 @@ export default function ReserveMealModal({ listing, isOpen, onClose }) {
           />
 
           <div className="mt-4 flex items-start gap-3 rounded-xl bg-green-light p-4">
-            <Timer className="mt-0.5 h-10 w-10 shrink-0 text-green-normal" />
+            <Timer className="mt-0.5 h-5 w-5 shrink-0 text-green-normal" />
             <div>
-              <p className="text-body2 font-medium text-green-normal">
+              <p className="text-normal font-medium text-green-normal">
                 Reservation Hold
               </p>
-              <p className="text-caption text-green-normal">
+              <p className="text-body2 text-green-normal">
                 Your reservation would be held for 1 hour
               </p>
             </div>
@@ -180,12 +180,12 @@ export default function ReserveMealModal({ listing, isOpen, onClose }) {
             </div>
           </div>
 
-          <div className="mt-5 flex items-start gap-3 rounded-xl bg-orange-light p-4">
-            <Info className="mt-0.5 h-4 w-4 shrink-0 text-orange-normal" />
-            <p className="text-caption text-orange-dark">
-              Please arrive before the reservation hold expires. Your
-              reservation would be cancelled if not picked up on time.
-            </p>
+          <div className="mt-5 flex items-start gap-3 rounded-xl bg-[#FFB948]/16 p-4">
+            
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-orange-dark" />
+            <div>
+            </div>
+              
           </div>
 
           <div className="mt-5 flex items-center justify-between">
@@ -206,7 +206,11 @@ export default function ReserveMealModal({ listing, isOpen, onClose }) {
             onClick={handleReserve}
             disabled={quantity === 0 || isExpired || reserving}
             className="mt-4 w-full rounded-xl bg-green-normal py-3 text-body1 font-semibold text-white disabled:opacity-50">
-            {isExpired ? 'Listing Expired' : reserving ?  'Reserving...' : 'Reserve Meal'}
+            {isExpired
+              ? 'Listing Expired'
+              : reserving
+                ? 'Reserving...'
+                : 'Reserve Meal'}
           </button>
           <p className="mt-2 text-center text-caption text-body-text">
             You won't be charged yet.
