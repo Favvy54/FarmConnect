@@ -9,6 +9,7 @@ import {
   getAllListings,
   getNearbyListings,
   getAppUserProfile,
+  updateAppUserLocation,
 } from '../services/auth.js';
 
 
@@ -277,44 +278,73 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         // If location access is unavailable/denied, fall back to the existing
         // profile city/state nearby logic so the old behaviour is preserved.
         let nearby;
-
+        
         if ("geolocation" in navigator) {
           nearby = await new Promise((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(
               async (position) => {
                 try {
-                  const { longitude, latitude } = position.coords;
-                  const results = await getNearbyListings(
+                  const {
+                    longitude,
+                    latitude,
+                  } = position.coords;
+        
+                  console.log("📍 USER GPS:", {
+                    longitude,
+                    latitude,
+                  });
+        
+                  // Save the user's current location
+                  await updateAppUserLocation(
                     longitude,
                     latitude
                   );
+        
+                  console.log(
+                    "📍 USER LOCATION SAVED"
+                  );
+        
+                  // Fetch listings within 30km
+                  const results =
+                    await getNearbyListings(
+                      longitude,
+                      latitude,
+                      30000
+                    );
+        
+                  console.log(
+                    "📍 NEARBY LISTINGS:",
+                    results
+                  );
+        
                   resolve(results);
                 } catch (err) {
                   console.error(
-                    "Coordinate-based nearby search failed:",
+                    "Nearby location flow failed:",
                     err
                   );
-
-                  try {
-                    resolve(await getNearbyListings());
-                  } catch (fallbackErr) {
-                    reject(fallbackErr);
-                  }
+        
+                  reject(err);
                 }
               },
+        
               async (geoError) => {
                 console.warn(
                   "Browser location unavailable:",
                   geoError.message
                 );
-
-                // Preserve the existing city/state nearby-search behaviour.
+        
                 try {
-                  resolve(await getNearbyListings());
-                } catch (fallbackErr) {
-                  reject(fallbackErr);
+                  // Keep your existing fallback
+                  const results =
+                    await getNearbyListings();
+        
+                  resolve(results);
+                } catch (fallbackError) {
+                  reject(fallbackError);
                 }
               },
+        
               {
                 enableHighAccuracy: true,
                 timeout: 10000,
@@ -323,11 +353,14 @@ export default function UserDashboard({ onNavigate, onLogout }) {
             );
           });
         } else {
-          // Older browsers: preserve the existing nearby endpoint behaviour.
           nearby = await getNearbyListings();
         }
-
-        setNearbyListings(Array.isArray(nearby) ? nearby : []);
+        
+        setNearbyListings(
+          Array.isArray(nearby)
+            ? nearby
+            : []
+        );
       } catch (err) {
         setError(err.message || 'Could not load listings.');
       } finally {
