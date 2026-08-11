@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import ReserveMealModal, { formatDeadlineTime} from '../components/ReserveMealModal.jsx';
-import ReservationConfirmedModal from './ReserveConfirmedModal.jsx';
+import ReservationConfirmedModal from './ReservationConfirmedModal.jsx';
 import { Search, SlidersHorizontal, Compass, Clock, Check, CompassIcon } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import DashboardLayout from '../components/DashboardLayout.jsx';
