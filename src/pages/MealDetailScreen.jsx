@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
-import ReservationConfirmedModal from '../components/ReservationConfirmedModal.jsx';
+import ReservationConfirmedModal from './ReservationConfirmedModal';
 import { formatDeadlineTime } from '../components/ReserveMealModal.jsx';
 import { createReservation, getAllListings } from '../services/auth.js';
 import { Clock, Timer, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
