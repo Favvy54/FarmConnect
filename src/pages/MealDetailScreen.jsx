@@ -333,4 +333,4 @@ export default function MealDetailScreen({ onNavigate, onBack, onLogout }) {
       )}
     </DashboardLayout>
   );
-}
+} 
