@@ -467,7 +467,7 @@ export async function getAllListings(search = "") {
 export async function getNearbyListings(
   longitude,
   latitude,
-  maxDistance = 10000
+  maxDistance = 30000
 ) {
   let url = '/listings/nearby';
 
