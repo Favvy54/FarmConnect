@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
+import ReservationConfirmedModal from '../components/ReservationConfirmedModal.jsx';
+import { formatDeadlineTime } from '../components/ReserveMealModal.jsx';
+import { createReservation, getAllListings } from '../services/auth.js';
 import { Clock, Timer, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import DashboardLayout from '../components/DashboardLayout.jsx';
-import { getAllListings } from '../services/auth.js';
 import { logEvent } from 'firebase/analytics';
 import { analytics } from '../firebase.js';
-
 
 function computeMsLeft(listing) {
   let expiry = null;
@@ -56,7 +57,7 @@ function MiniMealCard({ listing, onClick }) {
           <span
             className={
               mealsLeft <= 3
-                ? 'text-caption font-medium text-error'
+                ? 'text-caption font-medium text-red-500'
                 : 'text-caption text-charcoal'
             }>
             {mealsLeft} left
@@ -67,18 +68,36 @@ function MiniMealCard({ listing, onClick }) {
   );
 }
 
-export default function MealDetailScreen({ onNavigate, onLogout }) {
+export default function MealDetailScreen({ onNavigate, onBack, onLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
 
-  // Passed via navigate(path, { state: { listing } }) from the dashboard card click.
   const [listing, setListing] = useState(location.state?.listing || null);
   const [activeImage, setActiveImage] = useState(0);
-  const [quantity, setQuantity] = useState(0);
   const [msLeft, setMsLeft] = useState(() => computeMsLeft(location.state?.listing));
   const [moreListings, setMoreListings] = useState([]);
+  const [quantity, setQuantity] = useState(0);
 
+  const [reserving, setReserving] = useState(false);
+  const [reserveError, setReserveError] = useState(null);
+  const [confirmedReservation, setConfirmedReservation] = useState(null);
+
+  const handleReserve = async () => {
+    setReserveError(null);
+    setReserving(true);
+    try {
+      const res = await createReservation({
+        listingId: listing._id,
+        quantityRequested: quantity,
+      });
+      setConfirmedReservation(res?.data || res);
+    } catch (err) {
+      setReserveError(err.message || 'Could not complete your reservation.');
+    } finally {
+      setReserving(false);
+    }
+  };
 
   const missingListing = !listing;
 
@@ -92,10 +111,7 @@ export default function MealDetailScreen({ onNavigate, onLogout }) {
 
   useEffect(() => {
     if (!listing) return;
-
-    logEvent(analytics, 'meal_detail_viewed', {
-      food_name: listing.foodName,
-    });
+    logEvent(analytics, 'meal_detail_viewed', { food_name: listing.foodName });
   }, [listing]);
 
   useEffect(() => {
@@ -111,8 +127,6 @@ export default function MealDetailScreen({ onNavigate, onLogout }) {
       }
     })();
   }, [id]);
-
-  
 
   if (missingListing) {
     return (
@@ -216,9 +230,9 @@ export default function MealDetailScreen({ onNavigate, onLogout }) {
             </p>
             <p className="text-caption text-charcoal">per meal</p>
 
-            <div className="mt-4 flex items-center justify-between rounded-xl bg-orange-normal p-4">
+            <div className="mt-4 flex items-center justify-between rounded-xl bg-orange-light p-4">
               <div className="flex items-start gap-2">
-                <Clock className="mt-0.5 h-4.75 w-4.75 text-orange-dark" />
+                <Clock className="mt-0.5 h-5 w-5 text-orange-dark" />
                 <div>
                   <p className="text-normal font-medium text-orange-dark">
                     Pickup Deadline
@@ -239,7 +253,7 @@ export default function MealDetailScreen({ onNavigate, onLogout }) {
             </div>
 
             <div className="mt-4 flex items-start gap-3 rounded-xl bg-green-light p-4">
-              <Timer className="mt-0.5 h-4.75 w-4.75 shrink-0 text-green-normal" />
+              <Timer className="mt-0.5 h-5 w-5 shrink-0 text-green-normal" />
               <div>
                 <p className="text-body2 font-medium text-green-normal">Reservation Hold</p>
                 <p className="text-caption text-green-normal">
@@ -267,12 +281,16 @@ export default function MealDetailScreen({ onNavigate, onLogout }) {
               </div>
             </div>
 
+            {reserveError && (
+              <p className="mt-3 text-body2 text-red-500">{reserveError}</p>
+            )}
+
             <button
               type="button"
-              disabled={quantity === 0 || isExpired}
-              onClick={() => alert('Reservation flow not wired up yet — no backend endpoint confirmed.')}
+              disabled={quantity === 0 || isExpired || reserving}
+              onClick={handleReserve}
               className="mt-4 w-full rounded-xl bg-green-normal py-3 text-body1 font-semibold text-white disabled:opacity-50">
-              {isExpired ? 'Listing Expired' : 'Reserve Meal'}
+              {isExpired ? 'Listing Expired' : reserving ? 'Reserving...' : 'Reserve Meal'}
             </button>
           </div>
         </div>
@@ -300,6 +318,18 @@ export default function MealDetailScreen({ onNavigate, onLogout }) {
             ))}
           </div>
         </div>
+      )}
+
+      {confirmedReservation && (
+        <ReservationConfirmedModal
+          holdMinutes={60}
+          pickupDeadlineLabel={formatDeadlineTime(listing) || 'the deadline'}
+          onClose={() => setConfirmedReservation(null)}
+          onViewReservation={() => {
+            setConfirmedReservation(null);
+            onNavigate?.('reservations');
+          }}
+        />
       )}
     </DashboardLayout>
   );

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import ReserveMealModal, { formatDeadlineTime} from '../components/ReserveMealModal.jsx';
-import { Search, SlidersHorizontal, Zap, Clock, Check } from 'lucide-react';
+import ReservationConfirmedModal from './ReserveConfirmedModal.jsx';
+import { Search, SlidersHorizontal, Compass, Clock, Check, CompassIcon } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import TextField from '../components/TextField.jsx';
@@ -65,7 +66,7 @@ function MealCard({ listing, variant = 'grid', onReserve }) {
   };
 
   const buttonColor =
-    variant === 'urgent' ? 'bg-orange-normal' : 'bg-green-normal';
+    variant === 'urgent' ? 'bg-orange-dark' : 'bg-green-normal';
   
 
 
@@ -189,7 +190,7 @@ function ScrollListingRow({
           View more →
         </button>
       </div>
-      <div className="flex gap-4 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden pb-2">
+      <div className="flex max-w-55 w-full gap-4 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden pb-2">
         {listings.map((l, index) => (
           <MealCard
             key={l._id || l.id || index}
@@ -242,10 +243,14 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         <ReservationConfirmedModal
           pickupCode={confirmedReservation.pickupCode}
           holdMinutes={60}
-          pickupDeadlineLabel={formatDeadlineTime(reserveListing) || 'Not set'}
-          onClose={() => setConfirmedReservation(null)}
+          pickupDeadlineLabel={formatDeadlineTime(reserveListing) || 'the deadline'}
+          onClose={() => {
+            setConfirmedReservation(null); 
+            setReserveListing(null);
+          }}
           onViewReservation={() => {
             setConfirmedReservation(null);
+            setReserveListing(null);
             onNavigate?.('reservations');
           }}
         />
@@ -544,7 +549,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
       ) : (
         <div className="space-y-6">
           <GridListingRow
-            icon={<Zap className="h-5 w-5 text-green-normal" />}
+            icon={<Compass className="h-6 w-6 text-green-normal" />}
             title={viewMode === 'market' ? 'Marketplace' : 'Explore Meals'}
             listings={exploreMeals}
             accentClass="text-green-normal"
@@ -553,7 +558,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
           />
 
           <ScrollListingRow
-            icon={<Clock className="h-5 w-5 text-orange-normal" />}
+            icon={<Clock className="h-6 w-6 text-orange-dark" />}
             title="Last Chance"
             listings={lastChance}
             accentClass="text-orange-normal"

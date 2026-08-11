@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { logEvent } from 'firebase/analytics';
 import { analytics } from '../firebase.js';
-import { Upload, Clock, MapPin, X, CheckCircle2 } from 'lucide-react';
+import { Upload, MapPin, X, CheckCircle2 } from 'lucide-react';
 
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import TextField from '../components/TextField.jsx';
