@@ -438,8 +438,6 @@ export async function deleteAppUserProfile() {
 
 // Reservation
 
-console.log('Listing object:', listing);
-console.log('Listing ID:', listing?._id);
 
 export async function createReservation({ listingId, quantityRequested }) {
   return profileRequest('/reservations', {
