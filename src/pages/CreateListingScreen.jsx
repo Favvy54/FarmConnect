@@ -132,6 +132,11 @@ export default function CreateListingScreen({
   }, []);
 
 const handleMapLocationSelect = async (latitude, longitude) => {
+
+    console.log("📍 MAP SELECTED:", {
+    latitude,
+    longitude,
+  });
   setCustomLatitude(latitude);
   setCustomLongitude(longitude);
 
