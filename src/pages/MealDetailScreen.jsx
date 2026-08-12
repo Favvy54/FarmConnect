@@ -15,7 +15,7 @@ function computeMsLeft(listing) {
     expiry = new Date(listing.expiresAt);
   } else if (listing?.createdAt && listing?.expiryDuration != null) {
     expiry = new Date(
-      new Date(listing.createdAt).getTime() + listing.expiryDuration * 60000
+      new Date(listing.createdAt).getTime() + listing.expiryDuration * 60000,
     );
   }
 
@@ -36,7 +36,7 @@ function MiniMealCard({ listing, onClick }) {
   const image = listing.imageUrls?.[0] || '/img-placeholder.png';
   const mealsLeft = Math.max(
     0,
-    (listing.quantity || 0) - (listing.totalReservations || 0)
+    (listing.quantity || 0) - (listing.totalReservations || 0),
   );
 
   return (
@@ -44,9 +44,15 @@ function MiniMealCard({ listing, onClick }) {
       type="button"
       onClick={onClick}
       className="w-60 shrink-0 rounded-2xl border border-border-muted bg-white overflow-hidden shadow-sm flex flex-col text-left">
-      <img src={image} alt={listing.foodName} className="h-32 w-full object-cover" />
+      <img
+        src={image}
+        alt={listing.foodName}
+        className="h-32 w-full object-cover"
+      />
       <div className="flex flex-1 flex-col gap-1 p-3">
-        <p className="text-body1 font-bold text-ink truncate">{listing.foodName}</p>
+        <p className="text-body1 font-bold text-ink truncate">
+          {listing.foodName}
+        </p>
         <p className="text-body2 text-charcoal truncate">
           {listing.vendorName || listing.vendorId?.businessName}
         </p>
@@ -75,7 +81,9 @@ export default function MealDetailScreen({ onNavigate, onBack, onLogout }) {
 
   const [listing, setListing] = useState(location.state?.listing || null);
   const [activeImage, setActiveImage] = useState(0);
-  const [msLeft, setMsLeft] = useState(() => computeMsLeft(location.state?.listing));
+  const [msLeft, setMsLeft] = useState(() =>
+    computeMsLeft(location.state?.listing),
+  );
   const [moreListings, setMoreListings] = useState([]);
   const [quantity, setQuantity] = useState(0);
 
@@ -145,26 +153,16 @@ export default function MealDetailScreen({ onNavigate, onBack, onLogout }) {
     );
   }
 
-  const images = listing.imageUrls?.length ? listing.imageUrls : ['/img-placeholder.png'];
+  const images = listing.imageUrls?.length
+    ? listing.imageUrls
+    : ['/img-placeholder.png'];
   const mealsLeft = Math.max(
     0,
-    (listing.quantity || 0) - (listing.totalReservations || 0)
+    (listing.quantity || 0) - (listing.totalReservations || 0),
   );
   const isExpired = msLeft <= 0;
 
-  const formatPickupTime = (timeString) => {
-    if (!timeString) return 'Not set';
-
-    const [hours, minutes] = timeString.split(':');
-
-    const date = new Date();
-    date.setHours(Number(hours), Number(minutes));
-
-    return date.toLocaleTimeString([], {
-      hour: 'numeric',
-      minute: '2-digit',
-    });
-  };
+  const deadlineTime = formatDeadlineTime(listing);
 
   return (
     <DashboardLayout
@@ -244,7 +242,11 @@ export default function MealDetailScreen({ onNavigate, onBack, onLogout }) {
                     Pickup Deadline
                   </p>
                   <p className="text-caption text-orange-dark">
-                    {isExpired ? 'This listing has expired' : formatPickupTime(listing.pickupTime)}
+                    {isExpired
+                      ? 'This listing has expired'
+                      : deadlineTime
+                        ? `Today, by ${deadlineTime}`
+                        : 'Not set'}
                   </p>
                 </div>
               </div>
@@ -359,4 +361,4 @@ export default function MealDetailScreen({ onNavigate, onBack, onLogout }) {
       )}
     </DashboardLayout>
   );
-} 
+}
