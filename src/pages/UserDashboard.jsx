@@ -10,10 +10,81 @@ import {
   getNearbyListings,
   getAppUserProfile,
   updateAppUserLocation,
+  getCoordinatesFromLocation,
 } from '../services/auth.js';
+
 import LocationPicker from '../components/LocationPicker.jsx';
 
+const handleManualLocation = async () => {
 
+  if (!manualCity.trim() || !manualState.trim()) {
+
+    setError(
+      "Please enter your city and state."
+    );
+
+    return;
+  }
+
+  try {
+
+    setFindingLocation(true);
+
+    const coordinates =
+      await getCoordinatesFromLocation(
+        manualCity.trim(),
+        manualState.trim()
+      );
+
+    console.log(
+      "🌍 LOCATION SEARCH:",
+      coordinates
+    );
+
+    if (
+      !coordinates?.latitude ||
+      !coordinates?.longitude
+    ) {
+
+      throw new Error(
+        "Location not found."
+      );
+
+    }
+
+    await updateAppUserLocation(
+      coordinates.longitude,
+      coordinates.latitude
+    );
+
+    const nearby =
+      await getNearbyListings(
+        coordinates.longitude,
+        coordinates.latitude,
+        30000
+      );
+
+    setNearbyListings(
+      Array.isArray(nearby)
+        ? nearby
+        : []
+    );
+
+    setShowLocationPicker(false);
+
+  } catch (error) {
+
+    setError(
+      error.message ||
+      "Could not find this location."
+    );
+
+  } finally {
+
+    setFindingLocation(false);
+
+  }
+};
 const CATEGORY_PILLS = [
  "Cooked Meals",
     
@@ -236,6 +307,10 @@ export default function UserDashboard({ onNavigate, onLogout }) {
 
   const [selectedLocation, setSelectedLocation] =
   useState(null);
+  const [manualCity, setManualCity] = useState('');
+  const [manualState, setManualState] = useState('');
+  const [findingLocation, setFindingLocation] =
+  useState(false);
 
     <ReserveMealModal
       listing={reserveListing}
@@ -497,6 +572,43 @@ export default function UserDashboard({ onNavigate, onLogout }) {
             Select your current location on the map so we can show
             meals within 30 km of you.
           </p>
+        </div>
+
+        <div className="space-y-3 mb-5">
+
+        <TextField
+          placeholder="City"
+          variant="profile"
+          value={manualCity}
+          onChange={(e) =>
+            setManualCity(e.target.value)
+          }
+        />
+      
+        <TextField
+          placeholder="State"
+          variant="profile"
+          value={manualState}
+          onChange={(e) =>
+            setManualState(e.target.value)
+          }
+        />
+      
+        <button
+          type="button"
+          onClick={handleManualLocation}
+          disabled={findingLocation}
+          className="w-full rounded-xl border border-green-normal bg-white px-4 py-3 text-sm font-semibold text-green-normal"
+        >
+          {findingLocation
+            ? "Finding Location..."
+            : "Find Location"}
+        </button>
+      
+      </div>
+
+        <div className="mb-4 rounded-xl bg-green-light p-3 text-sm italic text-black">
+          💡 TIP: For the most accurate nearby results, use a mobile device with location services enabled.
         </div>
     
         <LocationPicker
