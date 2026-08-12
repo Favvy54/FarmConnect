@@ -315,7 +315,6 @@ const handleAddressChange = async () => {
 
         price: isFree ? 0 : Number(price),
 
-        pickupTime, 
         
         expiryDuration,
       };
