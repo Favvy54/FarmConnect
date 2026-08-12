@@ -82,7 +82,7 @@ export default function ReserveMealModal({
            console.log('listing._id:', listing?._id);
 
        const res = await createReservation({
-         listingId: listing._id,
+         listingId: listing.listingId,
          quantityRequested: quantity,
        });
        const reservation = res?.data || res;
