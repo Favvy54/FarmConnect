@@ -229,10 +229,10 @@ export default function App() {
           path="/user/meal/:id"
           element={
             <MealDetailScreen
-              onNavigate={(key) => {
-                if (key === 'home') navigate('/user/dashboard');
-                if (key === 'listings') navigate('/user/listings');
-              }}
+            onNavigate={(key) => {
+              if (key === 'home') navigate(-1);
+              if (key === 'listings') navigate('/user/listings');
+            }}
               onLogout={() => navigate('/login')}
             />
           }
