@@ -77,6 +77,7 @@ function MapController({ position }) {
 export default function LocationPicker({
   initialPosition = null,
   onSelect,
+  onClose,
 }) {
   const [position, setPosition] =
     useState(initialPosition);
@@ -106,7 +107,17 @@ export default function LocationPicker({
     : defaultCenter;
 
   return (
-    <div>
+    <div className="relative">
+    {onClose && (
+      <button
+        type="button"
+        onClick={onClose}
+        className="absolute right-3 top-3 z-[1000] flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-gray-600 shadow-md transition hover:bg-white hover:text-gray-900"
+        aria-label="Close map"
+      >
+        ×
+      </button>
+    )}
       <MapContainer
         center={center}
         zoom={position ? 15 : 6}
