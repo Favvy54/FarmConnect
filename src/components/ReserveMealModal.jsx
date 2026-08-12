@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Timer, Calendar, Clock, MapPin, Info } from 'lucide-react';
 import { createReservation } from '../services/auth';
+import ReservationConfirmedModal from '../pages/ReservationConfirmedModal';
 
 
 function computeMsLeft(listing) {
@@ -41,17 +42,18 @@ export default function ReserveMealModal({
   listing,
   isOpen,
   onClose,
-  onReserved }) {
+  onNavigate }) {
   const [quantity, setQuantity] = useState(0);
-    const [reserving, setReserving] = useState(false);
-    const [reserveError, setReserveError] = useState(null);
+  const [reserving, setReserving] = useState(false);
+  const [reserveError, setReserveError] = useState(null);
+  const [confirmedReservation, setConfirmedReservation] = useState(null);
 
-  // Reset quantity each time a new listing is opened.
   useEffect(() => {
     if (isOpen) {
       setQuantity(0);
       setReserveError(null);
-    };
+      setConfirmedReservation(null);
+    }
   }, [isOpen, listing?._id]);
 
   if (!isOpen || !listing) return null;
@@ -74,24 +76,22 @@ export default function ReserveMealModal({
     day: 'numeric',
   });
 
-   const handleReserve = async () => {
-     setReserveError(null);
-     setReserving(true);
-     try {
-       const res = await createReservation({
-         listingId: listing.listingId,
-         quantityRequested: quantity,
-       });
-       const reservation = res?.data || res;
-       onReserved?.(reservation);
-       onClose?.();
-     } catch (err) {
-       setReserveError(err.message || 'Could not complete your reservation.');
-     } finally {
-       setReserving(false);
-     }
-   };
-
+    const handleReserve = async () => {
+      setReserveError(null);
+      setReserving(true);
+      try {
+        const res = await createReservation({
+          listingId: listing._id,
+          quantityRequested: quantity,
+        });
+        setConfirmedReservation(res?.data || res);
+      } catch (err) {
+        setReserveError(err.message || 'Could not complete your reservation.');
+      } finally {
+        setReserving(false);
+      }
+  };
+  
   return (
     <>
       {/* Backdrop */}
@@ -228,6 +228,18 @@ export default function ReserveMealModal({
           </p>
         </div>
       </div>
+
+      {confirmedReservation && (
+              <ReservationConfirmedModal
+                holdMinutes={60}
+                pickupDeadlineLabel={formatDeadlineTime(listing) || 'the deadline'}
+                onClose={() => setConfirmedReservation(null)}
+                onViewReservation={() => {
+                  setConfirmedReservation(null);
+                  onNavigate?.('reservations');
+                }}
+              />
+            )}
     </>
   );
 }
