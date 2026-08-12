@@ -15,76 +15,7 @@ import {
 
 import LocationPicker from '../components/LocationPicker.jsx';
 
-const handleManualLocation = async () => {
 
-  if (!manualCity.trim() || !manualState.trim()) {
-
-    setError(
-      "Please enter your city and state."
-    );
-
-    return;
-  }
-
-  try {
-
-    setFindingLocation(true);
-
-    const coordinates =
-      await getCoordinatesFromLocation(
-        manualCity.trim(),
-        manualState.trim()
-      );
-
-    console.log(
-      "🌍 LOCATION SEARCH:",
-      coordinates
-    );
-
-    if (
-      !coordinates?.latitude ||
-      !coordinates?.longitude
-    ) {
-
-      throw new Error(
-        "Location not found."
-      );
-
-    }
-
-    await updateAppUserLocation(
-      coordinates.longitude,
-      coordinates.latitude
-    );
-
-    const nearby =
-      await getNearbyListings(
-        coordinates.longitude,
-        coordinates.latitude,
-        30000
-      );
-
-    setNearbyListings(
-      Array.isArray(nearby)
-        ? nearby
-        : []
-    );
-
-    setShowLocationPicker(false);
-
-  } catch (error) {
-
-    setError(
-      error.message ||
-      "Could not find this location."
-    );
-
-  } finally {
-
-    setFindingLocation(false);
-
-  }
-};
 const CATEGORY_PILLS = [
  "Cooked Meals",
     
@@ -311,6 +242,77 @@ export default function UserDashboard({ onNavigate, onLogout }) {
   const [manualState, setManualState] = useState('');
   const [findingLocation, setFindingLocation] =
   useState(false);
+
+  const handleManualLocation = async () => {
+
+  if (!manualCity.trim() || !manualState.trim()) {
+
+    setError(
+      "Please enter your city and state."
+    );
+
+    return;
+  }
+
+  try {
+
+    setFindingLocation(true);
+
+    const coordinates =
+      await getCoordinatesFromLocation(
+        manualCity.trim(),
+        manualState.trim()
+      );
+
+    console.log(
+      "🌍 LOCATION SEARCH:",
+      coordinates
+    );
+
+    if (
+      !coordinates?.latitude ||
+      !coordinates?.longitude
+    ) {
+
+      throw new Error(
+        "Location not found."
+      );
+
+    }
+
+    await updateAppUserLocation(
+      coordinates.longitude,
+      coordinates.latitude
+    );
+
+    const nearby =
+      await getNearbyListings(
+        coordinates.longitude,
+        coordinates.latitude,
+        30000
+      );
+
+    setNearbyListings(
+      Array.isArray(nearby)
+        ? nearby
+        : []
+    );
+
+    setShowLocationPicker(false);
+
+  } catch (error) {
+
+    setError(
+      error.message ||
+      "Could not find this location."
+    );
+
+  } finally {
+
+    setFindingLocation(false);
+
+  }
+};
 
     <ReserveMealModal
       listing={reserveListing}
