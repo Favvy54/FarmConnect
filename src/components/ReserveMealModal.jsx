@@ -76,21 +76,22 @@ export default function ReserveMealModal({
     day: 'numeric',
   });
 
-    const handleReserve = async () => {
-      setReserveError(null);
-      setReserving(true);
-      try {
-        const res = await createReservation({
-          listingId: listing.id,
-          quantityRequested: quantity,
-        });
-        setConfirmedReservation(res?.data || res);
-      } catch (err) {
-        setReserveError(err.message || 'Could not complete your reservation.');
-      } finally {
-        setReserving(false);
-      }
-  };
+ const handleReserve = async () => {
+   setReserveError(null);
+   setReserving(true);
+   try {
+     const res = await createReservation({
+       listingId: listing.listingId,
+       quantityRequested: quantity,
+     });
+     setConfirmedReservation(res?.data || res);
+   } catch (err) {
+     setReserveError(err.message || 'Could not complete your reservation.');
+   } finally {
+     setReserving(false);
+   }
+ };
+
   
   return (
     <>
