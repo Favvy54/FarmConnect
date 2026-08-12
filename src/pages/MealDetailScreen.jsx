@@ -244,7 +244,7 @@ export default function MealDetailScreen({ onNavigate, onBack, onLogout }) {
                     Pickup Deadline
                   </p>
                   <p className="text-caption text-orange-dark">
-                    {isExpired ? 'This listing has expired' : 'formatPickupTime(listing.pickupTime'}
+                    {isExpired ? 'This listing has expired' : formatPickupTime(listing.pickupTime)}
                   </p>
                 </div>
               </div>

@@ -179,7 +179,7 @@ export default function ReserveMealModal({
               </div>
             </div>
 
-            <div className="mt-3 flex items-start gap-3">
+            <div className="mt-3 flex items-center gap-3">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-body-text" />
               <p className="text-body2 text-ink">
                 {listing.pickupLocation || 'Pickup location unavailable'}
@@ -187,7 +187,7 @@ export default function ReserveMealModal({
             </div>
           </div>
 
-          <div className="mt-5 flex items-start gap-3 rounded-xl bg-[#FFB948]/16 p-4">
+          <div className="mt-5 flex items-center gap-3 rounded-xl bg-[#FFB948]/16 p-4">
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-orange-dark" />
 
             <div className='flex flex-col gap-2'>
