@@ -96,9 +96,9 @@ export default function MealDetailScreen({ onNavigate, onBack, onLogout }) {
     setReserving(true);
     try {
       const res = await createReservation({
-        listingId: listing._id,
-        quantityRequested: quantity,
-      });
+      listingId: listing.listingId,
+      quantityRequested: quantity,
+    });
       setConfirmedReservation(res?.data || res);
     } catch (err) {
       setReserveError(err.message || 'Could not complete your reservation.');
