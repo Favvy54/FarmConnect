@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import ReserveMealModal, { formatDeadlineTime} from '../components/ReserveMealModal.jsx';
 import ReservationConfirmedModal from './ReservationConfirmedModal.jsx';
-import { Search, SlidersHorizontal, Compass, Clock, Check, CompassIcon } from 'lucide-react';
+import { Search, SlidersHorizontal, Compass, Clock, Check, CompassIcon,MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import TextField from '../components/TextField.jsx';
@@ -449,7 +449,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
               ? nearby
               : []
           );
-        
+         }
         } else {
           // No saved location yet — try browser GPS.
           const location = await getReliableUserLocation();
@@ -794,7 +794,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
                   }}
                   className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-light/40">
                   Price: High to Low
-                  {viewMode === 'market' && (
+                  {sortBy === 'price_high' && (
                     <Check className="h-4 w-4 text-green-normal" />
                   )}
                 </button>
