@@ -12,7 +12,53 @@ import {
   updateAppUserLocation,
 } from '../services/auth.js';
 
+const getIPBasedLocation = async () => {
+  try {
+    console.log("🌐 Trying IP-based location...");
 
+    const response = await fetch("https://ipapi.co/json/");
+
+    if (!response.ok) {
+      throw new Error("IP location request failed.");
+    }
+
+    const data = await response.json();
+
+    const latitude = Number(data.latitude);
+    const longitude = Number(data.longitude);
+
+    console.log("🌐 IP LOCATION:", {
+      latitude,
+      longitude,
+      city: data.city,
+      region: data.region,
+      country: data.country_name,
+    });
+
+    if (
+      !Number.isFinite(latitude) ||
+      !Number.isFinite(longitude)
+    ) {
+      throw new Error("IP location returned invalid coordinates.");
+    }
+
+    return {
+      latitude,
+      longitude,
+      accuracy: null,
+      source: "ip",
+      city: data.city,
+      region: data.region,
+    };
+  } catch (error) {
+    console.error(
+      "❌ IP location failed:",
+      error
+    );
+
+    return null;
+  }
+};
 
 const CATEGORY_PILLS = [
  "Cooked Meals",
@@ -257,7 +303,65 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         />
       );
     }
-
+    const getReliableUserLocation = () => {
+      return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+          console.warn(
+            "⚠️ Browser geolocation not supported."
+          );
+    
+          resolve(null);
+          return;
+        }
+    
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const {
+              latitude,
+              longitude,
+              accuracy,
+            } = position.coords;
+    
+            console.log("📍 BROWSER LOCATION:", {
+              latitude,
+              longitude,
+              accuracy,
+            });
+    
+            if (accuracy > 10000) {
+              console.warn(
+                `⚠️ GPS accuracy too poor: ${accuracy}m`
+              );
+    
+              resolve(null);
+              return;
+            }
+    
+            resolve({
+              latitude,
+              longitude,
+              accuracy,
+              source: "gps",
+            });
+          },
+    
+          (error) => {
+            console.warn(
+              "⚠️ Browser GPS failed:",
+              error.message
+            );
+    
+            resolve(null);
+          },
+    
+          {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0,
+          }
+        );
+      });
+    };
   // Initial load: profile + nearby listings
   useEffect(() => {
     (async () => {
@@ -277,90 +381,45 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         // Use the browser's real GPS location for coordinate-based nearby search.
         // If location access is unavailable/denied, fall back to the existing
         // profile city/state nearby logic so the old behaviour is preserved.
-        let nearby;
-        
-        if ("geolocation" in navigator) {
-          nearby = await new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(
-              async (position) => {
-                try {
-                  const {
-                    longitude,
-                    latitude,
-                  } = position.coords;
-        
-                  console.log("📍 USER GPS:", {
-                    longitude,
-                    latitude,
-                  });
-        
-                  // Save the user's current location
-                  await updateAppUserLocation(
-                    longitude,
-                    latitude
-                  );
-        
-                  console.log(
-                    "📍 USER LOCATION SAVED"
-                  );
-        
-                  // Fetch listings within 30km
-                  const results =
-                    await getNearbyListings(
-                      longitude,
-                      latitude,
-                      30000
-                    );
-        
-                  console.log(
-                    "📍 NEARBY LISTINGS:",
-                    results
-                  );
-        
-                  resolve(results);
-                } catch (err) {
-                  console.error(
-                    "Nearby location flow failed:",
-                    err
-                  );
-        
-                  reject(err);
-                }
-              },
-        
-              async (geoError) => {
-                console.warn(
-                  "Browser location unavailable:",
-                  geoError.message
-                );
-        
-                try {
-                  // Keep your existing fallback
-                  const results =
-                    await getNearbyListings();
-        
-                  resolve(results);
-                } catch (fallbackError) {
-                  reject(fallbackError);
-                }
-              },
-        
-              {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 300000,
-              }
-            );
-          });
-        } else {
-          nearby = await getNearbyListings();
-        }
-        
-        setNearbyListings(
-          Array.isArray(nearby)
-            ? nearby
-            : []
+      let location = await getReliableUserLocation();
+      
+      if (!location) {
+        console.warn(
+          "⚠️ GPS unavailable or inaccurate. Using IP location."
         );
+      
+        location = await getIPBasedLocation();
+      }
+      
+      if (!location) {
+        throw new Error(
+          "We could not determine your location. Please try again."
+        );
+      }
+      
+      console.log("📍 FINAL LOCATION SOURCE:", location.source);
+      
+      await updateAppUserLocation(
+        location.longitude,
+        location.latitude
+      );
+      
+      const nearby = await getNearbyListings(
+        location.longitude,
+        location.latitude,
+        30000
+      );
+      
+      console.log(
+        "📍 NEARBY LISTINGS:",
+        nearby
+      );
+      
+      setNearbyListings(
+        Array.isArray(nearby)
+          ? nearby
+          : []
+      );
       } catch (err) {
         setError(err.message || 'Could not load listings.');
       } finally {
