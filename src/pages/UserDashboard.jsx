@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react';
-import ReserveMealModal, { formatDeadlineTime} from '../components/ReserveMealModal.jsx';
-import ReservationConfirmedModal from './ReservationConfirmedModal.jsx';
 import { Search, SlidersHorizontal, Compass, Clock, Check, CompassIcon, MapPin, } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import DashboardLayout from '../components/DashboardLayout.jsx';
@@ -232,7 +230,6 @@ export default function UserDashboard({ onNavigate, onLogout }) {
   const [error, setError] = useState(null);
   
   const [reserveListing, setReserveListing] = useState(null);
-  const [confirmedReservation, setConfirmedReservation] = useState(null);
   const [showLocationPicker, setShowLocationPicker] =
   useState(false);
 
@@ -314,31 +311,9 @@ export default function UserDashboard({ onNavigate, onLogout }) {
   }
 };
 
-    <ReserveMealModal
-      listing={reserveListing}
-      isOpen={!!reserveListing}
-      onClose={() => setReserveListing(null)}
-      onReserved={(reservation) => setConfirmedReservation(reservation)}
-    />;
 
-    {
-      confirmedReservation && (
-        <ReservationConfirmedModal
-          pickupCode={confirmedReservation.pickupCode}
-          holdMinutes={60}
-          pickupDeadlineLabel={formatDeadlineTime(reserveListing) || 'the deadline'}
-          onClose={() => {
-            setConfirmedReservation(null); 
-            setReserveListing(null);
-          }}
-          onViewReservation={() => {
-            setConfirmedReservation(null);
-            setReserveListing(null);
-            onNavigate?.('reservations');
-          }}
-        />
-      );
-    }
+
+  
     const getReliableUserLocation = () => {
       return new Promise((resolve) => {
         if (!navigator.geolocation) {
@@ -835,7 +810,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
       ) : (
         <div className="space-y-6">
           <GridListingRow
-            icon={<Compass className="h-6 w-6 text-green-normal" />}
+            icon={<CompassIcon className="h-6 w-6 text-green-normal" />}
             title={viewMode === 'market' ? 'Marketplace' : 'Explore Meals'}
             listings={exploreMeals}
             accentClass="text-green-normal"
@@ -855,7 +830,8 @@ export default function UserDashboard({ onNavigate, onLogout }) {
           <ReserveMealModal
             listing={reserveListing}
             isOpen={!!reserveListing}
-            onClose={() => setReserveListing(null)}
+                onClose={() => setReserveListing(null)}
+                onNavigate={onNavigate}
               />
               
         </div>
