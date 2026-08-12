@@ -567,7 +567,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
       onLogout={onLogout}
       title={
         userProfile.fullName
-          ? `Welcome back, ${userProfile.fullName}👋`
+          ? `Welcome back, ${userProfile.fullName.split(' ')[0]} 👋`
           : 'Welcome Back 👋'
       }
       subtitle="Find affordable and free meals near you."
@@ -575,14 +575,12 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         userProfile.city
           ? `${userProfile.city}, ${userProfile.state}`
           : 'Location unavailable'
-      }
-    >
+      }>
       {!showLocationPicker && (
         <button
           type="button"
           onClick={() => setShowLocationPicker(true)}
-          className="mb-4 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-medium text-green-normal transition-colors hover:bg-green-light"
-        >
+          className="mb-4 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-medium text-green-normal transition-colors hover:bg-green-light">
           <MapPin className="h-4 w-4" />
           Change location
         </button>
@@ -591,110 +589,93 @@ export default function UserDashboard({ onNavigate, onLogout }) {
       {error && <p className="mb-4 text-body2 text-red-500">{error}</p>}
 
       {showLocationPicker && (
-      <div className="mb-6 rounded-2xl border border-border-muted bg-white p-5 shadow-sm">
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold text-ink">
-            Set your location
-          </h2>
-    
-          <p className="mt-1 text-sm text-body-text">
-            We couldn't get an accurate location from your browser.
-            Select your current location on the map so we can show
-            meals within 30 km of you.
-          </p>
-        </div>
+        <div className="mb-6 rounded-2xl border border-border-muted bg-white p-5 shadow-sm">
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-ink">
+              Set your location
+            </h2>
 
-        <div className="space-y-3 mb-5">
+            <p className="mt-1 text-sm text-body-text">
+              We couldn't get an accurate location from your browser. Select
+              your current location on the map so we can show meals within 30 km
+              of you.
+            </p>
+          </div>
 
-        <TextField
-          placeholder="City"
-          variant="profile"
-          value={manualCity}
-          onChange={(e) =>
-            setManualCity(e.target.value)
-          }
-        />
-      
-        <TextField
-          placeholder="State"
-          variant="profile"
-          value={manualState}
-          onChange={(e) =>
-            setManualState(e.target.value)
-          }
-        />
-      
-        <button
-          type="button"
-          onClick={handleManualLocation}
-          disabled={findingLocation}
-          className="w-full rounded-xl border border-green-normal bg-white px-4 py-3 text-sm font-semibold text-green-normal"
-        >
-          {findingLocation
-            ? "Finding Location..."
-            : "Find Location"}
-        </button>
-      
-      </div>
+          <div className="space-y-3 mb-5">
+            <TextField
+              placeholder="City"
+              variant="profile"
+              value={manualCity}
+              onChange={(e) => setManualCity(e.target.value)}
+            />
 
-        <div className="mb-4 rounded-xl bg-green-light p-3 text-sm italic text-black">
-          💡 TIP: For the most accurate nearby results, use a mobile device with location services enabled.
-        </div>
-    
-        <LocationPicker
-          initialPosition={selectedLocation}
-          onClose={() => setShowLocationPicker(false)}
-          onSelect={(latitude, longitude) => {
-            setSelectedLocation({
-              latitude,
-              longitude,
-            });
-          }}
-        />
-    
-        {selectedLocation && (
-          <button
-            type="button"
-            onClick={async () => {
-              try {
-                setLoading(true);
-                setError(null);
-    
-                await updateAppUserLocation(
-                  selectedLocation.longitude,
-                  selectedLocation.latitude
-                );
-    
-                const nearby = await getNearbyListings(
-                  selectedLocation.longitude,
-                  selectedLocation.latitude,
-                  30000
-                );
-    
-                setNearbyListings(
-                  Array.isArray(nearby)
-                    ? nearby
-                    : []
-                );
-    
-                setShowLocationPicker(false);
-    
-              } catch (err) {
-                setError(
-                  err.message ||
-                    "Could not save your location."
-                );
-              } finally {
-                setLoading(false);
-              }
+            <TextField
+              placeholder="State"
+              variant="profile"
+              value={manualState}
+              onChange={(e) => setManualState(e.target.value)}
+            />
+
+            <button
+              type="button"
+              onClick={handleManualLocation}
+              disabled={findingLocation}
+              className="w-full rounded-xl border border-green-normal bg-white px-4 py-3 text-sm font-semibold text-green-normal">
+              {findingLocation ? 'Finding Location...' : 'Find Location'}
+            </button>
+          </div>
+
+          <div className="mb-4 rounded-xl bg-green-light p-3 text-sm italic text-black">
+            💡 TIP: For the most accurate nearby results, use a mobile device
+            with location services enabled.
+          </div>
+
+          <LocationPicker
+            initialPosition={selectedLocation}
+            onClose={() => setShowLocationPicker(false)}
+            onSelect={(latitude, longitude) => {
+              setSelectedLocation({
+                latitude,
+                longitude,
+              });
             }}
-            className="mt-4 w-full rounded-xl bg-green-normal px-4 py-3 text-sm font-semibold text-white"
-          >
-            Use This Location
-          </button>
-        )}
-      </div>
-    )}
+          />
+
+          {selectedLocation && (
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  setLoading(true);
+                  setError(null);
+
+                  await updateAppUserLocation(
+                    selectedLocation.longitude,
+                    selectedLocation.latitude,
+                  );
+
+                  const nearby = await getNearbyListings(
+                    selectedLocation.longitude,
+                    selectedLocation.latitude,
+                    30000,
+                  );
+
+                  setNearbyListings(Array.isArray(nearby) ? nearby : []);
+
+                  setShowLocationPicker(false);
+                } catch (err) {
+                  setError(err.message || 'Could not save your location.');
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              className="mt-4 w-full rounded-xl bg-green-normal px-4 py-3 text-sm font-semibold text-white">
+              Use This Location
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="mb-6 mt-3 flex items-center gap-3">
         <TextField
@@ -828,10 +809,9 @@ export default function UserDashboard({ onNavigate, onLogout }) {
           <ReserveMealModal
             listing={reserveListing}
             isOpen={!!reserveListing}
-                onClose={() => setReserveListing(null)}
-                onNavigate={onNavigate}
-              />
-              
+            onClose={() => setReserveListing(null)}
+            onNavigate={onNavigate}
+          />
         </div>
       )}
     </DashboardLayout>
