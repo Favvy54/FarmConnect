@@ -670,6 +670,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
     
         <LocationPicker
           initialPosition={selectedLocation}
+          onClose={() => setShowLocationPicker(false)}
           onSelect={(latitude, longitude) => {
             setSelectedLocation({
               latitude,
