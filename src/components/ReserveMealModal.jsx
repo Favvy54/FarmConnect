@@ -54,7 +54,7 @@ export default function ReserveMealModal({
       setReserveError(null);
       setConfirmedReservation(null);
     }
-  }, [isOpen, listing?._id]);
+  }, [isOpen, listing?.id]);
 
   if (!isOpen || !listing) return null;
 
@@ -81,7 +81,7 @@ export default function ReserveMealModal({
       setReserving(true);
       try {
         const res = await createReservation({
-          listingId: listing._id,
+          listingId: listing.id,
           quantityRequested: quantity,
         });
         setConfirmedReservation(res?.data || res);
