@@ -417,43 +417,81 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         // Use the browser's real GPS location for coordinate-based nearby search.
         // If location access is unavailable/denied, fall back to the existing
         // profile city/state nearby logic so the old behaviour is preserved.
-      let location = await getReliableUserLocation();
-      
-      if (!location) {
-        console.warn(
-          "⚠️ Accurate GPS unavailable. Waiting for manual location selection."
-        );
-      
-        setShowLocationPicker(true);
-        setLoading(false);
-      
-        return;
-      }
-      
-      console.log("📍 FINAL LOCATION SOURCE:", location.source);
-      
-      await updateAppUserLocation(
-        location.longitude,
-        location.latitude
-      );
-      
-      const nearby = await getNearbyListings(
-        location.longitude,
-        location.latitude,
-        30000
-      );
-      
-      console.log(
-        "📍 NEARBY LISTINGS:",
-        nearby
-      );
-      
-      setNearbyListings(
-        Array.isArray(nearby)
-          ? nearby
-          : []
-      );
-      } catch (err) {
+        // Use saved coordinates first.
+        // This prevents the location picker/GPS from running again
+        // whenever the dashboard remounts.
+        const savedCoordinates = profile?.location?.coordinates;
+        
+        if (
+          Array.isArray(savedCoordinates) &&
+          savedCoordinates.length === 2
+        ) {
+          const [longitude, latitude] = savedCoordinates;
+        
+          console.log("📍 USING SAVED LOCATION:", {
+            longitude,
+            latitude,
+          });
+        
+          setSelectedLocation({
+            latitude,
+            longitude,
+          });
+        
+          const nearby = await getNearbyListings(
+            longitude,
+            latitude,
+            30000
+          );
+        
+          setNearbyListings(
+            Array.isArray(nearby)
+              ? nearby
+              : []
+          );
+        
+        } else {
+          // No saved location yet — try browser GPS.
+          const location = await getReliableUserLocation();
+        
+          if (!location) {
+            console.warn(
+              "⚠️ Accurate GPS unavailable. Waiting for manual location selection."
+            );
+        
+            setShowLocationPicker(true);
+            setLoading(false);
+        
+            return;
+          }
+        
+          console.log(
+            "📍 FINAL LOCATION SOURCE:",
+            location.source
+          );
+        
+          await updateAppUserLocation(
+            location.longitude,
+            location.latitude
+          );
+        
+          setSelectedLocation({
+            latitude: location.latitude,
+            longitude: location.longitude,
+          });
+        
+          const nearby = await getNearbyListings(
+            location.longitude,
+            location.latitude,
+            30000
+          );
+        
+          setNearbyListings(
+            Array.isArray(nearby)
+              ? nearby
+              : []
+          );
+        } catch (err) {
         setError(err.message || 'Could not load listings.');
       } finally {
         setLoading(false);
@@ -551,7 +589,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
       onLogout={onLogout}
       title={
         userProfile.fullName
-          ? `Welcome back, ${userProfile.fullName.split(' ')[0]} 👋`
+          ? `Welcome back, ${userProfile.fullName}👋`
           : 'Welcome Back 👋'
       }
       subtitle="Find affordable and free meals near you."
@@ -559,7 +597,19 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         userProfile.city
           ? `${userProfile.city}, ${userProfile.state}`
           : 'Location unavailable'
-      }>
+      }
+    >
+      {!showLocationPicker && (
+        <button
+          type="button"
+          onClick={() => setShowLocationPicker(true)}
+          className="mb-4 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-medium text-green-normal transition-colors hover:bg-green-light"
+        >
+          <MapPin className="h-4 w-4" />
+          Change location
+        </button>
+      )}
+
       {error && <p className="mb-4 text-body2 text-red-500">{error}</p>}
 
       {showLocationPicker && (
