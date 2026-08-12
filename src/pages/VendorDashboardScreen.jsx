@@ -146,12 +146,7 @@ export default function VendorDashboardScreen({
                     : 'Cancelled',
             })),
           );
-          const discardedMeals = listingsResponse
-            .filter((listing) => listing.status === 'expired')
-            .reduce(
-              (total, listing) => total + (listing.quantity || 0),
-              0
-            );
+          
           setStats({
             listings: analytics.activeListings,
             reservations: analytics.totalReservations,
