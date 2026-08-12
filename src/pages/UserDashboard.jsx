@@ -11,54 +11,8 @@ import {
   getAppUserProfile,
   updateAppUserLocation,
 } from '../services/auth.js';
+import LocationPicker from '../components/LocationPicker.jsx';
 
-const getIPBasedLocation = async () => {
-  try {
-    console.log("🌐 Trying IP-based location...");
-
-    const response = await fetch("https://ipapi.co/json/");
-
-    if (!response.ok) {
-      throw new Error("IP location request failed.");
-    }
-
-    const data = await response.json();
-
-    const latitude = Number(data.latitude);
-    const longitude = Number(data.longitude);
-
-    console.log("🌐 IP LOCATION:", {
-      latitude,
-      longitude,
-      city: data.city,
-      region: data.region,
-      country: data.country_name,
-    });
-
-    if (
-      !Number.isFinite(latitude) ||
-      !Number.isFinite(longitude)
-    ) {
-      throw new Error("IP location returned invalid coordinates.");
-    }
-
-    return {
-      latitude,
-      longitude,
-      accuracy: null,
-      source: "ip",
-      city: data.city,
-      region: data.region,
-    };
-  } catch (error) {
-    console.error(
-      "❌ IP location failed:",
-      error
-    );
-
-    return null;
-  }
-};
 
 const CATEGORY_PILLS = [
  "Cooked Meals",
@@ -277,6 +231,11 @@ export default function UserDashboard({ onNavigate, onLogout }) {
   
   const [reserveListing, setReserveListing] = useState(null);
   const [confirmedReservation, setConfirmedReservation] = useState(null);
+  const [showLocationPicker, setShowLocationPicker] =
+  useState(false);
+
+  const [selectedLocation, setSelectedLocation] =
+  useState(null);
 
     <ReserveMealModal
       listing={reserveListing}
@@ -385,16 +344,13 @@ export default function UserDashboard({ onNavigate, onLogout }) {
       
       if (!location) {
         console.warn(
-          "⚠️ GPS unavailable or inaccurate. Using IP location."
+          "⚠️ Accurate GPS unavailable. Waiting for manual location selection."
         );
       
-        location = await getIPBasedLocation();
-      }
+        setShowLocationPicker(true);
+        setLoading(false);
       
-      if (!location) {
-        throw new Error(
-          "We could not determine your location. Please try again."
-        );
+        return;
       }
       
       console.log("📍 FINAL LOCATION SOURCE:", location.source);
@@ -528,6 +484,74 @@ export default function UserDashboard({ onNavigate, onLogout }) {
           : 'Location unavailable'
       }>
       {error && <p className="mb-4 text-body2 text-red-500">{error}</p>}
+
+      {showLocationPicker && (
+      <div className="mb-6 rounded-2xl border border-border-muted bg-white p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold text-ink">
+            Set your location
+          </h2>
+    
+          <p className="mt-1 text-sm text-body-text">
+            We couldn't get an accurate location from your browser.
+            Select your current location on the map so we can show
+            meals within 30 km of you.
+          </p>
+        </div>
+    
+        <LocationPicker
+          initialPosition={selectedLocation}
+          onSelect={(latitude, longitude) => {
+            setSelectedLocation({
+              latitude,
+              longitude,
+            });
+          }}
+        />
+    
+        {selectedLocation && (
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                setLoading(true);
+                setError(null);
+    
+                await updateAppUserLocation(
+                  selectedLocation.longitude,
+                  selectedLocation.latitude
+                );
+    
+                const nearby = await getNearbyListings(
+                  selectedLocation.longitude,
+                  selectedLocation.latitude,
+                  30000
+                );
+    
+                setNearbyListings(
+                  Array.isArray(nearby)
+                    ? nearby
+                    : []
+                );
+    
+                setShowLocationPicker(false);
+    
+              } catch (err) {
+                setError(
+                  err.message ||
+                    "Could not save your location."
+                );
+              } finally {
+                setLoading(false);
+              }
+            }}
+            className="mt-4 w-full rounded-xl bg-green-normal px-4 py-3 text-sm font-semibold text-white"
+          >
+            Use This Location
+          </button>
+        )}
+      </div>
+    )}
 
       <div className="mb-6 mt-3 flex items-center gap-3">
         <TextField
