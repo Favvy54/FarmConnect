@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Search, SlidersHorizontal, Compass, Clock, Check, CompassIcon, MapPin, } from 'lucide-react';
+import { Search, SlidersHorizontal,  Clock, Check, CompassIcon, MapPin, } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import DashboardLayout from '../components/DashboardLayout.jsx';
+import ReserveMealModal from '@/components/ReserveMealModal.jsx';
 import TextField from '../components/TextField.jsx';
 import {
   getAllListings,
@@ -311,9 +312,6 @@ export default function UserDashboard({ onNavigate, onLogout }) {
   }
 };
 
-
-
-  
     const getReliableUserLocation = () => {
       return new Promise((resolve) => {
         if (!navigator.geolocation) {
