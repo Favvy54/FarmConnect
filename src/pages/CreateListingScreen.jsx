@@ -290,19 +290,17 @@ const handleAddressChange = async () => {
       /*
        * Base listing payload.
        */
+      
       const payload = {
         foodName: mealName,
         category,
         description,
         quantity: Number(quantity),
 
-        useVendorLocation:
-          locationMode === 'vendor',
+        useVendorLocation: locationMode === 'vendor',
 
         pickupLocation:
-          locationMode === 'vendor'
-            ? vendorAddress
-            : customAddress,
+          locationMode === 'vendor' ? vendorAddress : customAddress,
 
         imageUrls,
 
@@ -310,10 +308,10 @@ const handleAddressChange = async () => {
 
         isFree,
 
-        price: isFree
-          ? 0
-          : Number(price),
+        price: isFree ? 0 : Number(price),
 
+        pickupTime, 
+        
         expiryDuration,
       };
 

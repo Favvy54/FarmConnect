@@ -191,7 +191,7 @@ function ScrollListingRow({
           View more →
         </button>
       </div>
-      <div className="flex max-w-55 w-full gap-4 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden pb-2">
+      <div className="flex gap-4 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden pb-2">
         {listings.map((l, index) => (
           <MealCard
             key={l._id || l.id || index}

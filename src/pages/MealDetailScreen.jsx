@@ -135,7 +135,6 @@ export default function MealDetailScreen({ onNavigate, onBack, onLogout }) {
         role="user"
         onNavigate={onNavigate}
         onLogout={onLogout}
-        title="Meal not found"
         subtitle="This listing couldn't be loaded directly — go back and select it from the dashboard.">
         <button
           onClick={() => navigate(-1)}
@@ -153,12 +152,25 @@ export default function MealDetailScreen({ onNavigate, onBack, onLogout }) {
   );
   const isExpired = msLeft <= 0;
 
+  const formatPickupTime = (timeString) => {
+    if (!timeString) return 'Not set';
+
+    const [hours, minutes] = timeString.split(':');
+
+    const date = new Date();
+    date.setHours(Number(hours), Number(minutes));
+
+    return date.toLocaleTimeString([], {
+      hour: 'numeric',
+      minute: '2-digit',
+    });
+  };
+
   return (
     <DashboardLayout
       active="home"
       onNavigate={onNavigate}
       onLogout={onLogout}
-      title={listing.foodName}
       subtitle="">
       <button
         onClick={() => navigate(-1)}
@@ -194,7 +206,9 @@ export default function MealDetailScreen({ onNavigate, onBack, onLogout }) {
             </div>
           )}
 
-          <h1 className="mt-4 text-xl font-bold text-ink">{listing.foodName}</h1>
+          <h1 className="mt-4 text-xl font-bold text-ink">
+            {listing.foodName}
+          </h1>
           <p className="text-body1 text-charcoal">
             {listing.vendorName || listing.vendorId?.businessName}
           </p>
@@ -206,20 +220,12 @@ export default function MealDetailScreen({ onNavigate, onBack, onLogout }) {
 
           {listing.description && (
             <div className="mt-6">
-              <h2 className="mb-2 text-lg font-semibold text-ink">About this meal</h2>
+              <h2 className="mb-2 text-lg font-semibold text-ink">
+                About this meal
+              </h2>
               <p className="text-body1 text-body-text">{listing.description}</p>
             </div>
           )}
-
-          <div className="mt-6 rounded-2xl border border-border-muted p-5">
-            <h2 className="mb-3 text-lg font-semibold text-ink">Pickup Information</h2>
-            <div className="flex items-start gap-3">
-              <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-body-text" />
-              <p className="text-body1 text-ink">
-                {listing.pickupLocation || 'Pickup location unavailable'}
-              </p>
-            </div>
-          </div>
         </div>
 
         {/* RIGHT — price, countdown, reservation */}
@@ -238,7 +244,7 @@ export default function MealDetailScreen({ onNavigate, onBack, onLogout }) {
                     Pickup Deadline
                   </p>
                   <p className="text-caption text-orange-dark">
-                    {isExpired ? 'This listing has expired' : 'Today'}
+                    {isExpired ? 'This listing has expired' : 'formatPickupTime(listing.pickupTime'}
                   </p>
                 </div>
               </div>
@@ -255,7 +261,9 @@ export default function MealDetailScreen({ onNavigate, onBack, onLogout }) {
             <div className="mt-4 flex items-start gap-3 rounded-xl bg-green-light p-4">
               <Timer className="mt-0.5 h-5 w-5 shrink-0 text-green-normal" />
               <div>
-                <p className="text-body2 font-medium text-green-normal">Reservation Hold</p>
+                <p className="text-body2 font-medium text-green-normal">
+                  Reservation Hold
+                </p>
                 <p className="text-caption text-green-normal">
                   Your reservation would be held for 1 hour
                 </p>
@@ -271,13 +279,27 @@ export default function MealDetailScreen({ onNavigate, onBack, onLogout }) {
                   className="flex h-8 w-8 items-center justify-center rounded-full bg-green-normal text-white">
                   −
                 </button>
-                <span className="text-body1 font-medium text-ink">{quantity}</span>
+                <span className="text-body1 font-medium text-ink">
+                  {quantity}
+                </span>
                 <button
                   type="button"
                   onClick={() => setQuantity((q) => Math.min(mealsLeft, q + 1))}
                   className="flex h-8 w-8 items-center justify-center rounded-full bg-green-normal text-white">
                   +
                 </button>
+              </div>
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-border-muted p-5">
+              <h2 className="mb-3 text-lg font-semibold text-ink">
+                Pickup Information
+              </h2>
+              <div className="flex items-start gap-3">
+                <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-body-text" />
+                <p className="text-body1 text-ink">
+                  {listing.pickupLocation || 'Pickup location unavailable'}
+                </p>
               </div>
             </div>
 
@@ -290,7 +312,11 @@ export default function MealDetailScreen({ onNavigate, onBack, onLogout }) {
               disabled={quantity === 0 || isExpired || reserving}
               onClick={handleReserve}
               className="mt-4 w-full rounded-xl bg-green-normal py-3 text-body1 font-semibold text-white disabled:opacity-50">
-              {isExpired ? 'Listing Expired' : reserving ? 'Reserving...' : 'Reserve Meal'}
+              {isExpired
+                ? 'Listing Expired'
+                : reserving
+                  ? 'Reserving...'
+                  : 'Reserve Meal'}
             </button>
           </div>
         </div>

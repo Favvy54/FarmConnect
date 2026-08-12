@@ -37,7 +37,11 @@ export function formatDeadlineTime(listing) {
   return null;
 }
 
-export default function ReserveMealModal({ listing, isOpen, onClose }) {
+export default function ReserveMealModal({
+  listing,
+  isOpen,
+  onClose,
+  onReserved }) {
   const [quantity, setQuantity] = useState(0);
     const [reserving, setReserving] = useState(false);
     const [reserveError, setReserveError] = useState(null);
@@ -74,6 +78,9 @@ export default function ReserveMealModal({ listing, isOpen, onClose }) {
      setReserveError(null);
      setReserving(true);
      try {
+           console.log('listing object:', listing);
+           console.log('listing._id:', listing?._id);
+
        const res = await createReservation({
          listingId: listing._id,
          quantityRequested: quantity,
@@ -91,7 +98,7 @@ export default function ReserveMealModal({ listing, isOpen, onClose }) {
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 z-40 bg-black/40" onClick={onClose} />
+      <div className="fixed inset-0 z-50 bg-black/40" onClick={onClose} />
 
       {/* Panel — full screen on mobile, slide-in from the right on larger screens */}
       <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md overflow-y-auto bg-white shadow-xl">
@@ -133,7 +140,7 @@ export default function ReserveMealModal({ listing, isOpen, onClose }) {
               </button>
               <span className="text-body1 font-medium text-ink">
                 {quantity}
-              </span>
+              </span> 
               <button
                 type="button"
                 onClick={() => setQuantity((q) => Math.min(mealsLeft, q + 1))}
@@ -181,11 +188,18 @@ export default function ReserveMealModal({ listing, isOpen, onClose }) {
           </div>
 
           <div className="mt-5 flex items-start gap-3 rounded-xl bg-[#FFB948]/16 p-4">
-            
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-orange-dark" />
-            <div>
+
+            <div className='flex flex-col gap-2'>
+              <p className="text-orange-dark text-normal font-medium">
+                Important note
+              </p>
+              <p className="text-orange-dark text-body2 font-medium">
+                Please arrive before the reservation hold expires. Your
+                reservation would be cancelled id not picked on time
+              </p>
             </div>
-              
+
           </div>
 
           <div className="mt-5 flex items-center justify-between">
