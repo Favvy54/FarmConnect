@@ -78,9 +78,6 @@ export default function ReserveMealModal({
      setReserveError(null);
      setReserving(true);
      try {
-           console.log('listing object:', listing);
-           console.log('listing._id:', listing?._id);
-
        const res = await createReservation({
          listingId: listing.listingId,
          quantityRequested: quantity,
