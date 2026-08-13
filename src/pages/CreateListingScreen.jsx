@@ -849,7 +849,7 @@ const handleAddressChange = async () => {
       {/* CHANGE LOCATION MODAL */}
       {showLocationModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-xl">
+          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-6 shadow-xl">
             <div className="mb-4 flex items-start justify-between">
               <div>
                 <h3 className="text-lg font-bold text-ink">
