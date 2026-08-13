@@ -122,7 +122,7 @@ export default function LocationPicker({
         center={center}
         zoom={position ? 15 : 6}
         style={{
-          height: '350px',
+          height: '280px',
           width: '100%',
         }}
       >
