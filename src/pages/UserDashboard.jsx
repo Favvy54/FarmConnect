@@ -77,7 +77,7 @@ function MealCard({ listing, variant = 'grid', onReserve }) {
     <div
       onClick={handleClick}
       className={`rounded-2xl border border-border-muted bg-white overflow-hidden shadow-sm flex flex-col cursor-pointer ${
-        variant === 'urgent' ? 'w- shrink-0' : 'w-full'
+        variant === 'urgent' ? 'w-70 shrink-0' : 'w-full'
       }`}>
       <div className="relative">
         <img
@@ -627,7 +627,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
           </div>
 
           <div className="mb-4 rounded-xl bg-green-light p-3 text-sm italic text-black">
-            💡 TIP: For the most accurate nearby results, use a mobile device
+             TIP: For the most accurate nearby results, use a mobile device
             with location services enabled.
           </div>
 
@@ -684,10 +684,10 @@ export default function UserDashboard({ onNavigate, onLogout }) {
           variant="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1"
+          className=" w-full lg:w-[80%]"
         />
 
-        <div className="relative shrink-0">
+        <div className=" lg:w-[20%] relative shrink-0">
           <button
             onClick={() => setIsFilterOpen((v) => !v)}
             className={`flex h-12 w-12 items-center justify-center rounded-xl border transition-colors ${

@@ -23,6 +23,7 @@ import CreateListingScreen from './pages/CreateListingScreen.jsx';
 import UserProfileScreen from './pages/UserProfile.jsx';
 import UserDashboard from './pages/UserDashboard.jsx';
 import MealDetailScreen from './pages/MealDetailScreen.jsx';
+import UserListingsScreen from './pages/UserListingsScreen.jsx';
 import { getRole } from './services/auth';
 import { getCurrentUser } from "./services/auth";
 
@@ -51,7 +52,6 @@ export default function App() {
             />
           }
         />
-
         <Route
           path="/signup"
           element={
@@ -61,7 +61,6 @@ export default function App() {
             />
           }
         />
-
         <Route
           path="/login"
           element={
@@ -72,7 +71,6 @@ export default function App() {
             />
           }
         />
-
         <Route
           path="/forgot-password"
           element={
@@ -85,7 +83,6 @@ export default function App() {
             />
           }
         />
-
         <Route
           path="/verify-email"
           element={
@@ -97,7 +94,6 @@ export default function App() {
             />
           }
         />
-
         <Route
           path="/new-password"
           element={
@@ -108,12 +104,10 @@ export default function App() {
             />
           }
         />
-
         <Route
           path="/password-updated"
           element={<PasswordUpdatedScreen onBack={() => navigate('/login')} />}
         />
-
         <Route
           path="/welcome-onboarding"
           element={
@@ -145,11 +139,8 @@ export default function App() {
             />
           }
         />
-
         <Route path="/terms" element={<TermsAndConditionsScreen />} />
-
         <Route path="/privacy" element={<PrivacyPolicyScreen />} />
-
         <Route
           path="/vendor/profile"
           element={
@@ -158,7 +149,6 @@ export default function App() {
             />
           }
         />
-
         <Route
           path="/vendor/dashboard"
           element={
@@ -175,7 +165,6 @@ export default function App() {
             />
           }
         />
-
         <Route
           path="/vendor/listings"
           element={
@@ -190,7 +179,6 @@ export default function App() {
             />
           }
         />
-
         <Route
           path="/vendor/create-listing"
           element={
@@ -204,14 +192,12 @@ export default function App() {
             />
           }
         />
-
         <Route
           path="/user/profile"
           element={
             <UserProfileScreen onComplete={() => navigate('/user/dashboard')} />
           }
         />
-
         <Route
           path="/user/dashboard"
           element={
@@ -224,19 +210,31 @@ export default function App() {
             />
           }
         />
-
         <Route
           path="/user/meal/:id"
           element={
             <MealDetailScreen
-            onNavigate={(key) => {
-              if (key === 'home') navigate(-1);
-              if (key === 'listings') navigate('/user/listings');
-            }}
+              onNavigate={(key) => {
+                if (key === 'home') navigate(-1);
+                if (key === 'listings') navigate('/user/listings');
+              }}
               onLogout={() => navigate('/login')}
             />
           }
         />
+        <Route
+          path="/user/listings"
+          element={
+            <UserListingsScreen
+              onNavigate={(key) => {
+                if (key === 'home') navigate('/user/dashboard');
+                if (key === 'listings') navigate('/user/listings');
+              }}
+              onLogout={() => navigate('/login')}
+            />
+          }
+        />
+        ;
       </Routes>
     </div>
   );
