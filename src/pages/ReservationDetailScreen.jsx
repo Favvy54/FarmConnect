@@ -146,7 +146,7 @@ export default function ReservationDetailScreen({ onNavigate, onLogout }) {
       <button
         onClick={() => navigate(-1)}
         className="mb-4 flex items-center gap-1 text-body1 font-medium text-green-normal">
-        < className="h-4 w-4" /> Back to reservation
+        <ArrowLeft className="h-4 w-4" /> Back to reservation
       </button>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
