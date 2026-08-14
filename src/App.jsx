@@ -24,6 +24,8 @@ import UserProfileScreen from './pages/UserProfile.jsx';
 import UserDashboard from './pages/UserDashboard.jsx';
 import MealDetailScreen from './pages/MealDetailScreen.jsx';
 import UserListingsScreen from './pages/UserListingsScreen.jsx';
+import ReservationsScreen from './pages/ReservationsScreen.jsx';
+import ReservationDetailScreen from './pages/ReservationDetailScreen.jsx';
 import { getRole } from './services/auth';
 import { getCurrentUser } from "./services/auth";
 
@@ -205,6 +207,7 @@ export default function App() {
               onNavigate={(key) => {
                 if (key === 'home') navigate('/user/dashboard');
                 if (key === 'listings') navigate('/user/listings');
+                if (key === 'reservations') navigate('/user/reservations');
               }}
               onLogout={() => navigate('/login')}
             />
@@ -217,6 +220,7 @@ export default function App() {
               onNavigate={(key) => {
                 if (key === 'home') navigate(-1);
                 if (key === 'listings') navigate('/user/listings');
+                if (key === 'reservations') navigate('/user/reservations');
               }}
               onLogout={() => navigate('/login')}
             />
@@ -229,12 +233,38 @@ export default function App() {
               onNavigate={(key) => {
                 if (key === 'home') navigate('/user/dashboard');
                 if (key === 'listings') navigate('/user/listings');
+                if (key === 'reservations') navigate('/user/reservations');
               }}
               onLogout={() => navigate('/login')}
             />
           }
         />
-        ;
+        <Route
+          path="/user/reservations"
+          element={
+            <ReservationsScreen
+              onNavigate={(key) => {
+                if (key === 'home') navigate('/user/dashboard');
+                if (key === 'listings') navigate('/user/listings');
+                if (key === 'reservations') navigate('/user/reservations');
+              }}
+              onLogout={() => navigate('/login')}
+            />
+          }
+        />
+        <Route
+          path="/user/reservations/:id"
+          element={
+            <ReservationDetailScreen
+              onNavigate={(key) => {
+                if (key === 'home') navigate('/user/dashboard');
+                if (key === 'listings') navigate('/user/listings');
+                if (key === 'reservations') navigate('/user/reservations');
+              }}
+              onLogout={() => navigate('/login')}
+            />
+          }
+        />
       </Routes>
     </div>
   );

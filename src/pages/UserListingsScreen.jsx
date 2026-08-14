@@ -105,9 +105,6 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
   const [error, setError] = useState(null);
   const [reserveListing, setReserveListing] = useState(null);
 
-  // Load profile (for the header greeting/location, same as dashboard) + the
-  // full marketplace — this page's whole purpose is showing everything, no
-  // nearby/GPS logic here.
   useEffect(() => {
     (async () => {
       setLoading(true);

@@ -29,6 +29,7 @@
   --color-orange-dark-hover: #a26400;
   --color-orange-dark-active: #7d4d00;
   --color-orange-darker: #573600;
+  --color-orange-badge-light: #ffeee0;
 
   /* --- Neutrals --- */
   --color-charcoal: #a0a0a0;
@@ -44,6 +45,7 @@
   --bg-blue-50: #a9d6fd;
   /* Error states */
   --color-error: #FF383C;
+  --color-error-light: #FFF4F3;
 
   /* --- Typography scale  */
   --text-h1: 3.125rem;       /* 50px  */

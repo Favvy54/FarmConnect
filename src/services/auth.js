@@ -392,12 +392,36 @@ export async function getDashboardAnalytics() {
   });
 }
 
-//Reservations
+
+// Reservation (Vendor)
 
 export async function getVendorReservations() {
   return profileRequest("/reservations/vendor", {
     method: "GET",
     auth: true,
+  });
+}
+
+export async function getVendorReservationHistory() {
+  const res = await profileRequest('/reservations/vendor/history', {
+    method: 'GET',
+    auth: true,
+  });
+  return res?.data?.reservations || res?.data || [];
+}
+
+export async function completeReservation(reservationId) {
+  return profileRequest(`/reservations/${reservationId}/complete`, {
+    method: 'PATCH',
+    auth: true,
+  });
+}
+
+export async function cancelVendorReservation(reservationId, cancellationReason) {
+  return profileRequest(`/reservations/${reservationId}/cancel`, {
+    method: 'PATCH',
+    auth: true,
+    body: { cancellationReason },
   });
 }
 
@@ -436,16 +460,7 @@ export async function deleteAppUserProfile() {
   });
 }
 
-// Reservation
 
-
-export async function createReservation({ listingId, quantityRequested }) {
-  return profileRequest('/reservations', {
-    method: 'POST',
-    auth: true,
-    body: { listingId, quantityRequested },
-  });
-}
 
 // Browse all listings (market feed) — for the user-facing dashboard
 export async function getAllListings(search = "") {
@@ -511,3 +526,37 @@ export async function updateAppUserLocation(
 
   return res?.data;
 };
+
+// Reservation User
+
+
+export async function createReservation({ listingId, quantityRequested }) {
+  return profileRequest('/reservations', {
+    method: 'POST',
+    auth: true,
+    body: { listingId, quantityRequested },
+  });
+}
+
+export async function getCurrentReservations() {
+  const res = await profileRequest('/reservations/my-reservations', {
+    method: 'GET',
+    auth: true,
+  });
+  return res?.data?.reservations || res?.data || [];
+}
+
+export async function getReservationHistory() {
+  const res = await profileRequest('/reservations/my-history', {
+    method: 'GET',
+    auth: true,
+  });
+  return res?.data?.reservations || res?.data || [];
+}
+
+export async function cancelReservation(reservationId) {
+  return profileRequest(`/reservations/${reservationId}/user-cancel`, {
+    method: 'PATCH',
+    auth: true,
+  });
+}
