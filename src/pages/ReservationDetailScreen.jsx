@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
+import notify from '../services/toast';
 import {
   ArrowLeft,
   Info,
@@ -12,7 +13,10 @@ import {
   CreditCard,
   Trash2,
   ArrowRight,
-  CircleXIcon,
+  AlertCircle,
+  Users,
+  ShoppingBag,
+  AlertTriangle,
 } from 'lucide-react';
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import { cancelReservation } from '../services/auth.js';
@@ -72,14 +76,78 @@ const STATUS_CONFIG = {
   },
 };
 
+
+function CancelConfirmDialog({
+  foodName,
+  onKeep,
+  onConfirm,
+  cancelling,
+  error,
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="w-full max-w-md rounded-3xl bg-white p-6 text-center shadow-xl">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border-2 border-error">
+          <AlertCircle className="h-7 w-7 text-error" />
+        </div>
+
+        <h3 className="text-xl font-bold text-ink">Cancel Reservation?</h3>
+        <p className="mt-2 text-body2 text-body-text">
+          You are about to cancel your reservation for{' '}
+          <span className="font-semibold text-ink">{foodName}</span>.
+        </p>
+
+        <ul className="mt-5 space-y-3 text-left">
+          <li className="flex items-start gap-3 text-body2 text-body-text">
+            <Clock className="mt-0.5 h-4 w-4 shrink-0 text-green-normal" />
+            Your reservation will be released immediately.
+          </li>
+          <li className="flex items-start gap-3 text-body2 text-body-text">
+            <Users className="mt-0.5 h-4 w-4 shrink-0 text-green-normal" />
+            The quantity will become available to other users.
+          </li>
+          <li className="flex items-start gap-3 text-body2 text-body-text">
+            <ShoppingBag className="mt-0.5 h-4 w-4 shrink-0 text-green-normal" />
+            You won't be able to reserve another listing for 1 hour.
+          </li>
+          <li className="flex items-start gap-3 text-body2 text-body-text">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-orange-normal" />
+            This action cannot be undone.
+          </li>
+        </ul>
+
+        {error && <p className="mt-4 text-body2 text-error">{error}</p>}
+
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <button
+            type="button"
+            onClick={onKeep}
+            disabled={cancelling}
+            className="flex-1 rounded-xl border border-green-normal px-4 py-3 text-sm font-semibold text-green-normal transition-colors hover:bg-green-light disabled:opacity-50">
+            Keep Reservation
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={cancelling}
+            className="flex-1 rounded-xl bg-error px-4 py-3 text-sm font-semibold text-white transition-colors disabled:opacity-50">
+            {cancelling ? 'Cancelling...' : 'Cancel Reservation'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ReservationDetailScreen({ onNavigate, onLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
 
   const [reservation, setReservation] = useState(location.state?.reservation || null);
   const [msLeft, setMsLeft] = useState(0);
-  const [cancelling, setCancelling] = useState(false);
-  const [cancelError, setCancelError] = useState(null);
+const [cancelling, setCancelling] = useState(false);
+const [cancelError, setCancelError] = useState(null);
+const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   const deadline = getDeadline(reservation);
 
@@ -98,8 +166,12 @@ export default function ReservationDetailScreen({ onNavigate, onLogout }) {
     try {
       await cancelReservation(reservation.reservationId || reservation._id);
       setReservation((prev) => ({ ...prev, status: 'cancelled' }));
+      setShowCancelConfirm(false);
+      notify.success('Reservation cancelled successfully.');
     } catch (err) {
-      setCancelError(err.message || 'Could not cancel this reservation.');
+      const message = err.message || 'Could not cancel this reservation.';
+      setCancelError(message);
+      notify.error(message);
     } finally {
       setCancelling(false);
     }
@@ -294,19 +366,15 @@ export default function ReservationDetailScreen({ onNavigate, onLogout }) {
 
           {status === 'reserved' && (
             <div className="rounded-2xl border border-border-muted bg-white p-5">
-              {cancelError && (
-                <p className="mb-3 text-body2 text-red-500">{cancelError}</p>
-              )}
               <button
                 type="button"
-                onClick={handleCancel}
-                disabled={cancelling}
-                className="flex w-full items-center justify-between text-left disabled:opacity-50">
-                <span className="flex items-center gap-2 font-medium text-red-500">
+                onClick={() => setShowCancelConfirm(true)}
+                className="flex w-full items-center justify-between text-left">
+                <span className="flex items-center gap-2 font-medium text-error">
                   <Trash2 className="h-4 w-4" />
-                  {cancelling ? 'Cancelling...' : 'Cancel Reservation'}
+                  Cancel Reservation
                 </span>
-                <ArrowRight className="h-4 w-4 text-red-500" />
+                <ArrowRight className="h-4 w-4 text-error" />
               </button>
               <p className="mt-1 text-caption text-body-text">
                 Release your reserved meal back to the listing.
@@ -315,6 +383,16 @@ export default function ReservationDetailScreen({ onNavigate, onLogout }) {
           )}
         </div>
       </div>
+
+      {showCancelConfirm && (
+        <CancelConfirmDialog
+          foodName={reservation.foodName}
+          cancelling={cancelling}
+          error={cancelError}
+          onKeep={() => setShowCancelConfirm(false)}
+          onConfirm={handleCancel}
+        />
+      )}
     </DashboardLayout>
   );
 }

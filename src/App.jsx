@@ -26,6 +26,7 @@ import MealDetailScreen from './pages/MealDetailScreen.jsx';
 import UserListingsScreen from './pages/UserListingsScreen.jsx';
 import ReservationsScreen from './pages/ReservationsScreen.jsx';
 import ReservationDetailScreen from './pages/ReservationDetailScreen.jsx';
+import { Toaster } from 'react-hot-toast';
 import { getRole } from './services/auth';
 import { getCurrentUser } from "./services/auth";
 
@@ -42,6 +43,7 @@ export default function App() {
 
   return (
     <div>
+      <Toaster position="top-right" />
       <Analytics />
       <SpeedInsights />
       <Routes>
