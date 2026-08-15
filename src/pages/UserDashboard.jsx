@@ -787,7 +787,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
           <p className="mt-2 text-body-text">Try another search or category.</p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="mt-6">
           <GridListingRow
             icon={<CompassIcon className="h-6 w-6 text-green-normal" />}
             title={viewMode === 'market' ? 'Marketplace' : 'Explore Meals'}

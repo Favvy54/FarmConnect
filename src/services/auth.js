@@ -543,7 +543,14 @@ export async function getCurrentReservations() {
     method: 'GET',
     auth: true,
   });
-  return res?.data?.reservations || res?.data || [];
+
+  const reservations = res?.data?.reservations || res?.data || [];
+  return reservations.filter((r) => {
+    if (r.status !== 'reserved') return false;
+    if (!r.reservedAt) return false;
+    const deadline = new Date(new Date(r.reservedAt).getTime() + 60 * 60000);
+    return deadline > new Date();
+  });
 }
 
 export async function getReservationHistory() {
