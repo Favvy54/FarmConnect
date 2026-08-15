@@ -555,7 +555,7 @@ export async function getReservationHistory() {
 }
 
 export async function getUserDashboardAnalytics() {
-  const res = await profileRequest('/user-dashboard', {
+  const res = await profileRequest('/reservations/user-dashboard', {
     method: 'GET',
     auth: true,
   });
