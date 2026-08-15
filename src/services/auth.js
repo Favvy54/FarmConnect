@@ -554,6 +554,15 @@ export async function getReservationHistory() {
   return res?.data?.reservations || res?.data || [];
 }
 
+export async function getUserDashboardAnalytics() {
+  const res = await profileRequest('/user-dashboard', {
+    method: 'GET',
+    auth: true,
+  });
+
+  return res?.data || {};
+}
+
 export async function cancelReservation(reservationId) {
   return profileRequest(`/reservations/${reservationId}/user-cancel`, {
     method: 'PATCH',
