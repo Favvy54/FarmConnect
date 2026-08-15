@@ -8,7 +8,7 @@ import {
   getReservationHistory,
   getUserDashboardAnalytics,
 } from '../services/auth.js';
-import notify from '../services/Toast';
+import notify from '../services/toast';
 
 const TABS = ['All', 'Completed', 'Expired', 'Cancelled'];
 
@@ -176,12 +176,15 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
         </div>
         <div className="rounded-2xl border border-border-muted bg-white p-5">
           <div className="mb-2 flex items-center justify-between">
-            <p className="text-2xl font-bold text-ink">
-              {analytics.completedReservations}
+            <p className="text-body1 font-medium text-ink">
+              Completed reservation
             </p>
             <CheckCircle2 className="h-5 w-5 text-green-normal" />
           </div>
-          <p className="text-2xl font-bold text-ink">{completedCount}</p>
+        
+          <p className="text-2xl font-bold text-ink">
+            {analytics.completedReservations}
+          </p>
         </div>
       </div>
 
