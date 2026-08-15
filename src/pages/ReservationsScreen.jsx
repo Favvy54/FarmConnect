@@ -3,7 +3,12 @@ import { useNavigate } from 'react-router';
 import { Search, Package, Calendar, CheckCircle2, ArrowRight } from 'lucide-react';
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import TextField from '../components/TextField.jsx';
-import { getCurrentReservations, getReservationHistory } from '../services/auth.js';
+import {
+  getCurrentReservations,
+  getReservationHistory,
+  getUserDashboardAnalytics,
+} from '../services/auth.js';
+import notify from '../services/Toast';
 
 const TABS = ['All', 'Completed', 'Expired', 'Cancelled'];
 
@@ -83,27 +88,45 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('All');
   const [search, setSearch] = useState('');
+  const [analytics, setAnalytics] = useState({
+      totalReservations: 0,
+      activeReservations: 0,
+      completedReservations: 0,
+      cancelledReservations: 0,
+      mealsRescued: 0,
+    });
 
   useEffect(() => {
     (async () => {
       setLoading(true);
       setError(null);
+  
       try {
-        const [currentRes, historyRes] = await Promise.all([
+        const [currentRes, historyRes, analyticsRes] = await Promise.all([
           getCurrentReservations(),
           getReservationHistory(),
+          getUserDashboardAnalytics(),
         ]);
+  
         setCurrent(Array.isArray(currentRes) ? currentRes : []);
         setHistory(Array.isArray(historyRes) ? historyRes : []);
+  
+        setAnalytics({
+          totalReservations: analyticsRes?.totalReservations || 0,
+          activeReservations: analyticsRes?.activeReservations || 0,
+          completedReservations: analyticsRes?.completedReservations || 0,
+          cancelledReservations: analyticsRes?.cancelledReservations || 0,
+          mealsRescued: analyticsRes?.mealsRescued || 0,
+        });
       } catch (err) {
-        setError(err.message || 'Could not load reservations.');
+        const message = err.message || 'Could not load reservations.';
+        setError(message);
+        notify.error(message);
       } finally {
         setLoading(false);
       }
     })();
   }, []);
-
-  const completedCount = history.filter((r) => r.status === 'completed').length;
 
   const historyFiltered = history
     .filter((r) => (activeTab === 'All' ? true : r.status === activeTab.toLowerCase()))
@@ -138,18 +161,24 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
             <p className="text-body1 font-medium text-ink">Active reservation</p>
             <Package className="h-5 w-5 text-green-normal" />
           </div>
-          <p className="text-2xl font-bold text-ink">{current.length}</p>
+          <p className="text-2xl font-bold text-ink">
+            {analytics.activeReservations}
+          </p>
         </div>
         <div className="rounded-2xl border border-border-muted bg-white p-5">
           <div className="mb-2 flex items-center justify-between">
             <p className="text-body1 font-medium text-ink">Total reservation</p>
             <Calendar className="h-5 w-5 text-green-normal" />
           </div>
-          <p className="text-2xl font-bold text-ink">{current.length + history.length}</p>
+          <p className="text-2xl font-bold text-ink">
+            {analytics.totalReservations}
+          </p>
         </div>
         <div className="rounded-2xl border border-border-muted bg-white p-5">
           <div className="mb-2 flex items-center justify-between">
-            <p className="text-body1 font-medium text-ink">Completed reservation</p>
+            <p className="text-2xl font-bold text-ink">
+              {analytics.completedReservations}
+            </p>
             <CheckCircle2 className="h-5 w-5 text-green-normal" />
           </div>
           <p className="text-2xl font-bold text-ink">{completedCount}</p>
