@@ -20,22 +20,20 @@ function computeMsLeft(listing) {
 }
 
 export function formatDeadlineTime(listing) {
+  let expiry = null;
   if (listing?.expiresAt) {
-    return new Date(listing.expiresAt).toLocaleTimeString([], {
-      hour: 'numeric',
-      minute: '2-digit',
-    });
-  }
-  if (listing?.createdAt && listing?.expiryDuration != null) {
-    const expiry = new Date(
+    expiry = new Date(listing.expiresAt);
+  } else if (listing?.createdAt && listing?.expiryDuration != null) {
+    expiry = new Date(
       new Date(listing.createdAt).getTime() + listing.expiryDuration * 60000,
     );
-    return expiry.toLocaleTimeString([], {
-      hour: 'numeric',
-      minute: '2-digit',
-    });
   }
-  return null;
+  if (!expiry) return 'Not set';
+  return expiry.toLocaleTimeString([], {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
 }
 
 export default function ReserveMealModal({

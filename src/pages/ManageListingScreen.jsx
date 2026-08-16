@@ -65,6 +65,18 @@ export default function ManageListingScreen({
 
         const listings = await getMyListings(searchTerm);
 
+          console.log(
+            'raw listings:',
+            listings.map((l) => ({
+              id: l._id,
+              foodName: l.foodName,
+              expiryDuration: l.expiryDuration,
+              expiresAt: l.expiresAt,
+              updatedAt: l.updatedAt,
+              createdAt: l.createdAt,
+            })),
+          );
+
         if (!cancelled) {
           const formatted = listings.map((listing) => ({
             id: listing._id,
@@ -88,7 +100,13 @@ export default function ManageListingScreen({
             pickupEnds: (() => {
               let expiry = null;
 
-              if (listing.expiresAt) {
+           
+              if (listing.updatedAt && listing.expiryDuration != null) {
+                expiry = new Date(
+                  new Date(listing.updatedAt).getTime() +
+                    listing.expiryDuration * 60000,
+                );
+              } else if (listing.expiresAt) {
                 expiry = new Date(listing.expiresAt);
               } else if (listing.createdAt && listing.expiryDuration != null) {
                 expiry = new Date(
@@ -167,11 +185,19 @@ export default function ManageListingScreen({
       profileImage={vendor?.profileImage}>
       {successMessage && (
         <SuccessToast
-          title={successMessage}
+          title={
+            successMessage === 'Listing Deleted'
+              ? 'Listing deleted successfully!'
+              : successMessage === 'Listing Updated'
+                ? 'Listing updates successfully!'
+                : 'Listing published successfully!'
+          }
           message={
-            successMessage === 'Listing Updated'
-              ? 'Your listing has been updated successfully.'
-              : 'Your listing has been published successfully.'
+            successMessage === 'Listing Deleted'
+              ? 'Your food listing is no longer available to users'
+              : successMessage === 'Listing Updated'
+                ? 'Your food listing has been updated for users'
+                : 'Your food listing is now available to nearby users'
           }
           onClose={() => setSuccessMessage(null)}
         />

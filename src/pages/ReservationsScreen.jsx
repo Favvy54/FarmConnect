@@ -56,7 +56,11 @@ function ActiveReservationCard({ reservation, onClick }) {
   }, [deadline]);
 
   const deadlineTime = deadline
-    ? deadline.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+    ? deadline.toLocaleTimeString([], {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      })
     : null;
 
   return (

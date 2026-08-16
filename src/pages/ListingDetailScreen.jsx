@@ -9,9 +9,11 @@ import {
   AlertCircle,
   Calendar,
   ArrowRight,
+  MoreVertical,
+  Trash2
 } from 'lucide-react';
 import DashboardLayout from '../components/DashboardLayout.jsx';
-import { getVendorReservations, getVendorProfile } from '../services/auth.js';
+import { getVendorReservations, getVendorProfile, deleteListing } from '../services/auth.js';
 
 const statusStyles = {
   ACTIVE: 'bg-green-light text-green-normal',
@@ -30,7 +32,11 @@ function formatDeadline(listing) {
     );
   }
   if (!expiry) return 'Not set';
-  return expiry.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  return expiry.toLocaleTimeString([], {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
 }
 
 function formatCreated(listing) {
@@ -42,6 +48,43 @@ function formatCreated(listing) {
     hour: 'numeric',
     minute: '2-digit',
   });
+}
+
+function DeleteConfirmDialog({ onCancel, onConfirm, deleting, error }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-xl">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border-2 border-red-500">
+          <Trash2 className="h-6 w-6 text-red-500" />
+        </div>
+
+        <h3 className="text-xl font-bold text-ink">Delete Listing?</h3>
+        <p className="mt-2 text-body2 text-body-text">
+          This action cannot be undone. All listing details and data will
+          permanently removed.
+        </p>
+
+        {error && <p className="mt-3 text-body2 text-red-500">{error}</p>}
+
+        <div className="mt-6 flex gap-3">
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={deleting}
+            className="flex-1 rounded-xl border border-border-muted px-4 py-3 text-sm font-medium text-ink hover:bg-surface-secondary disabled:opacity-50">
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={deleting}
+            className="flex-1 rounded-xl bg-red-500 px-4 py-3 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50">
+            {deleting ? 'Deleting...' : 'Delete'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function ListingDetailScreen({
@@ -61,6 +104,11 @@ export default function ListingDetailScreen({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [vendor, setVendor] = useState(null);
+
+  const [showMenu, setShowMenu] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
 
   useEffect(() => {
     if (!listing) return;
@@ -99,6 +147,20 @@ export default function ListingDetailScreen({
     })();
   }, [listing]);
 
+  const handleDelete = async () => {
+    setDeleteError(null);
+    setDeleting(true);
+    try {
+    await deleteListing(listing.listingId);
+      navigate('/vendor/listings', {
+        state: { success: 'Listing Deleted' },
+      });
+    } catch (err) {
+      setDeleteError(err.message || 'Could not delete this listing.');
+      setDeleting(false);
+    }
+  };
+
   if (!listing) {
     return (
       <DashboardLayout
@@ -106,9 +168,7 @@ export default function ListingDetailScreen({
         onNavigate={onNavigate}
         onLogout={onLogout}
         title="Listing not found"
-        subtitle="This listing couldn't be loaded directly — go back and select it from Manage Listings."
-        location={vendor?.currentLocation || 'Location unavailable'}
-        profileImage={vendor?.profileImage}>
+        subtitle="This listing couldn't be loaded directly — go back and select it from Manage Listings.">
         <button
           onClick={() => navigate(-1)}
           className="mt-4 flex items-center gap-2 text-body1 font-medium text-green-normal">
@@ -143,23 +203,52 @@ export default function ListingDetailScreen({
       active="listings"
       onNavigate={onNavigate}
       onLogout={onLogout}
-      title=""
-      subtitle=""
-      location={vendor?.currentLocation || 'Location unavailable'}
-      profileImage={vendor?.profileImage}>
-      <div className="my-4 flex items-center justify-between">
+      hideTopBar
+    >
+      <div className="mb-4 flex items-center justify-between">
         <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-1 text-body1 font-medium text-green-normal">
           <ArrowLeft className="h-4 w-4" /> Back to Listing
         </button>
 
-        <button
-          type="button"
-          onClick={() => onEditListing?.({ raw: listing })}
-          className="rounded-xl border border-border-muted px-4 py-2 text-sm font-medium text-ink hover:bg-surface-secondary">
-          Edit Listing
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => onEditListing?.({ raw: listing })}
+            className="rounded-xl border border-border-muted px-4 py-2 text-sm font-medium text-ink hover:bg-surface-secondary">
+            Edit Listing
+          </button>
+
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowMenu((v) => !v)}
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border-muted text-ink hover:bg-surface-secondary">
+              <MoreVertical className="h-4 w-4" />
+            </button>
+
+            {showMenu && (
+              <>
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setShowMenu(false)}
+                />
+                <div className="absolute right-0 z-20 mt-2 w-44 overflow-hidden rounded-xl border border-border-muted bg-white shadow-lg">
+                  <button
+                    onClick={() => {
+                      setShowMenu(false);
+                      setShowDeleteConfirm(true);
+                    }}
+                    className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-medium text-red-500 hover:bg-red-50">
+                    <Trash2 className="h-4 w-4" />
+                    Delete Listing
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
       {error && <p className="mb-4 text-body2 text-red-500">{error}</p>}
@@ -354,6 +443,15 @@ export default function ListingDetailScreen({
           )}
         </div>
       </div>
+
+      {showDeleteConfirm && (
+        <DeleteConfirmDialog
+          deleting={deleting}
+          error={deleteError}
+          onCancel={() => setShowDeleteConfirm(false)}
+          onConfirm={handleDelete}
+        />
+      )}
     </DashboardLayout>
   );
 }

@@ -18,6 +18,7 @@ export default function DashboardLayout({
   location,
   topBarRight,
   profileImage,
+  hideTopBar= false,
   children,
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -109,14 +110,20 @@ export default function DashboardLayout({
           className="fixed top-0 left-0 h-screen w-64 z-30 bg-white"
         />
 
-        <div className="relative mt-20 md:mt-4 md:pt-0 md:ml-64 px-4 md:py-9.5">
-          <VendorTopBar
-            title={title}
-            subtitle={subtitle}
-            location={location}
-            rightSlot={topBarRight}
-            profileImage={profileImage}
-          />
+        <div
+          className={`relative md:ml-64 px-4 ${
+            hideTopBar ? 'mt-20 md:mt-4 md:py-4' : 'mt-20 md:mt-4 md:py-9.5'
+          }`}>
+          {!hideTopBar && (
+            <VendorTopBar
+              title={title}
+              subtitle={subtitle}
+              location={location}
+              rightSlot={topBarRight}
+              profileImage={profileImage}
+            />
+          )}
+
           {children}
         </div>
       </div>
