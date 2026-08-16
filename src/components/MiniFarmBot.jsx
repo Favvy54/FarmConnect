@@ -4,7 +4,6 @@ import { Bot, X, Send, Loader2 } from "lucide-react";
 import { askMiniFarmBot } from "../services/auth.js";
 
 export default function MiniFarmBot() {
-
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([
@@ -16,7 +15,6 @@ export default function MiniFarmBot() {
   const [loading, setLoading] = useState(false);
 
   const handleSend = async () => {
-
     const trimmedMessage = message.trim();
 
     if (!trimmedMessage || loading) {
@@ -35,11 +33,7 @@ export default function MiniFarmBot() {
     setLoading(true);
 
     try {
-
-      const response =
-        await askMiniFarmBot(
-          trimmedMessage
-        );
+      const response = await askMiniFarmBot(trimmedMessage);
 
       setMessages((prev) => [
         ...prev,
@@ -50,9 +44,7 @@ export default function MiniFarmBot() {
             "Sorry, I couldn't answer that right now.",
         },
       ]);
-
     } catch (error) {
-
       setMessages((prev) => [
         ...prev,
         {
@@ -62,45 +54,31 @@ export default function MiniFarmBot() {
             "Mini Farm Bot is temporarily unavailable.",
         },
       ]);
-
     } finally {
-
       setLoading(false);
-
     }
   };
 
   const handleKeyDown = (e) => {
-
-    if (
-      e.key === "Enter" &&
-      !e.shiftKey
-    ) {
-
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-
       handleSend();
-
     }
-
   };
 
   return (
     <>
-      {/* Floating Bot Button */}
+      {/* MINI FARM BOT BUTTON */}
 
       {!isOpen && (
         <button
           type="button"
           onClick={() => setIsOpen(true)}
           className="
-            fixed
-            bottom-6
-            right-6
-            z-50
             flex
             h-14
             w-14
+            shrink-0
             items-center
             justify-center
             rounded-full
@@ -116,13 +94,13 @@ export default function MiniFarmBot() {
         </button>
       )}
 
-      {/* Chat Window */}
+      {/* MINI FARM BOT CHAT WINDOW */}
 
       {isOpen && (
         <div
           className="
             fixed
-            bottom-6
+            bottom-24
             right-6
             z-50
             flex
@@ -137,8 +115,7 @@ export default function MiniFarmBot() {
             shadow-2xl
           "
         >
-
-          {/* Header */}
+          {/* HEADER */}
 
           <div
             className="
@@ -151,9 +128,7 @@ export default function MiniFarmBot() {
               text-white
             "
           >
-
             <div className="flex items-center gap-2">
-
               <div
                 className="
                   flex
@@ -169,7 +144,6 @@ export default function MiniFarmBot() {
               </div>
 
               <div>
-
                 <p className="font-semibold">
                   Mini Farm Bot
                 </p>
@@ -177,9 +151,7 @@ export default function MiniFarmBot() {
                 <p className="text-xs text-white/80">
                   FarmConnect Assistant
                 </p>
-
               </div>
-
             </div>
 
             <button
@@ -190,13 +162,13 @@ export default function MiniFarmBot() {
                 p-1
                 hover:bg-white/20
               "
+              aria-label="Close Mini Farm Bot"
             >
               <X className="h-5 w-5" />
             </button>
-
           </div>
 
-          {/* Messages */}
+          {/* MESSAGES */}
 
           <div
             className="
@@ -207,46 +179,37 @@ export default function MiniFarmBot() {
               p-4
             "
           >
-
-            {messages.map(
-              (item, index) => (
-
+            {messages.map((item, index) => (
+              <div
+                key={index}
+                className={`flex ${
+                  item.role === "user"
+                    ? "justify-end"
+                    : "justify-start"
+                }`}
+              >
                 <div
-                  key={index}
-                  className={`flex ${
-                    item.role === "user"
-                      ? "justify-end"
-                      : "justify-start"
-                  }`}
+                  className={`
+                    max-w-[82%]
+                    rounded-2xl
+                    px-3
+                    py-2
+                    text-sm
+                    whitespace-pre-wrap
+                    ${
+                      item.role === "user"
+                        ? "rounded-br-sm bg-green-normal text-white"
+                        : "rounded-bl-sm bg-white text-ink shadow-sm"
+                    }
+                  `}
                 >
-
-                  <div
-                    className={`
-                      max-w-[82%]
-                      rounded-2xl
-                      px-3
-                      py-2
-                      text-sm
-                      whitespace-pre-wrap
-                      ${
-                        item.role === "user"
-                          ? "rounded-br-sm bg-green-normal text-white"
-                          : "rounded-bl-sm bg-white text-ink shadow-sm"
-                      }
-                    `}
-                  >
-                    {item.text}
-                  </div>
-
+                  {item.text}
                 </div>
-
-              )
-            )}
+              </div>
+            ))}
 
             {loading && (
-
               <div className="flex justify-start">
-
                 <div
                   className="
                     flex
@@ -262,7 +225,6 @@ export default function MiniFarmBot() {
                     shadow-sm
                   "
                 >
-
                   <Loader2
                     className="
                       h-4
@@ -272,16 +234,12 @@ export default function MiniFarmBot() {
                   />
 
                   Mini Farm Bot is thinking...
-
                 </div>
-
               </div>
-
             )}
-
           </div>
 
-          {/* Input */}
+          {/* INPUT */}
 
           <div
             className="
@@ -294,13 +252,10 @@ export default function MiniFarmBot() {
               p-3
             "
           >
-
             <input
               type="text"
               value={message}
-              onChange={(e) =>
-                setMessage(e.target.value)
-              }
+              onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask Mini Farm Bot..."
               disabled={loading}
@@ -338,15 +293,13 @@ export default function MiniFarmBot() {
                 disabled:cursor-not-allowed
                 disabled:opacity-50
               "
+              aria-label="Send message"
             >
               <Send className="h-4 w-4" />
             </button>
-
           </div>
-
         </div>
       )}
-
     </>
   );
 }
