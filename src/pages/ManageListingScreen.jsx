@@ -1,21 +1,27 @@
 import { useState, useEffect } from 'react';
-import {SearchIcon, Plus, ChevronLeft, ChevronRight, CheckCircle2, X } from 'lucide-react';
+import {
+  SearchIcon,
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  X,
+} from 'lucide-react';
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import PrimaryButton from '../components/PrimaryButton.jsx';
 import TextField from '@/components/TextField.jsx';
+import { useLocation, useNavigate } from 'react-router';
+import SuccessToast from '../components/SuccessToast.jsx';
 
-import {
-  getMyListings,
-  getVendorProfile,
-} from "../services/auth";
+import { getMyListings, getVendorProfile } from '../services/auth';
 
 const TABS = ['All', 'Active', 'Sold Out', 'Expired'];
 
 const statusStyles = {
-  ACTIVE: "bg-green-light text-green-normal",
-  "SOLD OUT": "bg-orange-light text-orange-dark",
-  EXPIRED: "bg-gray-100 text-gray-500",
-  CANCELLED: "bg-red-100 text-red-500",
+  ACTIVE: 'bg-green-light text-green-normal',
+  'SOLD OUT': 'bg-orange-light text-orange-dark',
+  EXPIRED: 'bg-gray-100 text-gray-500',
+  CANCELLED: 'bg-red-100 text-red-500',
 };
 export default function ManageListingScreen({
   initialListings = [], // [{ image, name, createdOn, status, available, reserved, left, pickupEnds }]
@@ -24,127 +30,125 @@ export default function ManageListingScreen({
   onNavigate,
   onLogout,
 }) {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('All');
   const [listings, setListings] = useState(initialListings);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [vendor, setVendor] = useState(null);
-  const [analytics, setAnalytics] = useState(null);
-  const [search, setSearch] = useState("");
-  const [showCreatedBanner, setShowCreatedBanner] = useState(() => {
-    const flag = sessionStorage.getItem('farmconnect_listing_created');
-    if (flag) {
-      sessionStorage.removeItem('farmconnect_listing_created');
-      return true;
-    }
-    return false;
-  });
+  const [search, setSearch] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
-  let cancelled = false;
+    if (location.state?.success) {
+      setSuccessMessage(location.state.success);
 
-  async function loadListings(searchTerm = "") {
-    setLoading(true);
-    setError(null);
+      // Clear router state so it doesn't show again on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
-    try {
-      const vendorProfile = await getVendorProfile();
+  useEffect(() => {
+    let cancelled = false;
 
-      if (!cancelled) {
-        setVendor(vendorProfile.data);
-      }
+    async function loadListings(searchTerm = '') {
+      setLoading(true);
+      setError(null);
 
-      const listings = await getMyListings(searchTerm);
+      try {
+        const vendorProfile = await getVendorProfile();
 
-      if (!cancelled) {
-        const formatted = listings.map((listing) => ({
-          id: listing._id,
-          image: listing.imageUrls?.[0] || '/img-placeholder.png',
-          name: listing.foodName,
-          createdOn: new Date(listing.createdAt).toLocaleDateString(),
+        if (!cancelled) {
+          setVendor(vendorProfile.data);
+        }
 
-          status:
-            listing.status === 'available'
-              ? 'ACTIVE'
-              : listing.status === 'completed'
-                ? 'SOLD OUT'
-                : listing.status === 'expired'
-                  ? 'EXPIRED'
-                  : 'CANCELLED',
+        const listings = await getMyListings(searchTerm);
 
-          available: listing.quantity - listing.totalReservations,
-          reserved: listing.totalReservations,
-          left: listing.quantity - listing.totalReservations,
-          pickupEnds: (() => {
-            let expiry = null;
+        if (!cancelled) {
+          const formatted = listings.map((listing) => ({
+            id: listing._id,
+            raw: listing, // full original listing needed to prefill the edit form
+            image: listing.imageUrls?.[0] || '/img-placeholder.png',
+            name: listing.foodName,
+            createdOn: new Date(listing.createdAt).toLocaleDateString(),
 
-            if (listing.expiresAt) {
-              expiry = new Date(listing.expiresAt);
-            } else if (listing.createdAt && listing.expiryDuration != null) {
-              expiry = new Date(
-                new Date(listing.createdAt).getTime() +
-                  listing.expiryDuration * 60000,
-              );
-            }
+            status:
+              listing.status === 'available'
+                ? 'ACTIVE'
+                : listing.status === 'completed'
+                  ? 'SOLD OUT'
+                  : listing.status === 'expired'
+                    ? 'EXPIRED'
+                    : 'CANCELLED',
 
-            if (!expiry) return 'Not set';
+            available: listing.quantity,
+            reserved: listing.totalReservations,
+            left: listing.quantity - listing.totalReservations,
+            pickupEnds: (() => {
+              let expiry = null;
 
-            const now = new Date();
-            const diff = Math.max(0, expiry - now);
-            const minutes = Math.ceil(diff / 60000);
+              if (listing.expiresAt) {
+                expiry = new Date(listing.expiresAt);
+              } else if (listing.createdAt && listing.expiryDuration != null) {
+                expiry = new Date(
+                  new Date(listing.createdAt).getTime() +
+                    listing.expiryDuration * 60000,
+                );
+              }
 
-            if (minutes <= 0) return 'Expired';
-            if (minutes < 60)
-              return `${minutes} min${minutes > 1 ? 's' : ''} left`;
+              if (!expiry) return 'Not set';
 
-            const hours = Math.floor(minutes / 60);
-            const remainingMinutes = minutes % 60;
+              const now = new Date();
+              const diff = Math.max(0, expiry - now);
+              const minutes = Math.ceil(diff / 60000);
 
-            if (remainingMinutes === 0) {
-              return `${hours} hr${hours > 1 ? 's' : ''} left`;
-            }
+              if (minutes <= 0) return 'Expired';
+              if (minutes < 60)
+                return `${minutes} min${minutes > 1 ? 's' : ''} left`;
 
-            return `${hours} hr${hours > 1 ? 's' : ''} ${remainingMinutes} min left`;
-          })(),
-        }));
+              const hours = Math.floor(minutes / 60);
+              const remainingMinutes = minutes % 60;
 
-        setListings(formatted);
-      }
-    } catch (err) {
-      if (!cancelled) {
-        setError(err.message || "Could not load listings.");
-      }
-    } finally {
-      if (!cancelled) {
-        setLoading(false);
+              if (remainingMinutes === 0) {
+                return `${hours} hr${hours > 1 ? 's' : ''} left`;
+              }
+
+              return `${hours} hr${hours > 1 ? 's' : ''} ${remainingMinutes} min left`;
+            })(),
+          }));
+
+          setListings(formatted);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err.message || 'Could not load listings.');
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
-  }
 
-  const timeout = setTimeout(() => {
-    loadListings(search);
-  }, 400);
+    const timeout = setTimeout(() => {
+      loadListings(search);
+    }, 400);
 
-  return () => {
-    cancelled = true;
-    clearTimeout(timeout);
-  };
-}, [search]);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [search]);
 
   const counts = {
-    All: analytics?.totalListings ?? listings.length,
-  
-    Active:
-      analytics?.activeListings ??
-      listings.filter((l) => l.status === "ACTIVE").length,
-  
-    "Sold Out":
-      analytics?.completedListings ??
-      listings.filter((l) => l.status === "SOLD OUT").length,
-  
-    Expired:
-      analytics?.expiredListings ??
-      listings.filter((l) => l.status === "EXPIRED").length,
+    All: listings.length,
+
+    Active: listings.filter((l) => l.status === 'ACTIVE').length,
+
+    'Sold Out': listings.filter((l) => l.status === 'SOLD OUT').length,
+
+    Expired: listings.filter((l) => l.status === 'EXPIRED').length,
   };
 
   const filtered =
@@ -161,32 +165,20 @@ export default function ManageListingScreen({
       subtitle="Here's what happening with your business today."
       location={vendor?.currentLocation || 'Location unavailable'}
       profileImage={vendor?.profileImage}>
+      {successMessage && (
+        <SuccessToast
+          title={successMessage}
+          message={
+            successMessage === 'Listing Updated'
+              ? 'Your listing has been updated successfully.'
+              : 'Your listing has been published successfully.'
+          }
+          onClose={() => setSuccessMessage(null)}
+        />
+      )}
       <div className=" w-full md:pl-2">
         {/* Tabs */}
         {error && <p className="text-body2 text-red-500 mb-4">{error}</p>}
-        {showCreatedBanner && (
-          <div className="mb-4 flex justify-end">
-            <div className="flex max-w-md items-start gap-3 rounded-2xl bg-green-light px-5 py-4">
-              <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-normal">
-                <CheckCircle2 className="h-4 w-4 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="font-semibold text-ink">
-                  Listing published successfully!
-                </p>
-                <p className="text-sm text-body-text">
-                  Your food listing is now available to nearby users
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowCreatedBanner(false)}
-                className="text-body-text">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        )}
 
         <div className="flex w-full items-center justify-between my-4 gap-7">
           <TextField
@@ -225,7 +217,14 @@ export default function ManageListingScreen({
           ))}
         </div>
 
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-border-muted border-t-green-normal" />
+            <p className="mt-3 text-body2 text-body-text">
+              Loading your listings...
+            </p>
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center text-center py-16">
             <div className="lg:w-59.5 lg:h-53 rounded-full bg-green-light flex items-center justify-center mb-4">
               <img
@@ -266,10 +265,15 @@ export default function ManageListingScreen({
                   </div>
 
                   <div className="divide-y divide-border-muted">
-                    {filtered.map((l, i) => (
+                    {filtered.map((l) => (
                       <div
-                        key={i}
-                        className="grid grid-cols-[2fr_1fr_1.2fr_1fr_auto] items-center px-6 py-4">
+                        key={l.id}
+                        onClick={() =>
+                          navigate(`/vendor/listings/${l.id}`, {
+                            state: { listing: l.raw, status: l.status },
+                          })
+                        }
+                        className="grid grid-cols-[2fr_1fr_1.2fr_1fr_auto] items-center px-6 py-4 cursor-pointer transition-colors hover:bg-surface-secondary">
                         <div className="flex items-center gap-3">
                           <img
                             src={l.image}
@@ -300,8 +304,16 @@ export default function ManageListingScreen({
                           {l.pickupEnds}
                         </span>
                         <button
-                          onClick={() => onEditListing?.(l)}
-                          className="rounded-lg border border-border-muted px-4 py-1.5 text-body2 text-ink w-fit">
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEditListing?.(l);
+                          }}
+                          disabled={l.status !== 'ACTIVE'}
+                          className={`rounded-lg border px-4 py-1.5 text-body2 w-fit ${
+                            l.status === 'ACTIVE'
+                              ? 'border-border-muted text-ink'
+                              : 'border-border-muted text-gray-400 cursor-not-allowed'
+                          }`}>
                           Edit
                         </button>
                       </div>

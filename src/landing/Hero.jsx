@@ -7,7 +7,7 @@ export default function Hero({ onFindFood, onListSurplus }) {
   return (
     <section className=" gap-8 w-100vw my-3 mx-3 flex flex-col items-center md:px-12 md:py-10 lg:flex-row lg:justify-between">
       <div className='flex flex-col items-center lg:max-w-[45%]  lg:items-start'>
-        <h1 className="text-h2 text-center md:text-center lg:text-h1 font-bold leading-tight text-ink">
+        <h1 className="text-h2 text-center md:text-center lg:text-h1 lg:text-left font-bold leading-tight text-ink">
           Good Food.
           <br />
           <span className="text-green-normal">Shared Smarter.</span>

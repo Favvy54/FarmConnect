@@ -1,19 +1,22 @@
-import { useState } from "react";
-import { login } from "../services/auth.js";
-import { requestNotificationPermission, listenForForegroundNotifications } from "../services/firebaseMessaging.js";
-import { registerDeviceWithBackend } from "../notification.js";
-import { logEvent } from "firebase/analytics";
-import { messaging, analytics } from "../firebase.js";
-import { Mail, Lock } from "lucide-react";
-import AuthLayout from "../components/AuthLayout.jsx";
-import TextField from "../components/TextField.jsx";
-import PrimaryButton from "../components/PrimaryButton.jsx";
-import notify from "../services/toast";
+import { useState } from 'react';
+import { login } from '../services/auth.js';
+import {
+  requestNotificationPermission,
+  listenForForegroundNotifications,
+} from '../services/firebaseMessaging.js';
+import { registerDeviceWithBackend } from '../notification.js';
+import { logEvent } from 'firebase/analytics';
+import { messaging, analytics } from '../firebase.js';
+import { Mail, Lock } from 'lucide-react';
+import AuthLayout from '../components/AuthLayout.jsx';
+import TextField from '../components/TextField.jsx';
+import PrimaryButton from '../components/PrimaryButton.jsx';
+import notify from '../services/toast.js';
 
 export default function LoginScreen({ onLogin, onGoSignup, onForgotPassword }) {
   const [remember, setRemember] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   return (
@@ -33,31 +36,30 @@ export default function LoginScreen({ onLogin, onGoSignup, onForgotPassword }) {
               return;
             }
 
-            const toastId = notify.loading("Logging you in...");
+            const toastId = notify.loading('Logging you in...');
 
             try {
               setLoading(true);
-            
+
               const data = await login(email, password);
-            
-              logEvent(analytics, "login", {
-                method: "email",
+
+              logEvent(analytics, 'login', {
+                method: 'email',
                 role: data.user.role,
               });
-            
+
               const fcmToken = await requestNotificationPermission();
-            
+
               if (fcmToken) {
                 await registerDeviceWithBackend(fcmToken, data.token);
               }
-            
+
               listenForForegroundNotifications();
-            
+
               notify.dismiss(toastId);
-              notify.success("Login successful.");
-            
+              notify.success('Login successful.');
+
               onLogin?.(data);
-            
             } catch (error) {
               notify.dismiss(toastId);
               notify.error(error.message);
@@ -65,8 +67,7 @@ export default function LoginScreen({ onLogin, onGoSignup, onForgotPassword }) {
               setLoading(false);
             }
           }}
-          className="mt-8 flex flex-col gap-4"
-        >
+          className="mt-8 flex flex-col gap-4">
           <TextField
             icon={Mail}
             placeholder="Email Address"
@@ -96,21 +97,19 @@ export default function LoginScreen({ onLogin, onGoSignup, onForgotPassword }) {
             <button
               type="button"
               onClick={onForgotPassword}
-              className="text-green-normal"
-            >
+              className="text-green-normal">
               Forgot password?
             </button>
           </div>
 
-          <PrimaryButton type="submit"  disabled={loading}>
-            {loading ? "Logging in..." : "Log in"}
+          <PrimaryButton type="submit" disabled={loading}>
+            {loading ? 'Logging in...' : 'Log in'}
           </PrimaryButton>
 
           <button
             type="button"
             onClick={onGoSignup}
-            className="text-center text-body1 text-green-normal"
-          >
+            className="text-center text-body1 text-green-normal">
             Don't have an account? Create one
           </button>
         </form>

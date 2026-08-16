@@ -20,6 +20,7 @@ import VendorProfileScreen from './pages/VendorProfileScreen.jsx';
 import VendorDashboardScreen from './pages/VendorDashboardScreen.jsx';
 import ManageListingScreen from './pages/ManageListingScreen.jsx';
 import CreateListingScreen from './pages/CreateListingScreen.jsx';
+import ListingDetailScreen from './pages/ListingDetailScreen.jsx'
 import UserProfileScreen from './pages/UserProfile.jsx';
 import UserDashboard from './pages/UserDashboard.jsx';
 import MealDetailScreen from './pages/MealDetailScreen.jsx';
@@ -172,7 +173,11 @@ export default function App() {
           element={
             <ManageListingScreen
               onCreateListing={() => navigate('/vendor/create-listing')}
-              onEditListing={() => {}}
+              onEditListing={(l) =>
+                navigate('/vendor/create-listing', {
+                  state: { editListing: l.raw },
+                })
+              }
               onNavigate={(key) => {
                 if (key === 'home') navigate('/vendor/dashboard');
                 if (key === 'listings') navigate('/vendor/listings');
@@ -186,14 +191,35 @@ export default function App() {
           element={
             <CreateListingScreen
               onBack={() => navigate('/vendor/listings')}
-              onNavigate={(key) => {
+              onNavigate={(key, state) => {
                 if (key === 'home') navigate('/vendor/dashboard');
-                if (key === 'listings') navigate('/vendor/listings');
+                if (key === 'listings') navigate('/vendor/listings', { state });
               }}
               onLogout={() => navigate('/login')}
             />
           }
         />
+
+        <Route
+          path="/vendor/listings/:id"
+          element={
+            <ListingDetailScreen
+              onNavigate={(key) => {
+                if (key === 'home') navigate('/vendor/dashboard');
+                if (key === 'listings') navigate('/vendor/listings');
+                if (key === 'reservations') navigate('/vendor/reservations');
+                if (key === 'settings') navigate('/vendor/settings');
+              }}
+              onEditListing={(l) =>
+                navigate('/vendor/create-listing', {
+                  state: { editListing: l.raw },
+                })
+              }
+              onLogout={() => navigate('/login')}
+            />
+          }
+        />
+
         <Route
           path="/user/profile"
           element={

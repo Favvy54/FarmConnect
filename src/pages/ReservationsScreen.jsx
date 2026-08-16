@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Search, Package, Calendar, CheckCircle2, ArrowRight } from 'lucide-react';
+import {
+  Search,
+  Package,
+  Calendar,
+  CheckCircle2,
+  ArrowRight,
+} from 'lucide-react';
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import TextField from '../components/TextField.jsx';
 import {
@@ -8,7 +14,7 @@ import {
   getReservationHistory,
   getUserDashboardAnalytics,
 } from '../services/auth.js';
-import notify from '../services/toast';
+import notify from '../services/toast.js';
 
 const TABS = ['All', 'Completed', 'Expired', 'Cancelled'];
 
@@ -18,7 +24,6 @@ const statusStyles = {
   expired: 'bg-orange-light text-orange-dark',
   cancelled: 'bg-red-100 text-error',
 };
-
 
 function getDeadline(reservation) {
   if (!reservation.reservedAt) return null;
@@ -32,12 +37,16 @@ function formatCountdown(ms) {
   const mins = totalMinutes % 60;
   const secs = Math.floor((ms % 60000) / 1000);
   const pad = (n) => String(n).padStart(2, '0');
-  return hrs > 0 ? `${hrs}:${pad(mins)}:${pad(secs)}` : `${pad(mins)}:${pad(secs)}`;
+  return hrs > 0
+    ? `${hrs}:${pad(mins)}:${pad(secs)}`
+    : `${pad(mins)}:${pad(secs)}`;
 }
 
 function ActiveReservationCard({ reservation, onClick }) {
   const deadline = getDeadline(reservation);
-  const [msLeft, setMsLeft] = useState(() => (deadline ? deadline - new Date() : 0));
+  const [msLeft, setMsLeft] = useState(() =>
+    deadline ? deadline - new Date() : 0,
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -66,7 +75,9 @@ function ActiveReservationCard({ reservation, onClick }) {
           {reservation.vendor?.businessName || 'Vendor'}
         </p>
         {deadlineTime && (
-          <p className="text-caption text-body-text">Pickup before {deadlineTime}</p>
+          <p className="text-caption text-body-text">
+            Pickup before {deadlineTime}
+          </p>
         )}
       </div>
       <div className="text-right">
@@ -89,28 +100,28 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
   const [activeTab, setActiveTab] = useState('All');
   const [search, setSearch] = useState('');
   const [analytics, setAnalytics] = useState({
-      totalReservations: 0,
-      activeReservations: 0,
-      completedReservations: 0,
-      cancelledReservations: 0,
-      mealsRescued: 0,
-    });
+    totalReservations: 0,
+    activeReservations: 0,
+    completedReservations: 0,
+    cancelledReservations: 0,
+    mealsRescued: 0,
+  });
 
   useEffect(() => {
     (async () => {
       setLoading(true);
       setError(null);
-  
+
       try {
         const [currentRes, historyRes, analyticsRes] = await Promise.all([
           getCurrentReservations(),
           getReservationHistory(),
           getUserDashboardAnalytics(),
         ]);
-  
+
         setCurrent(Array.isArray(currentRes) ? currentRes : []);
         setHistory(Array.isArray(historyRes) ? historyRes : []);
-  
+
         setAnalytics({
           totalReservations: analyticsRes?.totalReservations || 0,
           activeReservations: analyticsRes?.activeReservations || 0,
@@ -129,7 +140,9 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
   }, []);
 
   const historyFiltered = history
-    .filter((r) => (activeTab === 'All' ? true : r.status === activeTab.toLowerCase()))
+    .filter((r) =>
+      activeTab === 'All' ? true : r.status === activeTab.toLowerCase(),
+    )
     .filter((r) => {
       if (!search.trim()) return true;
       const q = search.trim().toLowerCase();
@@ -140,9 +153,12 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
     });
 
   const goToDetail = (reservation) => {
-    navigate(`/user/reservations/${reservation.reservationId || reservation._id}`, {
-      state: { reservation },
-    });
+    navigate(
+      `/user/reservations/${reservation.reservationId || reservation._id}`,
+      {
+        state: { reservation },
+      },
+    );
   };
 
   return (
@@ -158,7 +174,9 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
       <div className=" mt-4 mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-border-muted bg-white p-5">
           <div className="mb-2 flex items-center justify-between">
-            <p className="text-body1 font-medium text-ink">Active reservation</p>
+            <p className="text-body1 font-medium text-ink">
+              Active reservation
+            </p>
             <Package className="h-5 w-5 text-green-normal" />
           </div>
           <p className="text-2xl font-bold text-ink">
@@ -181,7 +199,7 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
             </p>
             <CheckCircle2 className="h-5 w-5 text-green-normal" />
           </div>
-        
+
           <p className="text-2xl font-bold text-ink">
             {analytics.completedReservations}
           </p>
@@ -194,7 +212,9 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
         <>
           {current.length > 0 && (
             <div className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold text-ink">Active Reservation</h2>
+              <h2 className="mb-3 text-lg font-semibold text-ink">
+                Active Reservation
+              </h2>
               <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
                 {current.map((r) => (
                   <ActiveReservationCard
@@ -208,7 +228,9 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
           )}
 
           <div className="rounded-2xl border border-border-muted bg-white p-5">
-            <h2 className="mb-4 text-lg font-semibold text-ink">Reservation History</h2>
+            <h2 className="mb-4 text-lg font-semibold text-ink">
+              Reservation History
+            </h2>
 
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap gap-2">
@@ -236,7 +258,9 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
             </div>
 
             {historyFiltered.length === 0 ? (
-              <p className="py-8 text-center text-body-text">No reservations found.</p>
+              <p className="py-8 text-center text-body-text">
+                No reservations found.
+              </p>
             ) : (
               <div className="overflow-x-auto">
                 <div className="min-w-[720px]">
@@ -252,17 +276,22 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
                       <div
                         key={r._id || r.reservationId}
                         className="grid grid-cols-[2fr_2fr_1.2fr_1fr_auto] items-center px-2 py-3">
-                        <span className="text-body1 font-medium text-ink">{r.foodName}</span>
+                        <span className="text-body1 font-medium text-ink">
+                          {r.foodName}
+                        </span>
                         <span className="text-body2 text-charcoal">
                           {r.vendor?.businessName || 'Vendor'}
                         </span>
                         <span className="text-body2 text-charcoal">
                           {r.reservedAt
-                            ? new Date(r.reservedAt).toLocaleDateString('en-US', {
-                                month: 'long',
-                                day: '2-digit',
-                                year: 'numeric',
-                              })
+                            ? new Date(r.reservedAt).toLocaleDateString(
+                                'en-US',
+                                {
+                                  month: 'long',
+                                  day: '2-digit',
+                                  year: 'numeric',
+                                },
+                              )
                             : '—'}
                         </span>
                         <span

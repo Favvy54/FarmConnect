@@ -211,12 +211,13 @@ function ScrollListingRow({
 export default function UserDashboard({ onNavigate, onLogout }) {
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('');
-  const [userProfile, setUserProfile] = useState({
-    fullName: '',
-    phoneNumber: '',
-    state: '',
-    city: '',
-  });
+ const [userProfile, setUserProfile] = useState({
+   fullName: '',
+   phoneNumber: '',
+   state: '',
+   city: '',
+   profileImage: '',
+ });
   const [sortBy, setSortBy] = useState('newest'); // 'newest' | 'price_low' | 'price_high'
 
   // 'nearby' = default dashboard view, 'market' = full marketplace
@@ -385,6 +386,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
           phoneNumber: profile?.phone || '',
           state: profile?.state || '',
           city: profile?.city || '',
+          profileImage: profile?.profileImage || '',
         });
 
         // Use the browser's real GPS location for coordinate-based nearby search.
@@ -575,7 +577,8 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         userProfile.city
           ? `${userProfile.city}, ${userProfile.state}`
           : 'Location unavailable'
-      }>
+      }
+      profileImage={userProfile.profileImage}>
       {!showLocationPicker && (
         <button
           type="button"
@@ -627,8 +630,8 @@ export default function UserDashboard({ onNavigate, onLogout }) {
           </div>
 
           <div className="mb-4 rounded-xl bg-green-light p-3 text-sm italic text-black">
-             TIP: For the most accurate nearby results, use a mobile device
-            with location services enabled.
+            TIP: For the most accurate nearby results, use a mobile device with
+            location services enabled.
           </div>
 
           <LocationPicker
