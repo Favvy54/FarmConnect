@@ -6,21 +6,22 @@ import {
   requestNotificationPermission,
   listenForForegroundNotifications,
 } from '../src/services/firebaseMessaging.js';
-import LandingPage from './screens/LandingPage.jsx';
-import SignupScreen from './screens/SignupScreen.jsx';
-import LoginScreen from './screens/LoginScreen.jsx';
-import ForgotPasswordScreen from './screens/ForgotPasswordScreen.jsx';
-import VerifyEmailScreen from './screens/VerifyEmailScreen.jsx';
-import NewPasswordScreen from './screens/NewPasswordScreen.jsx';
-import PasswordUpdatedScreen from './screens/PasswordUpdatedScreen.jsx';
-import WelcomeOnboardingScreen from './screens/WelcomeOnboardingScreen.jsx';
+import LandingPage from './Auth/LandingPage.jsx';
+import SignupScreen from './Auth/SignupScreen.jsx';
+import LoginScreen from './Auth/LoginScreen.jsx';
+import ForgotPasswordScreen from './Auth/ForgotPasswordScreen.jsx';
+import VerifyEmailScreen from './Auth/VerifyEmailScreen.jsx';
+import NewPasswordScreen from './Auth/NewPasswordScreen.jsx';
+import PasswordUpdatedScreen from './Auth/PasswordUpdatedScreen.jsx';
+import WelcomeOnboardingScreen from './Auth/WelcomeOnboardingScreen.jsx';
 import TermsAndConditionsScreen from './legal-pages/TermsAndConditionsScreen';
 import PrivacyPolicyScreen from './legal-pages/PrivacyPolicyScreen.jsx';
 import VendorProfileScreen from './pages/VendorProfileScreen.jsx';
 import VendorDashboardScreen from './pages/VendorDashboardScreen.jsx';
 import ManageListingScreen from './pages/ManageListingScreen.jsx';
 import CreateListingScreen from './pages/CreateListingScreen.jsx';
-import ListingDetailScreen from './pages/ListingDetailScreen.jsx'
+import ListingDetailScreen from './pages/ListingDetailScreen.jsx';
+import VendorReservations from './pages/VendorReservations';
 import UserProfileScreen from './pages/UserProfile.jsx';
 import UserDashboard from './pages/UserDashboard.jsx';
 import MealDetailScreen from './pages/MealDetailScreen.jsx';
@@ -28,7 +29,7 @@ import UserListingsScreen from './pages/UserListingsScreen.jsx';
 import ReservationsScreen from './pages/ReservationsScreen.jsx';
 import ReservationDetailScreen from './pages/ReservationDetailScreen.jsx';
 import { getRole } from './services/auth';
-import { getCurrentUser } from "./services/auth";
+import { getCurrentUser } from './services/auth';
 
 //is edits possible
 
@@ -68,7 +69,28 @@ export default function App() {
           path="/login"
           element={
             <LoginScreen
-              onLogin={() => navigate('/welcome-onboarding')}
+              onLogin={async () => {
+                try {
+                  const role = getRole();
+                  const user = await getCurrentUser();
+
+                  if (!user.profileCompleted) {
+                    // New user hasn't finished setting up their profile yet.
+                    navigate('/welcome-onboarding');
+                    return;
+                  }
+
+                  // Returning user skip onboarding, go straight to their dashboard.
+                  if (role === 'vendor') {
+                    navigate('/vendor/dashboard');
+                  } else {
+                    navigate('/user/dashboard');
+                  }
+                } catch (error) {
+                  console.error(error);
+                  navigate('/login');
+                }
+              }}
               onGoSignup={() => navigate('/signup')}
               onForgotPassword={() => navigate('/forgot-password')}
             />
@@ -115,28 +137,13 @@ export default function App() {
           path="/welcome-onboarding"
           element={
             <WelcomeOnboardingScreen
-              onContinue={async () => {
-                try {
-                  const role = getRole();
+              onContinue={() => {
+                const role = getRole();
 
-                  const user = await getCurrentUser();
-
-                  if (role === 'vendor') {
-                    if (user.profileCompleted) {
-                      navigate('/vendor/dashboard');
-                    } else {
-                      navigate('/vendor/profile');
-                    }
-                  } else {
-                    if (user.profileCompleted) {
-                      navigate('/user/dashboard');
-                    } else {
-                      navigate('/user/profile');
-                    }
-                  }
-                } catch (error) {
-                  console.error(error);
-                  navigate('/login');
+                if (role === 'vendor') {
+                  navigate('/vendor/profile');
+                } else {
+                  navigate('/user/profile');
                 }
               }}
             />
@@ -158,11 +165,12 @@ export default function App() {
             <VendorDashboardScreen
               onCreateListing={() => navigate('/vendor/create-listing')}
               onManageListing={() => navigate('/vendor/listings')}
-              onManageReservation={() => navigate('/vendor/dashboard')}
+              onManageReservation={() => navigate('/vendor/reservations')}
               onViewAnalytics={() => {}}
               onNavigate={(key) => {
                 if (key === 'home') navigate('/vendor/dashboard');
                 if (key === 'listings') navigate('/vendor/listings');
+                if (key === 'reservations') navigate('/vendor/reservations');
               }}
               onLogout={() => navigate('/login')}
             />
@@ -181,6 +189,7 @@ export default function App() {
               onNavigate={(key) => {
                 if (key === 'home') navigate('/vendor/dashboard');
                 if (key === 'listings') navigate('/vendor/listings');
+                if (key === 'reservations') navigate('/vendor/reservations');
               }}
               onLogout={() => navigate('/login')}
             />
@@ -194,6 +203,7 @@ export default function App() {
               onNavigate={(key, state) => {
                 if (key === 'home') navigate('/vendor/dashboard');
                 if (key === 'listings') navigate('/vendor/listings', { state });
+                if (key === 'reservations') navigate('/vendor/reservations');
               }}
               onLogout={() => navigate('/login')}
             />
@@ -215,6 +225,20 @@ export default function App() {
                   state: { editListing: l.raw },
                 })
               }
+              onLogout={() => navigate('/login')}
+            />
+          }
+        />
+
+        <Route
+          path="/vendor/reservations"
+          element={
+            <VendorReservations
+              onNavigate={(key) => {
+                if (key === 'home') navigate('/vendor/dashboard');
+                if (key === 'listings') navigate('/vendor/listings');
+                if (key === 'reservations') navigate('/vendor/reservations');
+              }}
               onLogout={() => navigate('/login')}
             />
           }

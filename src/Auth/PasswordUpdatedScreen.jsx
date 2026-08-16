@@ -1,7 +1,7 @@
-import AuthLayout from "../components/AuthLayout.jsx";
-import PrimaryButton from "../components/PrimaryButton.jsx";
-import { AdvancedImage } from "@cloudinary/react";
-import { auth } from "../libs/cloudinaryImages";
+import AuthLayout from '../components/AuthLayout.jsx';
+import PrimaryButton from '../components/PrimaryButton.jsx';
+import { AdvancedImage } from '@cloudinary/react';
+import { auth } from '../libs/cloudinaryImages.js';
 
 export default function PasswordUpdatedScreen({ onBackToLogin }) {
   return (

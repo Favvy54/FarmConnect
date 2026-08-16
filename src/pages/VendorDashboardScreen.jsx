@@ -113,45 +113,71 @@ export default function VendorDashboardScreen({
               })),
           );
 
-          setReservations(
-            reservationsResponse.data.map((reservation) => ({
-              id: reservation._id,
+        const allReservations = Array.isArray(reservationsResponse.data)
+          ? reservationsResponse.data
+          : [];
 
-              name: reservation.user?.fullName || 'Customer',
+        const today = new Date();
 
-              meal: reservation.listing?.foodName || 'Meal',
+        const todaysReservations = allReservations.filter((reservation) => {
+          if (!reservation.createdAt) return false;
 
-              reservedAt: new Date(reservation.createdAt).toLocaleTimeString(
-                [],
-                {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                },
-              ),
+          const reservationDate = new Date(reservation.createdAt);
 
-              pickupBefore: new Date(
-                reservation.listing?.expiresAt,
-              ).toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-              }),
-
-              timeRemaining: reservation.timeRemaining || '—',
-
-              status:
-                reservation.status === 'pending'
-                  ? 'Reserved'
-                  : reservation.status === 'completed'
-                    ? 'Completed'
-                    : 'Cancelled',
-            })),
+          return (
+            reservationDate.getDate() === today.getDate() &&
+            reservationDate.getMonth() === today.getMonth() &&
+            reservationDate.getFullYear() === today.getFullYear()
           );
+        });
+
+        const todaysReservedMeals = todaysReservations.reduce(
+          (total, reservation) => {
+            return total + Number(reservation.quantityRequested || 0);
+          },
+          0,
+        );
+
+        setReservations(
+          todaysReservations.map((reservation) => ({
+            id: reservation._id,
+            name: reservation.user?.fullName || 'Customer',
+            meal: reservation.listing?.foodName || 'Meal',
+
+            reservedAt: new Date(reservation.createdAt).toLocaleTimeString([], {
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: true,
+            }),
+
+            pickupBefore: reservation.listing?.expiresAt
+              ? new Date(reservation.listing.expiresAt).toLocaleTimeString([], {
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true,
+                })
+              : '—',
+
+            timeRemaining: reservation.timeRemaining || '—',
+
+            status:
+              reservation.status === 'reserved'
+                ? 'Reserved'
+                : reservation.status === 'completed'
+                  ? 'Completed'
+                  : reservation.status === 'cancelled'
+                    ? 'Cancelled'
+                    : reservation.status === 'expired'
+                      ? 'Expired'
+                      : reservation.status,
+          })),
+        );
           
           setStats({
-            listings: analytics.activeListings,
-            reservations: analytics.totalReservations,
-            saved: analytics.mealsShared,
-            discarded: analytics.discardedMeals,
+            listings: analytics.activeListings || 0,
+            reservations: todaysReservedMeals || 0,
+            saved: analytics.mealsShared || 0,
+            discarded: analytics.discardedMeals || 0,
           });
         }
       } catch (err) {
