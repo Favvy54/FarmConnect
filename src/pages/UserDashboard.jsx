@@ -968,7 +968,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
       </div>
       
       {/* MINI FARM BOT */}
-      <div className="fixed bottom-36 right-6 z-50">
+      <div className="fixed bottom-[150px] right-6 z-50">
         <MiniFarmBot />
       </div>
 
