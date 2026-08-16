@@ -1,5 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Search, SlidersHorizontal,  Clock, Check, CompassIcon, MapPin, } from 'lucide-react';
+import {
+  Search,
+  SlidersHorizontal,
+  Clock,
+  Check,
+  CompassIcon,
+  MapPin,
+  MessageCircle,
+  X,
+  Send,
+  Sparkles,
+} from 'lucide-react';
 import { useNavigate } from 'react-router';
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import ReserveMealModal from '@/components/ReserveMealModal.jsx';
@@ -13,7 +24,7 @@ import {
 } from '../services/auth.js';
 
 import LocationPicker from '../components/LocationPicker.jsx';
-
+import MiniFarmBot from "../components/MiniFarmBot.jsx";
 
 const CATEGORY_PILLS = [
  "Cooked Meals",
@@ -211,13 +222,22 @@ function ScrollListingRow({
 export default function UserDashboard({ onNavigate, onLogout }) {
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('');
- const [userProfile, setUserProfile] = useState({
-   fullName: '',
-   phoneNumber: '',
-   state: '',
-   city: '',
-   profileImage: '',
- });
+  //Ai state
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [aiMessage, setAiMessage] = useState('');
+  const [aiMessages, setAiMessages] = useState([
+    {
+      role: 'assistant',
+      content:
+        "Hi! I'm FarmConnect AI. I can help you find meals, understand reservations, locate pickup points, and navigate FarmConnect.",
+    },
+  ]);
+  const [userProfile, setUserProfile] = useState({
+    fullName: '',
+    phoneNumber: '',
+    state: '',
+    city: '',
+  });
   const [sortBy, setSortBy] = useState('newest'); // 'newest' | 'price_low' | 'price_high'
 
   // 'nearby' = default dashboard view, 'market' = full marketplace
@@ -241,6 +261,37 @@ export default function UserDashboard({ onNavigate, onLogout }) {
   const [manualState, setManualState] = useState('');
   const [findingLocation, setFindingLocation] =
   useState(false);
+
+  const handleAISubmit = async (e) => {
+  e.preventDefault();
+
+  const trimmedMessage = aiMessage.trim();
+
+  if (!trimmedMessage) return;
+
+  setAiMessages((prev) => [
+    ...prev,
+    {
+      role: 'user',
+      content: trimmedMessage,
+    },
+  ]);
+
+  setAiMessage('');
+
+  // Temporary frontend response.
+  // We will replace this with the real backend AI endpoint.
+  setTimeout(() => {
+    setAiMessages((prev) => [
+      ...prev,
+      {
+        role: 'assistant',
+        content:
+          "I'm connected to FarmConnect's assistant interface. Once the AI service is connected, I'll be able to help you search listings, understand reservations, and use your FarmConnect data.",
+      },
+    ]);
+  }, 700);
+};
 
   const handleManualLocation = async () => {
 
@@ -817,6 +868,117 @@ export default function UserDashboard({ onNavigate, onLogout }) {
           />
         </div>
       )}
+
+    {/* FLOATING AI TOOLS */}
+    <div className="fixed bottom-6 right-6 z-50 flex items-center gap-4">
+    
+      {/* MINI FARM BOT */}
+      <MiniFarmBot />
+    
+      {/* FARMCONNECT AI */}
+      <div>
+        {!showAIAssistant && (
+          <button
+            type="button"
+            onClick={() => setShowAIAssistant(true)}
+            className="group flex items-center gap-2 rounded-full bg-green-normal px-5 py-3 text-white shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl"
+          >
+            <Sparkles className="h-5 w-5" />
+    
+            <span className="text-sm font-semibold">
+              FarmConnect AI
+            </span>
+          </button>
+        )}
+    
+        {showAIAssistant && (
+          <div className="flex h-[600px] w-[380px] flex-col overflow-hidden rounded-2xl border border-border-muted bg-white shadow-2xl">
+    
+            {/* AI HEADER */}
+            <div className="flex items-center justify-between bg-green-normal px-4 py-4 text-white">
+              <div className="flex items-center gap-3">
+    
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+    
+                <div>
+                  <p className="font-semibold">
+                    FarmConnect AI
+                  </p>
+    
+                  <p className="text-xs text-white/80">
+                    Your FarmConnect assistant
+                  </p>
+                </div>
+    
+              </div>
+    
+              <button
+                type="button"
+                onClick={() => setShowAIAssistant(false)}
+                className="rounded-full p-1 transition-colors hover:bg-white/20"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+    
+            {/* AI MESSAGES */}
+            <div className="flex-1 space-y-4 overflow-y-auto bg-gray-50 p-4">
+              {aiMessages.map((message, index) => (
+                <div
+                  key={index}
+                  className={`flex ${
+                    message.role === 'user'
+                      ? 'justify-end'
+                      : 'justify-start'
+                  }`}
+                >
+                  <div
+                    className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                      message.role === 'user'
+                        ? 'rounded-br-md bg-green-normal text-white'
+                        : 'rounded-bl-md bg-white text-ink shadow-sm'
+                    }`}
+                  >
+                    {message.content}
+                  </div>
+                </div>
+              ))}
+            </div>
+    
+            {/* AI INPUT */}
+            <form
+              onSubmit={handleAISubmit}
+              className="border-t border-border-muted bg-white p-3"
+            >
+              <div className="flex items-center gap-2">
+    
+                <input
+                  type="text"
+                  value={aiMessage}
+                  onChange={(e) => setAiMessage(e.target.value)}
+                  placeholder="Ask FarmConnect AI..."
+                  className="min-w-0 flex-1 rounded-xl border border-border-muted px-4 py-3 text-sm outline-none transition focus:border-green-normal"
+                />
+    
+                <button
+                  type="submit"
+                  disabled={!aiMessage.trim()}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-normal text-white transition hover:bg-green-dark disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Send className="h-4 w-4" />
+                </button>
+    
+              </div>
+            </form>
+    
+          </div>
+        )}
+      </div>
+    
+    </div>
+
     </DashboardLayout>
   );
 }

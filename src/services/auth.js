@@ -576,3 +576,11 @@ export async function cancelReservation(reservationId) {
     auth: true,
   });
 }
+
+export const askMiniFarmBot = async (message) => {
+  return profileRequest('/mini-farm-bot/chat', {
+    method: 'POST',
+    body: { message },
+    auth: true,
+  });
+};
