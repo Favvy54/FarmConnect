@@ -24,7 +24,7 @@ import {
 } from '../services/auth.js';
 
 import LocationPicker from '../components/LocationPicker.jsx';
-
+import MiniFarmBot from "../components/MiniFarmBot.jsx";
 
 const CATEGORY_PILLS = [
  "Cooked Meals",
@@ -869,6 +869,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
 
       {/* FARMCONNECT AI ASSISTANT */}
       <div className="fixed bottom-6 right-6 z-50">
+      
         {!showAIAssistant && (
           <button
             type="button"
@@ -876,37 +877,34 @@ export default function UserDashboard({ onNavigate, onLogout }) {
             className="group flex items-center gap-2 rounded-full bg-green-normal px-5 py-3 text-white shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl"
           >
             <Sparkles className="h-5 w-5" />
-
+      
             <span className="text-sm font-semibold">
               FarmConnect AI
             </span>
           </button>
         )}
-
+      
         {showAIAssistant && (
           <div className="flex h-[600px] w-[380px] flex-col overflow-hidden rounded-2xl border border-border-muted bg-white shadow-2xl">
-
+      
             {/* AI HEADER */}
             <div className="flex items-center justify-between bg-green-normal px-4 py-4 text-white">
-
               <div className="flex items-center gap-3">
-
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
                   <Sparkles className="h-5 w-5" />
                 </div>
-
+      
                 <div>
                   <p className="font-semibold">
                     FarmConnect AI
                   </p>
-
+      
                   <p className="text-xs text-white/80">
                     Your FarmConnect assistant
                   </p>
                 </div>
-
               </div>
-
+      
               <button
                 type="button"
                 onClick={() => setShowAIAssistant(false)}
@@ -914,14 +912,11 @@ export default function UserDashboard({ onNavigate, onLogout }) {
               >
                 <X className="h-5 w-5" />
               </button>
-
             </div>
-
+      
             {/* AI MESSAGES */}
             <div className="flex-1 space-y-4 overflow-y-auto bg-gray-50 p-4">
-
               {aiMessages.map((message, index) => (
-
                 <div
                   key={index}
                   className={`flex ${
@@ -930,7 +925,6 @@ export default function UserDashboard({ onNavigate, onLogout }) {
                       : 'justify-start'
                   }`}
                 >
-
                   <div
                     className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                       message.role === 'user'
@@ -940,21 +934,16 @@ export default function UserDashboard({ onNavigate, onLogout }) {
                   >
                     {message.content}
                   </div>
-
                 </div>
-
               ))}
-
             </div>
-
+      
             {/* AI INPUT */}
             <form
               onSubmit={handleAISubmit}
               className="border-t border-border-muted bg-white p-3"
             >
-
               <div className="flex items-center gap-2">
-
                 <input
                   type="text"
                   value={aiMessage}
@@ -962,7 +951,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
                   placeholder="Ask FarmConnect AI..."
                   className="min-w-0 flex-1 rounded-xl border border-border-muted px-4 py-3 text-sm outline-none transition focus:border-green-normal"
                 />
-
+      
                 <button
                   type="submit"
                   disabled={!aiMessage.trim()}
@@ -970,13 +959,17 @@ export default function UserDashboard({ onNavigate, onLogout }) {
                 >
                   <Send className="h-4 w-4" />
                 </button>
-
               </div>
-
             </form>
-
+      
           </div>
         )}
+      
+      </div>
+      
+      {/* MINI FARM BOT */}
+      <div className="fixed bottom-24 right-6 z-50">
+        <MiniFarmBot />
       </div>
 
     </DashboardLayout>
