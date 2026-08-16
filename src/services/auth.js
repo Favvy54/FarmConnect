@@ -578,7 +578,7 @@ export async function cancelReservation(reservationId) {
 }
 
 export const askMiniFarmBot = async (message) => {
-  return profileRequest('/ai/mini-farm-bot', {
+  return profileRequest('/mini-farm-bot/chat', {
     method: 'POST',
     body: { message },
     auth: true,
