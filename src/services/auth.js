@@ -584,3 +584,10 @@ export const askMiniFarmBot = async (message) => {
     auth: true,
   });
 };
+
+export const getListingDetails = async (listingId) => {
+  return profileRequest(`/listings/${listingId}/details`, {
+    method: 'GET',
+    auth: true,
+  });
+};
