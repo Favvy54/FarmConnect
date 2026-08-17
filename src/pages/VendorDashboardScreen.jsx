@@ -19,6 +19,7 @@ import {
   getVendorReservations,
   getMyListings,
 } from '@/services/auth.js';
+import MiniFarmBot from "../components/MiniFarmBot";
 
 const STAT_ICONS = {
   listings: Store,
@@ -427,6 +428,8 @@ export default function VendorDashboardScreen({
             </div>
           </div>
         </div>
+        {/* MINI FARM BOT */}
+        <MiniFarmBot />
       </div>
     </DashboardLayout>
   );
