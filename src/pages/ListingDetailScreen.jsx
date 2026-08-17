@@ -369,7 +369,7 @@ export default function ListingDetailScreen({
                   Reservation
                 </span>
                 <span className="font-medium text-body2 text-ink">
-                  {{totalReservations}}
+                  {totalReservations}
                 </span>
               </div>
               <div className="flex items-center justify-between py-3">
