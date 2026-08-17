@@ -13,7 +13,12 @@ import {
   Trash2
 } from 'lucide-react';
 import DashboardLayout from '../components/DashboardLayout.jsx';
-import { getVendorReservations, getVendorProfile, deleteListing } from '../services/auth.js';
+import {
+  getVendorReservations,
+  getVendorProfile,
+  deleteListing,
+  getListingDetails,
+} from '../services/auth.js';
 
 const statusStyles = {
   ACTIVE: 'bg-green-light text-green-normal',
@@ -52,33 +57,33 @@ function formatCreated(listing) {
 
 function DeleteConfirmDialog({ onCancel, onConfirm, deleting, error }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-xl">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border-2 border-red-500">
-          <Trash2 className="h-6 w-6 text-red-500" />
+    <div className="bg-black/40 fixed flex inset-0 items-center justify-center p-4 z-50">
+      <div className="bg-white max-w-sm p-6 rounded-3xl shadow-xl text-center w-full">
+        <div className="border-2 border-red-500 flex h-14 items-center justify-center mb-4 mx-auto rounded-full w-14">
+          <Trash2 className="h-6 text-red-500 w-6" />
         </div>
 
-        <h3 className="text-xl font-bold text-ink">Delete Listing?</h3>
-        <p className="mt-2 text-body2 text-body-text">
+        <h3 className="font-bold text-ink text-xl">Delete Listing?</h3>
+        <p className="mt-2 text-body-text text-body2">
           This action cannot be undone. All listing details and data will
           permanently removed.
         </p>
 
         {error && <p className="mt-3 text-body2 text-red-500">{error}</p>}
 
-        <div className="mt-6 flex gap-3">
+        <div className="flex gap-3 mt-6">
           <button
             type="button"
             onClick={onCancel}
             disabled={deleting}
-            className="flex-1 rounded-xl border border-border-muted px-4 py-3 text-sm font-medium text-ink hover:bg-surface-secondary disabled:opacity-50">
+            className="border border-border-muted disabled:opacity-50 flex-1 font-medium hover:bg-surface-secondary px-4 py-3 rounded-xl text-ink text-sm">
             Cancel
           </button>
           <button
             type="button"
             onClick={onConfirm}
             disabled={deleting}
-            className="flex-1 rounded-xl bg-red-500 px-4 py-3 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50">
+            className="bg-red-500 disabled:opacity-50 flex-1 font-semibold hover:bg-red-600 px-4 py-3 rounded-xl text-sm text-white">
             {deleting ? 'Deleting...' : 'Delete'}
           </button>
         </div>
@@ -104,6 +109,7 @@ export default function ListingDetailScreen({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [vendor, setVendor] = useState(null);
+  const [listingDetails, setListingDetails] = useState(null);
 
   const [showMenu, setShowMenu] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -118,29 +124,24 @@ export default function ListingDetailScreen({
       setError(null);
 
       try {
-        const [vendorResponse, reservationsResponse] = await Promise.all([
+        const [vendorResponse, detailsResponse] = await Promise.all([
           getVendorProfile(),
-          getVendorReservations(),
+          getListingDetails(listing.listingId),
         ]);
 
         setVendor(vendorResponse?.data || vendorResponse);
 
-        const all =
-          reservationsResponse?.data?.reservations ||
-          reservationsResponse?.data ||
-          reservationsResponse ||
-          [];
+        const details =
+          detailsResponse?.data ||
+          detailsResponse;
 
-        const forThisListing = (Array.isArray(all) ? all : []).filter((r) => {
-          const listingId =
-            typeof r.listing === 'string' ? r.listing : r.listing?._id;
+        setListingDetails(details);
 
-          return listingId === listing._id;
-        });
-
-        setReservations(forThisListing);
       } catch (err) {
-        setError(err.message || 'Could not load listing information.');
+        setError(
+          err.message ||
+          'Could not load listing information.',
+        );
       } finally {
         setLoading(false);
       }
@@ -171,31 +172,37 @@ export default function ListingDetailScreen({
         subtitle="This listing couldn't be loaded directly — go back and select it from Manage Listings.">
         <button
           onClick={() => navigate(-1)}
-          className="mt-4 flex items-center gap-2 text-body1 font-medium text-green-normal">
+          className="flex font-medium gap-2 items-center mt-4 text-body1 text-green-normal">
           <ArrowLeft className="h-4 w-4" /> Back to Listing
         </button>
       </DashboardLayout>
     );
   }
 
-  const available = Math.max(
-    0,
-    (listing.quantity || 0) - (listing.totalReservations || 0),
-  );
-  const reserved = listing.totalReservations || 0;
-  const total = listing.quantity || 0;
-  const percentReserved = total > 0 ? Math.round((reserved / total) * 100) : 0;
+  const total =
+    listingDetails?.totalQuantity || 0;
 
-  const completedCount = reservations.filter(
-    (r) => r.status === 'completed',
-  ).length;
-  const pendingCount = reservations.filter(
-    (r) => r.status === 'reserved',
-  ).length;
-  const expiredCount = reservations.filter(
-    (r) => r.status === 'expired',
-  ).length;
+  const reserved =
+    listingDetails?.reservedQuantity || 0;
 
+  const available =
+    listingDetails?.availableQuantity || 0;
+
+  const percentReserved =
+    listingDetails?.percentReserved || 0;
+
+  const totalReservations =
+    listingDetails?.totalReservations || 0;
+
+  const completedCount =
+    listingDetails?.completedPickups || 0;
+
+  const pendingCount =
+    listingDetails?.pendingPickups || 0;
+
+  const expiredCount =
+    listingDetails?.expiredReservations || 0;
+  
   const recentReservations = reservations.slice(0, 4);
 
   return (
@@ -205,18 +212,18 @@ export default function ListingDetailScreen({
       onLogout={onLogout}
       hideTopBar
     >
-      <div className="mb-4 flex items-center justify-between">
+      <div className="flex items-center justify-between mb-4">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-1 text-body1 font-medium text-green-normal">
+          className="flex font-medium gap-1 items-center text-body1 text-green-normal">
           <ArrowLeft className="h-4 w-4" /> Back to Listing
         </button>
 
-        <div className="flex items-center gap-2">
+        <div className="flex gap-2 items-center">
           <button
             type="button"
             onClick={() => onEditListing?.({ raw: listing })}
-            className="rounded-xl border border-border-muted px-4 py-2 text-sm font-medium text-ink hover:bg-surface-secondary">
+            className="border border-border-muted font-medium hover:bg-surface-secondary px-4 py-2 rounded-xl text-ink text-sm">
             Edit Listing
           </button>
 
@@ -224,7 +231,7 @@ export default function ListingDetailScreen({
             <button
               type="button"
               onClick={() => setShowMenu((v) => !v)}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border-muted text-ink hover:bg-surface-secondary">
+              className="border border-border-muted flex h-9 hover:bg-surface-secondary items-center justify-center rounded-xl text-ink w-9">
               <MoreVertical className="h-4 w-4" />
             </button>
 
@@ -234,13 +241,13 @@ export default function ListingDetailScreen({
                   className="fixed inset-0 z-10"
                   onClick={() => setShowMenu(false)}
                 />
-                <div className="absolute right-0 z-20 mt-2 w-44 overflow-hidden rounded-xl border border-border-muted bg-white shadow-lg">
+                <div className="absolute bg-white border border-border-muted mt-2 overflow-hidden right-0 rounded-xl shadow-lg w-44 z-20">
                   <button
                     onClick={() => {
                       setShowMenu(false);
                       setShowDeleteConfirm(true);
                     }}
-                    className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-medium text-red-500 hover:bg-red-50">
+                    className="flex font-medium gap-2 hover:bg-red-50 items-center px-4 py-3 text-left text-red-500 text-sm w-full">
                     <Trash2 className="h-4 w-4" />
                     Delete Listing
                   </button>
@@ -254,17 +261,17 @@ export default function ListingDetailScreen({
       {error && <p className="mb-4 text-body2 text-red-500">{error}</p>}
 
       {/* Listing header card */}
-      <div className="rounded-2xl border border-border-muted bg-white p-5">
+      <div className="bg-white border border-border-muted p-5 rounded-2xl">
         <div className="flex flex-col gap-4 sm:flex-row">
           <img
             src={listing.imageUrls?.[0] || '/img-placeholder.png'}
             alt={listing.foodName}
-            className="h-40 w-full shrink-0 rounded-xl object-cover sm:w-56"
+            className="h-40 object-cover rounded-xl shrink-0 sm:w-56 w-full"
           />
 
           <div className="flex-1">
-            <div className="flex items-start justify-between gap-3">
-              <h1 className="text-xl font-bold text-ink">{listing.foodName}</h1>
+            <div className="flex gap-3 items-start justify-between">
+              <h1 className="font-bold text-ink text-xl">{listing.foodName}</h1>
               {displayStatus && (
                 <span
                   className={`shrink-0 rounded-full px-3 py-1 text-body2 font-medium ${
@@ -275,24 +282,24 @@ export default function ListingDetailScreen({
               )}
             </div>
 
-            <p className="mt-1 text-body2 text-body-text">
+            <p className="mt-1 text-body-text text-body2">
               Created on {formatCreated(listing)}
             </p>
 
-            <p className="mt-3 text-2xl font-bold text-ink">
+            <p className="font-bold mt-3 text-2xl text-ink">
               {listing.isFree ? 'Free' : `₦${listing.price?.toLocaleString()}`}
             </p>
 
-            <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <div className="gap-2 grid grid-cols-1 mt-4 sm:grid-cols-2">
               <div>
-                <p className="text-caption text-body-text">Category</p>
-                <p className="text-body1 font-medium text-ink">
+                <p className="text-body-text text-caption">Category</p>
+                <p className="font-medium text-body1 text-ink">
                   {listing.category}
                 </p>
               </div>
               <div>
-                <p className="text-caption text-body-text">Pick up deadline</p>
-                <p className="text-body1 font-medium text-ink">
+                <p className="text-body-text text-caption">Pick up deadline</p>
+                <p className="font-medium text-body1 text-ink">
                   {formatDeadline(listing)}
                 </p>
               </div>
@@ -300,7 +307,7 @@ export default function ListingDetailScreen({
 
             {listing.description && (
               <div className="mt-4">
-                <p className="text-caption text-body-text">Description</p>
+                <p className="text-body-text text-caption">Description</p>
                 <p className="text-body1 text-ink">{listing.description}</p>
               </div>
             )}
@@ -308,86 +315,86 @@ export default function ListingDetailScreen({
         </div>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
+      <div className="gap-6 grid lg:grid-cols-[1fr_360px] mt-6">
         {/* LEFT — performance + summary */}
         <div className="space-y-6">
-          <div className="rounded-2xl border border-border-muted bg-white p-5">
-            <h2 className="mb-4 text-lg font-semibold text-ink">
+          <div className="bg-white border border-border-muted p-5 rounded-2xl">
+            <h2 className="font-semibold mb-4 text-ink text-lg">
               Listing Performance
             </h2>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="rounded-xl border border-border-muted p-3">
-                <p className="flex items-center gap-1 text-caption text-body-text">
+            <div className="gap-3 grid grid-cols-3">
+              <div className="border border-border-muted p-3 rounded-xl">
+                <p className="flex gap-1 items-center text-body-text text-caption">
                   <Package className="h-3.5 w-3.5" /> Total Quantity
                 </p>
-                <p className="mt-1 text-lg font-bold text-ink">{total} Meals</p>
+                <p className="font-bold mt-1 text-ink text-lg">{total} Meals</p>
               </div>
-              <div className="rounded-xl border border-border-muted p-3">
-                <p className="flex items-center gap-1 text-caption text-body-text">
+              <div className="border border-border-muted p-3 rounded-xl">
+                <p className="flex gap-1 items-center text-body-text text-caption">
                   <Users className="h-3.5 w-3.5" /> Reserved
                 </p>
-                <p className="mt-1 text-lg font-bold text-ink">
+                <p className="font-bold mt-1 text-ink text-lg">
                   {reserved} Meals
                 </p>
               </div>
-              <div className="rounded-xl border border-border-muted p-3">
-                <p className="flex items-center gap-1 text-caption text-body-text">
+              <div className="border border-border-muted p-3 rounded-xl">
+                <p className="flex gap-1 items-center text-body-text text-caption">
                   <CheckCircle2 className="h-3.5 w-3.5" /> Available
                 </p>
-                <p className="mt-1 text-lg font-bold text-ink">
+                <p className="font-bold mt-1 text-ink text-lg">
                   {available} Meals
                 </p>
               </div>
             </div>
 
-            <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-border-muted">
+            <div className="bg-border-muted h-2 mt-4 overflow-hidden rounded-full w-full">
               <div
-                className="h-full rounded-full bg-green-normal"
+                className="bg-green-normal h-full rounded-full"
                 style={{ width: `${percentReserved}%` }}
               />
             </div>
-            <p className="mt-1 text-caption text-body-text">
+            <p className="mt-1 text-body-text text-caption">
               {percentReserved}% of food reserved
             </p>
           </div>
 
-          <div className="rounded-2xl border border-border-muted bg-white p-5">
-            <h2 className="mb-4 text-lg font-semibold text-ink">
+          <div className="bg-white border border-border-muted p-5 rounded-2xl">
+            <h2 className="font-semibold mb-4 text-ink text-lg">
               Reservation Summary
             </h2>
-            <div className="divide-y divide-border-muted">
+            <div className="divide-border-muted divide-y">
               <div className="flex items-center justify-between py-3">
-                <span className="flex items-center gap-2 text-body2 text-body-text">
-                  <Calendar className="h-4 w-4 text-green-normal" /> Total
+                <span className="flex gap-2 items-center text-body-text text-body2">
+                  <Calendar className="h-4 text-green-normal w-4" /> Total
                   Reservation
                 </span>
-                <span className="text-body2 font-medium text-ink">
-                  {reservations.length}
+                <span className="font-medium text-body2 text-ink">
+                  {{totalReservations}}
                 </span>
               </div>
               <div className="flex items-center justify-between py-3">
-                <span className="flex items-center gap-2 text-body2 text-body-text">
-                  <CheckCircle2 className="h-4 w-4 text-green-normal" />{' '}
+                <span className="flex gap-2 items-center text-body-text text-body2">
+                  <CheckCircle2 className="h-4 text-green-normal w-4" />{' '}
                   Completed Pickups
                 </span>
-                <span className="text-body2 font-medium text-ink">
+                <span className="font-medium text-body2 text-ink">
                   {completedCount}
                 </span>
               </div>
               <div className="flex items-center justify-between py-3">
-                <span className="flex items-center gap-2 text-body2 text-body-text">
-                  <Clock className="h-4 w-4 text-orange-normal" /> Pending
+                <span className="flex gap-2 items-center text-body-text text-body2">
+                  <Clock className="h-4 text-orange-normal w-4" /> Pending
                   Pickups
                 </span>
-                <span className="text-body2 font-medium text-ink">
+                <span className="font-medium text-body2 text-ink">
                   {pendingCount}
                 </span>
               </div>
               <div className="flex items-center justify-between py-3">
-                <span className="flex items-center gap-2 text-body2 text-body-text">
-                  <AlertCircle className="h-4 w-4 text-red-500" /> Expired
+                <span className="flex gap-2 items-center text-body-text text-body2">
+                  <AlertCircle className="h-4 text-red-500 w-4" /> Expired
                 </span>
-                <span className="text-body2 font-medium text-ink">
+                <span className="font-medium text-body2 text-ink">
                   {expiredCount}
                 </span>
               </div>
@@ -396,14 +403,14 @@ export default function ListingDetailScreen({
         </div>
 
         {/* RIGHT — recent reservations */}
-        <div className="rounded-2xl border border-border-muted bg-white p-5">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-ink">
+        <div className="bg-white border border-border-muted p-5 rounded-2xl">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-ink text-lg">
               Recent Reservations
             </h2>
             <button
               onClick={() => onNavigate?.('reservations')}
-              className="flex items-center gap-1 text-body2 font-medium text-green-normal">
+              className="flex font-medium gap-1 items-center text-body2 text-green-normal">
               View all <ArrowRight className="h-3 w-3" />
             </button>
           </div>
@@ -417,15 +424,15 @@ export default function ListingDetailScreen({
               {recentReservations.map((r) => (
                 <div
                   key={r._id || r.reservationId}
-                  className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-light text-body1 font-semibold text-green-normal">
+                  className="flex gap-3 items-center">
+                  <div className="bg-green-light flex font-semibold h-10 items-center justify-center rounded-full shrink-0 text-body1 text-green-normal w-10">
                     {(r.user?.fullName || 'U')[0]}
                   </div>
                   <div className="flex-1">
-                    <p className="text-body1 font-bold text-ink">
+                    <p className="font-bold text-body1 text-ink">
                       {r.user?.fullName || 'User'}
                     </p>
-                    <p className="text-caption text-body-text">
+                    <p className="text-body-text text-caption">
                       {r.reservedAt
                         ? new Date(r.reservedAt).toLocaleTimeString([], {
                             hour: 'numeric',
@@ -434,7 +441,7 @@ export default function ListingDetailScreen({
                         : '—'}
                     </p>
                   </div>
-                  <span className="rounded-full bg-green-light px-3 py-1 text-caption font-medium capitalize text-green-normal">
+                  <span className="bg-green-light capitalize font-medium px-3 py-1 rounded-full text-caption text-green-normal">
                     {r.status}
                   </span>
                 </div>
