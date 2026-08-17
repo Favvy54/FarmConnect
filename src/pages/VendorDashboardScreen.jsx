@@ -429,7 +429,9 @@ export default function VendorDashboardScreen({
           </div>
         </div>
         {/* MINI FARM BOT */}
-        <MiniFarmBot />
+        <div className="flex justify-end mt-6">
+          <MiniFarmBot />
+        </div>
       </div>
     </DashboardLayout>
   );
