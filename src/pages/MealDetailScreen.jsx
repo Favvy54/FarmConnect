@@ -91,21 +91,25 @@ export default function MealDetailScreen({ onNavigate, onBack, onLogout }) {
   const [reserveError, setReserveError] = useState(null);
   const [confirmedReservation, setConfirmedReservation] = useState(null);
 
-  const handleReserve = async () => {
-    setReserveError(null);
-    setReserving(true);
-    try {
-      const res = await createReservation({
-      listingId: listing.listingId,
-      quantityRequested: quantity,
-    });
-      setConfirmedReservation(res?.data || res);
-    } catch (err) {
-      setReserveError(err.message || 'Could not complete your reservation.');
-    } finally {
-      setReserving(false);
-    }
-  };
+ const handleReserve = async () => {
+   setReserveError(null);
+   setReserving(true);
+   try {
+     const res = await createReservation({
+       listingId: listing.listingId,
+       quantityRequested: quantity,
+     });
+     setConfirmedReservation(res?.data || res);
+     setListing((prev) => ({
+       ...prev,
+       totalReservations: (prev.totalReservations || 0) + quantity,
+     }));
+   } catch (err) {
+     setReserveError(err.message || 'Could not complete your reservation.');
+   } finally {
+     setReserving(false);
+   }
+ }; 
 
   const missingListing = !listing;
 

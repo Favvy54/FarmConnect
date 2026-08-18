@@ -238,7 +238,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
     state: '',
     city: '',
   });
-  const [sortBy, setSortBy] = useState('newest'); // 'newest' | 'price_low' | 'price_high'
+  const [sortBy, setSortBy] = useState(''); // 'newest' | 'price_low' | 'price_high'
 
   // 'nearby' = default dashboard view, 'market' = full marketplace
   const [viewMode, setViewMode] = useState('nearby');
@@ -836,9 +836,25 @@ export default function UserDashboard({ onNavigate, onLogout }) {
       {loading || searching ? (
         <p className="text-body-text">Loading listings…</p>
       ) : filteredListings.length === 0 ? (
-        <div className="rounded-xl border border-border-muted bg-white p-8 text-center">
-          <p className="text-body1 font-medium text-ink">No listings found</p>
-          <p className="mt-2 text-body-text">Try another search or category.</p>
+       <div className="flex flex-col items-center text-center py-6 w-[50%] mx-auto">
+          <div className="w-27 h-24  md:w-33.75 md:h-30 rounded-full bg-green-light flex items-center justify-center mb-4">
+            <img
+              src="/empty-nearby,png"
+              alt="No Listing"
+              className="object-cover w-full h-full"
+            />
+          </div>
+          <p className="text-regular font-medium text-ink">No meals nearby</p>
+          <p className="text-normal text-ink mt-1 max-w-xs">
+            There is no available listing in your area at the moment
+          </p>
+          <PrimaryButton onClick={}>
+            <span
+              className="flex justify-center items-center
+              text-normal text-white gap-1">
+              Refresh
+            </span>
+          </PrimaryButton>
         </div>
       ) : (
         <div className="mt-6">

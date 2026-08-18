@@ -97,43 +97,13 @@ export default function ManageListingScreen({
             available: listing.quantity,
             reserved: listing.totalReservations,
             left: listing.quantity - listing.totalReservations,
-            pickupEnds: (() => {
-              let expiry = null;
-
-           
-              if (listing.updatedAt && listing.expiryDuration != null) {
-                expiry = new Date(
-                  new Date(listing.updatedAt).getTime() +
-                    listing.expiryDuration * 60000,
-                );
-              } else if (listing.expiresAt) {
-                expiry = new Date(listing.expiresAt);
-              } else if (listing.createdAt && listing.expiryDuration != null) {
-                expiry = new Date(
-                  new Date(listing.createdAt).getTime() +
-                    listing.expiryDuration * 60000,
-                );
-              }
-
-              if (!expiry) return 'Not set';
-
-              const now = new Date();
-              const diff = Math.max(0, expiry - now);
-              const minutes = Math.ceil(diff / 60000);
-
-              if (minutes <= 0) return 'Expired';
-              if (minutes < 60)
-                return `${minutes} min${minutes > 1 ? 's' : ''} left`;
-
-              const hours = Math.floor(minutes / 60);
-              const remainingMinutes = minutes % 60;
-
-              if (remainingMinutes === 0) {
-                return `${hours} hr${hours > 1 ? 's' : ''} left`;
-              }
-
-              return `${hours} hr${hours > 1 ? 's' : ''} ${remainingMinutes} min left`;
-            })(),
+            pickupEnds: listing.expiresAt
+              ? new Date(listing.expiresAt).toLocaleTimeString([], {
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true,
+                })
+              : 'Not set',
           }));
 
           setListings(formatted);
@@ -251,32 +221,30 @@ export default function ManageListingScreen({
             </p>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center text-center py-16">
-            <div className="lg:w-59.5 lg:h-53 rounded-full bg-green-light flex items-center justify-center mb-4">
-              <img
-                src="/empty-listing.png"
-                alt="No Listing"
-                className="object-cover w-full h-full"
-              />
-            </div>
-            <p className="text-regular font-medium text-ink">
-              No active listing
-            </p>
-            <p className="text-normal font-regular text-ink mt-1 max-w-xs">
-              Create your first surplus food listing and start reaching nearby
-              people
-            </p>
-            <PrimaryButton
-              onClick={onCreateListing}
-              className="md:max-w-sm mt-4 w-auto rounded-xl px-6 py-3">
-              <span
-                className="flex 
+          <div className="flex flex-col items-center text-center py-6 w-[50%] mx-auto">
+                          <div className="w-27 h-24  md:w-33.75 md:h-30 rounded-full bg-green-light flex items-center justify-center mb-4">
+                            <img
+                              src="/empty-listing.png"
+                              alt="No Listing"
+                              className="object-cover w-full h-full"
+                            />
+                          </div>
+                          <p className="text-regular font-medium text-ink">
+                            No active listing
+                          </p>
+                          <p className="text-normal text-ink mt-1 max-w-xs">
+                            Create your first surplus food listing and start reaching
+                            nearby people
+                          </p>
+                          <PrimaryButton onClick={onCreateListing}>
+                            <span
+                              className="flex 
                             justify-center items-center
-                            text-regular text-white gap-1">
-                <Plus className="w-6 h-6" /> Create Listing
-              </span>
-            </PrimaryButton>
-          </div>
+                            text-normal text-white gap-1">
+                              <Plus className="w-6 h-6" /> Create Listing
+                            </span>
+                          </PrimaryButton>
+                        </div>
         ) : (
           <>
             <div className="rounded-2xl border border-border-muted overflow-auto">

@@ -256,6 +256,10 @@ const loadAll = async () => {
       getVendorReservations(),
       getVendorReservationHistory(),
     ]);
+    
+
+    console.log('currentRes raw:', currentRes);
+    console.log('historyRes raw:', historyRes);
 
     // Vendor profile
     setVendor(vendorResponse?.data);
@@ -393,9 +397,21 @@ const loadAll = async () => {
       {loading ? (
         <p className="mt-6 text-body-text">Loading reservations…</p>
       ) : filtered.length === 0 ? (
-        <p className="mt-6 py-12 text-center text-body-text">
-          No reservations found.
-        </p>
+        <div className="flex flex-col items-center gap-2 text-center py-10">
+          <div className="w-30.75 h-22.25 md:w-56.75 md:h-41 rounded-full bg-green-light flex items-center justify-center mb-4">
+            <img
+              src="/empty-reservation.png"
+              alt="No Reservation"
+              className=" w-full h-full object-cover"
+            />
+          </div>
+          <p className="text-regular font-medium text-ink">
+            No reservation yet
+          </p>
+          <p className="text-normal font text-ink mt-1 max-w-xs">
+            Once someone reserves your listing, it will appear here
+          </p>
+        </div>
       ) : (
         <div className="mt-4 rounded-2xl border border-border-muted overflow-auto">
           <div className="min-w-225">

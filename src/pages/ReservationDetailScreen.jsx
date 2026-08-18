@@ -43,8 +43,6 @@ function formatCountdown(ms) {
   return hrs > 0 ? `${hrs}:${pad(mins)}:${pad(secs)}` : `${pad(mins)}:${pad(secs)}`;
 }
 
-// Business rule: reservations expire 60 minutes after reservedAt. There's
-// no separate deadline field on the reservation object — it's computed.
 function getDeadline(reservation) {
   if (!reservation?.reservedAt) return null;
   return new Date(new Date(reservation.reservedAt).getTime() + 60 * 60000);
@@ -253,19 +251,47 @@ const [showCancelConfirm, setShowCancelConfirm] = useState(false);
             </span>
           </div>
 
-          <div className="mx-auto flex justify-center">
-            {status === 'reserved' && (
-              <div className="text-center">
-                <p className="text-caption text-body-text">Expires in</p>
-                <p className="font-mono text-xl font-bold text-green-normal">
-                  {formatCountdown(msLeft)}
-                </p>
-              </div>
-            )}
-            {status === 'completed' && <img src='/completed.png'></img>}
-            {status === 'cancelled' && <img src='/cancelled.png'></img>}
-            {status === 'expired' && <img src='/expired.png'></img>}
-          </div>
+         <div className="mx-auto flex justify-center">
+  {status === 'reserved' && (
+    <div className="relative flex h-36 w-36 items-center justify-center">
+      <svg viewBox="0 0 140 140" className="h-full w-full -rotate-90">
+        {/* Track */}
+        <circle
+          cx="70"
+          cy="70"
+          r="54"
+          fill="none"
+          stroke="#DCFCE7"
+          strokeWidth="10"
+        />
+        {/* Progress arc — depletes as the 1-hour hold runs down */}
+        <circle
+          cx="70"
+          cy="70"
+          r="54"
+          fill="none"
+          stroke="#22C55E"
+          strokeWidth="10"
+          strokeLinecap="round"
+          strokeDasharray={2 * Math.PI * 54}
+          strokeDashoffset={
+            2 * Math.PI * 54 * (1 - Math.max(0, Math.min(1, msLeft / (60 * 60000))))
+          }
+          style={{ transition: 'stroke-dashoffset 1s linear' }}
+        />
+      </svg>
+      <div className="absolute text-center">
+        <p className="text-caption text-body-text">Reservation<br />Expires in</p>
+        <p className="mt-1 font-mono text-xl font-bold text-ink">
+          {formatCountdown(msLeft)}
+        </p>
+      </div>
+    </div>
+  )}
+  {status === 'completed' && <img src='/completed.png'></img>}
+  {status === 'cancelled' && <img src='/cancelled.png'></img>}
+  {status === 'expired' && <img src='/expired.png'></img>}
+</div>
 
           <p className="mt-4 text-body1 font-semibold text-ink">
             {status === 'reserved' && deadline

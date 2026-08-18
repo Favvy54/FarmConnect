@@ -119,10 +119,10 @@ export default function VendorDashboardScreen({
 
         const today = new Date();
 
-        const todaysReservations = allReservations.filter((reservation) => {
-          if (!reservation.createdAt) return false;
+       const todaysReservations = allReservations.filter((reservation) => {
+  if (!reservation.reservedAt) return false;
 
-          const reservationDate = new Date(reservation.createdAt);
+  const reservationDate = new Date(reservation.reservedAt);
 
           return (
             reservationDate.getDate() === today.getDate() &&
@@ -142,16 +142,20 @@ export default function VendorDashboardScreen({
           todaysReservations.map((reservation) => ({
             id: reservation._id,
             name: reservation.user?.fullName || 'Customer',
-            meal: reservation.listing?.foodName || 'Meal',
+            meal: reservation.foodName || 'Meal',
 
-            reservedAt: new Date(reservation.createdAt).toLocaleTimeString([], {
-              hour: 'numeric',
-              minute: '2-digit',
-              hour12: true,
-            }),
-
-            pickupBefore: reservation.listing?.expiresAt
-              ? new Date(reservation.listing.expiresAt).toLocaleTimeString([], {
+            reservedAt: new Date(reservation.reservedAt).toLocaleTimeString(
+              [],
+              {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true,
+              },
+            ),
+            pickupBefore: reservation.reservedAt
+              ? new Date(
+                  new Date(reservation.reservedAt).getTime() + 60 * 60000,
+                ).toLocaleTimeString([], {
                   hour: 'numeric',
                   minute: '2-digit',
                   hour12: true,

@@ -3,7 +3,6 @@ import { X, Timer, Calendar, Clock, MapPin, Info } from 'lucide-react';
 import { createReservation } from '../services/auth';
 import ReservationConfirmedModal from '../pages/ReservationConfirmedModal';
 
-
 function computeMsLeft(listing) {
   let expiry = null;
 
@@ -40,7 +39,9 @@ export default function ReserveMealModal({
   listing,
   isOpen,
   onClose,
-  onNavigate }) {
+  onNavigate,
+  onReserved,
+}) {
   const [quantity, setQuantity] = useState(0);
   const [reserving, setReserving] = useState(false);
   const [reserveError, setReserveError] = useState(null);
@@ -52,7 +53,7 @@ export default function ReserveMealModal({
       setReserveError(null);
       setConfirmedReservation(null);
     }
-  }, [isOpen, listing?.id]);
+  }, [isOpen, listing?.listingId]);
 
   if (!isOpen || !listing) return null;
 
@@ -74,23 +75,23 @@ export default function ReserveMealModal({
     day: 'numeric',
   });
 
- const handleReserve = async () => {
-   setReserveError(null);
-   setReserving(true);
-   try {
-     const res = await createReservation({
-       listingId: listing.listingId,
-       quantityRequested: quantity,
-     });
-     setConfirmedReservation(res?.data || res);
-   } catch (err) {
-     setReserveError(err.message || 'Could not complete your reservation.');
-   } finally {
-     setReserving(false);
-   }
- };
+  const handleReserve = async () => {
+    setReserveError(null);
+    setReserving(true);
+    try {
+      const res = await createReservation({
+        listingId: listing.listingId,
+        quantityRequested: quantity,
+      });
+      setConfirmedReservation(res?.data || res);
+      onReserved?.(listing._id, quantity);
+    } catch (err) {
+      setReserveError(err.message || 'Could not complete your reservation.');
+    } finally {
+      setReserving(false);
+    }
+  };
 
-  
   return (
     <>
       {/* Backdrop */}
@@ -136,7 +137,7 @@ export default function ReserveMealModal({
               </button>
               <span className="text-body1 font-medium text-ink">
                 {quantity}
-              </span> 
+              </span>
               <button
                 type="button"
                 onClick={() => setQuantity((q) => Math.min(mealsLeft, q + 1))}
@@ -186,7 +187,7 @@ export default function ReserveMealModal({
           <div className="mt-5 flex items-start gap-3 rounded-xl bg-[#FFB948]/16 p-4">
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-orange-dark" />
 
-            <div className='flex flex-col gap-1'>
+            <div className="flex flex-col gap-1">
               <p className="text-orange-dark text-normal font-medium">
                 Important note
               </p>
@@ -195,7 +196,6 @@ export default function ReserveMealModal({
                 reservation would be cancelled id not picked on time
               </p>
             </div>
-
           </div>
 
           <div className="mt-5 flex items-center justify-between">
@@ -229,16 +229,16 @@ export default function ReserveMealModal({
       </div>
 
       {confirmedReservation && (
-              <ReservationConfirmedModal
-                holdMinutes={60}
-                pickupDeadlineLabel={formatDeadlineTime(listing) || 'the deadline'}
-                onClose={() => setConfirmedReservation(null)}
-                onViewReservation={() => {
-                  setConfirmedReservation(null);
-                  onNavigate?.('reservations');
-                }}
-              />
-            )}
+        <ReservationConfirmedModal
+          holdMinutes={60}
+          pickupDeadlineLabel={formatDeadlineTime(listing) || 'the deadline'}
+          onClose={() => setConfirmedReservation(null)}
+          onViewReservation={() => {
+            setConfirmedReservation(null);
+            onNavigate?.('reservations');
+          }}
+        />
+      )}
     </>
   );
 }

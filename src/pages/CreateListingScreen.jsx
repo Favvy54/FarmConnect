@@ -438,12 +438,17 @@ onNavigate?.('listings', {
 
                 <div className="flex items-center gap-4">
                   <TextField
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     placeholder="Enter your price"
                     variant="profile"
                     value={price}
                     disabled={isFree}
-                    onChange={(e) => setPrice(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      setPrice(value);
+                    }}
                   />
 
                   <label className="flex shrink-0 items-center gap-2 whitespace-nowrap text-sm text-body-text">
@@ -594,13 +599,34 @@ onNavigate?.('listings', {
                       expiry.setSeconds(0);
                       expiry.setMilliseconds(0);
 
+                      // No rollover to tomorrow — a listing must expire on the same calendar
+                      // day it was created (12am–12am).
+                      if (expiry <= now) {
+                        setPickupTimeError(
+                          "Pickup time must be later today — deadlines can't roll over to tomorrow.",
+                        );
+                        setExpiryDuration(null);
+                        return;
+                      }
+
                       const duration = Math.ceil((expiry - now) / (1000 * 60));
 
-                      const MIN_DURATION_MINUTES = 90;
+                      // The 90-minute minimum shrinks as midnight approaches, so vendors
+                      // aren't locked out entirely late at night — they just get whatever
+                      // window is actually left before the same-day cutoff.
+                      const midnight = new Date(now);
+                      midnight.setHours(24, 0, 0, 0);
+                      const minutesUntilMidnight = Math.floor(
+                        (midnight - now) / (1000 * 60),
+                      );
+                      const effectiveMinDuration = Math.min(
+                        90,
+                        minutesUntilMidnight,
+                      );
 
-                      if (duration < MIN_DURATION_MINUTES) {
+                      if (duration < effectiveMinDuration) {
                         setPickupTimeError(
-                          'Pickup deadline must be at least 1 hour 30 minutes from now.',
+                          `Pickup deadline must be at least ${effectiveMinDuration} minute${effectiveMinDuration === 1 ? '' : 's'} from now.`,
                         );
                         setExpiryDuration(null);
                       } else {
@@ -908,8 +934,6 @@ onNavigate?.('listings', {
           </div>
         </div>
       )}
-
-    
     </DashboardLayout>
   );
 }

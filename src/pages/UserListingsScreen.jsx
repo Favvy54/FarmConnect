@@ -4,7 +4,11 @@ import { useNavigate } from 'react-router';
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import ReserveMealModal from '@/components/ReserveMealModal.jsx';
 import TextField from '../components/TextField.jsx';
-import { getAllListings, getAppUserProfile } from '../services/auth.js';
+import {
+  getAllListings,
+  getNearbyListings,
+  getAppUserProfile,
+} from '../services/auth.js';
 
 const CATEGORY_PILLS = [
   'Cooked Meals',
@@ -92,8 +96,11 @@ function MealCard({ listing, onReserve }) {
 export default function UserListingsScreen({ onNavigate, onLogout }) {
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('');
-  const [isFilterOpen, setIsFilterOpen] = useState(false); // closed by default
-  const [sortBy, setSortBy] = useState('newest'); // 'newest' | 'price_low' | 'price_high'
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  // closed by default
+  const [viewMode, setViewMode] = useState('market');
+  // 'market' | 'nearby'
+  const [sortBy, setSortBy] = useState(''); // 'newest' | 'price_low' | 'price_high'
   const [userProfile, setUserProfile] = useState({
     fullName: '',
     state: '',
@@ -109,16 +116,20 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
     (async () => {
       setLoading(true);
       setError(null);
+
       try {
         const profileRes = await getAppUserProfile();
         const profile = profileRes?.data || profileRes;
+
         setUserProfile({
           fullName: profile?.fullName || '',
           state: profile?.state || '',
           city: profile?.city || '',
         });
 
+        // Default view: marketplace
         const results = await getAllListings();
+
         setListings(Array.isArray(results) ? results : []);
       } catch (err) {
         setError(err.message || 'Could not load listings.');
@@ -156,6 +167,34 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
       if (sortBy === 'price_high') return (b.price || 0) - (a.price || 0);
       return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
     });
+
+  const loadNearbyListings = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const profileRes = await getAppUserProfile();
+      const profile = profileRes?.data || profileRes;
+
+      const savedCoordinates = profile?.location?.coordinates;
+
+      if (!Array.isArray(savedCoordinates) || savedCoordinates.length !== 2) {
+        throw new Error(
+          'Your location is not set. Please set your location first.',
+        );
+      }
+
+      const [longitude, latitude] = savedCoordinates;
+
+      const nearby = await getNearbyListings(longitude, latitude, 30000);
+
+      setListings(Array.isArray(nearby) ? nearby : []);
+    } catch (err) {
+      setError(err.message || 'Could not load nearby listings.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <DashboardLayout
@@ -200,6 +239,36 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
                 onClick={() => setIsFilterOpen(false)}
               />
               <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-xl border border-border-muted bg-white shadow-lg">
+                <button
+                  onClick={() => {
+                    setViewMode('market');
+                    setIsFilterOpen(false);
+
+                    getAllListings().then((results) => {
+                      setListings(Array.isArray(results) ? results : []);
+                    });
+                  }}
+                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-light/40">
+                  Market Listings
+                  {viewMode === 'market' && (
+                    <Check className="h-4 w-4 text-green-normal" />
+                  )}
+                </button>
+
+                <button
+                  onClick={async () => {
+                    setViewMode('nearby');
+                    setIsFilterOpen(false);
+                    await loadNearbyListings();
+                  }}
+                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-light/40">
+                  Nearby Listings
+                  {viewMode === 'nearby' && (
+                    <Check className="h-4 w-4 text-green-normal" />
+                  )}
+                </button>
+
+                <div className="my-1 border-t border-border-muted" />
                 <button
                   onClick={() => {
                     setSortBy('newest');
@@ -257,9 +326,25 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
       {loading ? (
         <p className="text-body-text">Loading listings…</p>
       ) : filteredListings.length === 0 ? (
-        <div className="rounded-xl border border-border-muted bg-white p-8 text-center">
-          <p className="text-body1 font-medium text-ink">No listings found</p>
-          <p className="mt-2 text-body-text">Try another search or category.</p>
+        <div className="flex flex-col items-center text-center py-6 w-[50%] mx-auto">
+          <div className="w-27 h-24  md:w-33.75 md:h-30 rounded-full bg-green-light flex items-center justify-center mb-4">
+            <img
+              src="/empty-nearby,png"
+              alt="No Listing"
+              className="object-cover w-full h-full"
+            />
+          </div>
+          <p className="text-regular font-medium text-ink">No meals nearby</p>
+          <p className="text-normal text-ink mt-1 max-w-xs">
+            There is no available listing in your area at the moment
+          </p>
+          <PrimaryButton onClick={}>
+            <span
+              className="flex justify-center items-center
+              text-normal text-white gap-1">
+              Refresh
+            </span>
+          </PrimaryButton>
         </div>
       ) : (
         <div className="rounded-2xl border border-border-muted bg-white p-5">
@@ -284,6 +369,15 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
         isOpen={!!reserveListing}
         onClose={() => setReserveListing(null)}
         onNavigate={onNavigate}
+        onReserved={(listingId, qty) => {
+          setListings((prev) =>
+            prev.map((l) =>
+              l._id === listingId
+                ? { ...l, totalReservations: (l.totalReservations || 0) + qty }
+                : l,
+            ),
+          );
+        }}
       />
     </DashboardLayout>
   );
