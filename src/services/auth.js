@@ -594,7 +594,7 @@ export const getListingDetails = async (listingId) => {
 
 export const getVendorReservationAnalytics = async () => {
   return profileRequest(
-    "/reservations/vendor/analytics",
+    "/vendors/vendor/analytics",
     {
       method: "GET",
       auth: true,
