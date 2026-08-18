@@ -848,7 +848,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
           <p className="text-normal text-ink mt-1 max-w-xs">
             There is no available listing in your area at the moment
           </p>
-          <PrimaryButton onClick={}>
+          <PrimaryButton>
             <span
               className="flex justify-center items-center
               text-normal text-white gap-1">
@@ -890,109 +890,6 @@ export default function UserDashboard({ onNavigate, onLogout }) {
     
       {/* MINI FARM BOT */}
       <MiniFarmBot />
-    
-      {/* FARMCONNECT AI */}
-      <div>
-        {!showAIAssistant && (
-          <button
-            type="button"
-            onClick={() => setShowAIAssistant(true)}
-            className="group flex items-center gap-2 rounded-full bg-green-normal px-5 py-3 text-white shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl"
-          >
-            <Sparkles className="h-5 w-5" />
-    
-            <span className="text-sm font-semibold">
-              FarmConnect AI
-            </span>
-          </button>
-        )}
-    
-        {showAIAssistant && (
-          <div className="flex h-[600px] w-[380px] flex-col overflow-hidden rounded-2xl border border-border-muted bg-white shadow-2xl">
-    
-            {/* AI HEADER */}
-            <div className="flex items-center justify-between bg-green-normal px-4 py-4 text-white">
-              <div className="flex items-center gap-3">
-    
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
-                  <Sparkles className="h-5 w-5" />
-                </div>
-    
-                <div>
-                  <p className="font-semibold">
-                    FarmConnect AI
-                  </p>
-    
-                  <p className="text-xs text-white/80">
-                    Your FarmConnect assistant
-                  </p>
-                </div>
-    
-              </div>
-    
-              <button
-                type="button"
-                onClick={() => setShowAIAssistant(false)}
-                className="rounded-full p-1 transition-colors hover:bg-white/20"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-    
-            {/* AI MESSAGES */}
-            <div className="flex-1 space-y-4 overflow-y-auto bg-gray-50 p-4">
-              {aiMessages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`flex ${
-                    message.role === 'user'
-                      ? 'justify-end'
-                      : 'justify-start'
-                  }`}
-                >
-                  <div
-                    className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                      message.role === 'user'
-                        ? 'rounded-br-md bg-green-normal text-white'
-                        : 'rounded-bl-md bg-white text-ink shadow-sm'
-                    }`}
-                  >
-                    {message.content}
-                  </div>
-                </div>
-              ))}
-            </div>
-    
-            {/* AI INPUT */}
-            <form
-              onSubmit={handleAISubmit}
-              className="border-t border-border-muted bg-white p-3"
-            >
-              <div className="flex items-center gap-2">
-    
-                <input
-                  type="text"
-                  value={aiMessage}
-                  onChange={(e) => setAiMessage(e.target.value)}
-                  placeholder="Ask FarmConnect AI..."
-                  className="min-w-0 flex-1 rounded-xl border border-border-muted px-4 py-3 text-sm outline-none transition focus:border-green-normal"
-                />
-    
-                <button
-                  type="submit"
-                  disabled={!aiMessage.trim()}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-normal text-white transition hover:bg-green-dark disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Send className="h-4 w-4" />
-                </button>
-    
-              </div>
-            </form>
-    
-          </div>
-        )}
-      </div>
-    
     </div>
 
     </DashboardLayout>
