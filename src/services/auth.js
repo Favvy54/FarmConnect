@@ -591,3 +591,13 @@ export const getListingDetails = async (listingId) => {
     auth: true,
   });
 };
+
+export const getVendorReservationAnalytics = async () => {
+  return profileRequest(
+    "/reservations/vendor/analytics",
+    {
+      method: "GET",
+      auth: true,
+    }
+  );
+};
