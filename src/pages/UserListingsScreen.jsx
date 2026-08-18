@@ -338,7 +338,7 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
           <p className="text-normal text-ink mt-1 max-w-xs">
             There is no available listing in your area at the moment
           </p>
-          <PrimaryButton onClick={}>
+          <PrimaryButton onClick={() => window.location.reload()}>
             <span
               className="flex justify-center items-center
               text-normal text-white gap-1">
