@@ -18,7 +18,7 @@ import {
   getDashboardAnalytics,
   getVendorReservations,
   getMyListings,
-} from '@/services/auth.js';
+} from '../services/auth.js';
 import MiniFarmBot from "../components/MiniFarmBot";
 
 const STAT_ICONS = {
