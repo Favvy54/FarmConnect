@@ -836,7 +836,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
       {loading || searching ? (
         <p className="text-body-text">Loading listings…</p>
       ) : filteredListings.length === 0 ? (
-       <div className="flex flex-col items-center text-center py-6 w-[50%] mx-auto">
+        <div className="flex flex-col items-center text-center py-6 w-[50%] mx-auto">
           <div className="w-27 h-24  md:w-33.75 md:h-30 rounded-full bg-green-light flex items-center justify-center mb-4">
             <img
               src="/empty-nearby,png"
@@ -848,7 +848,9 @@ export default function UserDashboard({ onNavigate, onLogout }) {
           <p className="text-normal text-ink mt-1 max-w-xs">
             There is no available listing in your area at the moment
           </p>
-          <PrimaryButton>
+          <PrimaryButton
+            onClick={() => window.location.reload()}
+            className="w-fit rounded-2xl text-center py-4 mt-2">
             <span
               className="flex justify-center items-center
               text-normal text-white gap-1">
@@ -866,16 +868,6 @@ export default function UserDashboard({ onNavigate, onLogout }) {
             onViewMore={() => onNavigate?.('listings')}
             onReserve={(listing) => setReserveListing(listing)}
           />
-
-          <ScrollListingRow
-            icon={<Clock className="h-6 w-6 text-orange-dark" />}
-            title="Last Chance"
-            listings={lastChance}
-            accentClass="text-orange-normal"
-            onViewMore={() => onNavigate?.('listings')}
-            onReserve={(listing) => setReserveListing(listing)}
-          />
-
           <ReserveMealModal
             listing={reserveListing}
             isOpen={!!reserveListing}
@@ -885,13 +877,55 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         </div>
       )}
 
-    {/* FLOATING AI TOOLS */}
-    <div className="fixed bottom-6 right-6 z-50 flex items-center gap-4">
-    
-      {/* MINI FARM BOT */}
-      <MiniFarmBot />
-    </div>
+      {loading || searching ? (
+        <p className="text-body-text">Loading listings…</p>
+      ) : filteredListings.length === 0 ? (
+        <div className="flex flex-col items-center text-center py-6 w-[50%] mx-auto">
+          <div className="w-27 h-24  md:w-33.75 md:h-30 rounded-full bg-green-light flex items-center justify-center mb-4">
+            <img
+              src="/empty-last-chance-state.png"
+              alt="No Listing"
+              className="object-cover w-full h-full"
+            />
+          </div>
+          <p className="text-regular font-medium text-ink">No meals nearby</p>
+          <p className="text-normal text-ink mt-1 max-w-xs">
+            There is no available listing in your area at the moment
+          </p>
+          <PrimaryButton
+            onClick={() => window.location.reload()}
+            className="w-fit rounded-2xl text-center py-4 mt-2">
+            <span
+              className="flex justify-center items-center
+              text-normal text-white gap-1">
+              Refresh
+            </span>
+          </PrimaryButton>
+        </div>
+      ) : (
+        <div>
+          <ScrollListingRow
+            icon={<Clock className="h-6 w-6 text-orange-dark" />}
+            title="Last Chance"
+            listings={lastChance}
+            accentClass="text-orange-normal"
+            onViewMore={() => onNavigate?.('listings')}
+            onReserve={(listing) => setReserveListing(listing)}
+          />
+          <ReserveMealModal
+            listing={reserveListing}
+            isOpen={!!reserveListing}
+            onClose={() => setReserveListing(null)}
+            onNavigate={onNavigate}
+          />
+        </div>
+      )}
 
+      {/* FLOATING AI TOOLS */}
+      <div className="fixed bottom-6 right-6 z-50 flex items-center gap-4">
+        {/* MINI FARM BOT */}
+        <MiniFarmBot />
+      </div>
     </DashboardLayout>
   );
 }
