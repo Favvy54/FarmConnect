@@ -137,6 +137,10 @@ export default function ListingDetailScreen({
 
         setListingDetails(details);
 
+        setReservations(
+          details?.recentReservations || []
+        );
+
       } catch (err) {
         setError(
           err.message ||
@@ -189,19 +193,19 @@ export default function ListingDetailScreen({
     listingDetails?.availableQuantity || 0;
 
   const percentReserved =
-    listingDetails?.percentReserved || 0;
+    listingDetails?.reservedPercentage || 0;
 
   const totalReservations =
-    listingDetails?.totalReservations || 0;
+    listingDetails?.reservationSummary?.totalReservations || 0;
 
   const completedCount =
-    listingDetails?.completedPickups || 0;
+    listingDetails?.reservationSummary?.completedPickups || 0;
 
   const pendingCount =
-    listingDetails?.pendingPickups || 0;
+    listingDetails?.reservationSummary?.pendingPickups || 0;
 
   const expiredCount =
-    listingDetails?.expiredReservations || 0;
+    listingDetails?.reservationSummary?.expired || 0;
   
   const recentReservations = reservations.slice(0, 4);
 

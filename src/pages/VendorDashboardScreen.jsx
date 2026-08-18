@@ -115,56 +115,72 @@ export default function VendorDashboardScreen({
               })),
           );
 
+          const today = new Date();
+
+          const todaysReservations =
+            reservationsResponse.data.filter((reservation) => {
+
+              if (reservation.status !== 'reserved') {
+                return false;
+              }
+
+              const reservationDate =
+                new Date(reservation.createdAt);
+
+              return (
+                reservationDate.getDate() === today.getDate() &&
+                reservationDate.getMonth() === today.getMonth() &&
+                reservationDate.getFullYear() === today.getFullYear()
+              );
+
+            });
+
           setReservations(
-            reservationsResponse.data
-              .filter(
-                (reservation) =>
-                  reservation.status === 'reserved',
-              )
-              .map((reservation) => ({
-                id: reservation._id,
+            todaysReservations.map((reservation) => ({
+              id: reservation._id,
 
-                name:
-                  reservation.user?.fullName ||
-                  'Customer',
+              name:
+                reservation.user?.fullName ||
+                'Customer',
 
-                meal:
-                  reservation.listing?.foodName ||
-                  'Meal',
+              meal:
+                reservation.listing?.foodName ||
+                'Meal',
 
-                reservedAt:
-                  new Date(
-                    reservation.createdAt,
+              reservedAt:
+                new Date(
+                  reservation.createdAt,
+                ).toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                }),
+
+              pickupBefore:
+                reservation.listing?.expiresAt
+                  ? new Date(
+                    reservation.listing.expiresAt,
                   ).toLocaleTimeString([], {
                     hour: '2-digit',
                     minute: '2-digit',
-                  }),
+                  })
+                  : '—',
 
-                pickupBefore:
-                  reservation.listing?.expiresAt
-                    ? new Date(
-                      reservation.listing.expiresAt,
-                    ).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })
-                    : '—',
+              timeRemaining:
+                reservation.timeRemaining ||
+                '—',
 
-                timeRemaining:
-                  reservation.timeRemaining ||
-                  '—',
-
-                status: 'Reserved',
-              })),
+              status: 'Reserved',
+            })),
           );
 
           setStats({
             listings: analytics.activeListings,
-            reservations: reservationsResponse.data.filter(
-              (reservation) =>
-                reservation.status === 'reserved',
-            ).length,
+
+            reservations:
+              todaysReservations.length,
+
             saved: analytics.mealsShared,
+
             discarded: analytics.discardedMeals,
           });
         }
