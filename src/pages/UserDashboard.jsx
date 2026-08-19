@@ -612,6 +612,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
   };
 
   return (
+   <>
     <DashboardLayout
       active="home"
       role="user"
@@ -934,9 +935,9 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         {/* MINI FARM BOT */}
         <MiniFarmBot />
       </div>
-
-      <ActivityTicker />
     </DashboardLayout>
+    <ActivityTicker />
+  </> 
   );
 }
  
