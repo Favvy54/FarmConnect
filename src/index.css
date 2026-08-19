@@ -201,7 +201,7 @@ body {
     @apply font-sans;
   }
 
-  @keyframes activityTicker {
+ @keyframes activityTicker {
   from {
     transform: translateX(0);
   }
@@ -212,10 +212,27 @@ body {
 }
 
 .animate-activity-ticker {
-  animation: activityTicker 30s linear infinite;
+  animation: activityTicker 12s linear infinite;
 }
 
 .animate-activity-ticker:hover {
   animation-play-state: paused;
 }
+
+@keyframes vendorActivityTicker {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-vendor-activity-ticker {
+  animation: vendorActivityTicker 12s linear infinite;
+}
+
+.animate-vendor-activity-ticker:hover {
+  animation-play-state: paused;
 }
