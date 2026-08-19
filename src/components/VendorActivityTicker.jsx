@@ -3,7 +3,6 @@ import { getVendorActivities } from '../services/auth.js';
 
 export default function VendorActivityTicker() {
   const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -12,33 +11,40 @@ export default function VendorActivityTicker() {
       try {
         const response = await getVendorActivities();
 
-        const activities = response?.data || [];
+        if (cancelled) return;
 
-        if (!cancelled) {
-          setItems(activities);
-        }
+        const activities =
+          response?.data || [];
+
+        setItems(
+          Array.isArray(activities)
+            ? activities
+            : [],
+        );
       } catch (error) {
         console.error(
           'Failed to load vendor activities:',
-          error
+          error,
         );
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
       }
     };
 
+    // Load immediately
     loadActivities();
+
+    // Poll every 5 seconds
+    const interval = setInterval(
+      loadActivities,
+      5000,
+    );
 
     return () => {
       cancelled = true;
+      clearInterval(interval);
     };
   }, []);
 
-  if (loading || !items.length) {
-    return null;
-  }
+  if (!items.length) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 overflow-hidden border-t border-border-muted bg-white">
@@ -49,13 +55,15 @@ export default function VendorActivityTicker() {
 
         <div className="relative flex-1 overflow-hidden">
           <div className="animate-activity-ticker flex w-max items-center gap-12 whitespace-nowrap px-6">
-            {[...items, ...items].map((activity, index) => (
-              <span
-                key={`${activity.type}-${activity.createdAt}-${index}`}
-                className="text-sm font-medium text-ink">
-                • {activity.message}
-              </span>
-            ))}
+            {[...items, ...items].map(
+              (activity, index) => (
+                <span
+                  key={`${activity._id}-${index}`}
+                  className="text-sm font-medium text-ink">
+                  • {activity.message}
+                </span>
+              ),
+            )}
           </div>
         </div>
       </div>
