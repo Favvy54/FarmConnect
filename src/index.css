@@ -200,4 +200,22 @@ body {
   html {
     @apply font-sans;
   }
+
+  @keyframes activityTicker {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-activity-ticker {
+  animation: activityTicker 30s linear infinite;
+}
+
+.animate-activity-ticker:hover {
+  animation-play-state: paused;
+}
 }
