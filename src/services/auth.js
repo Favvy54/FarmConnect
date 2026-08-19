@@ -601,3 +601,17 @@ export const getVendorReservationAnalytics = async () => {
     }
   );
 };
+
+export async function getVendorActivities() {
+  return profileRequest("/activities/vendor", {
+    method: "GET",
+    auth: true,
+  });
+}
+
+export async function getUserActivities() {
+  return profileRequest("/activities/user", {
+    method: "GET",
+    auth: true,
+  });
+}
