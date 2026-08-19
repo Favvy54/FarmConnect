@@ -1,21 +1,34 @@
 import { useEffect, useState } from 'react';
-
-const activities = [
-  'Make your Orders Now!!!!',
-  'Emeka Cuisine just put up free food',
-  'Mama Grace Kitchen just added a new listing',
-  'Green Harvest just shared fresh meals',
-  'A user just reserved a meal!',
-  'Emeka Cuisine just added 10 meals',
-  'Fresh Bites just put up a new food listing',
-];
+import { getUserActivities } from '../services/auth.js';
 
 export default function ActivityTicker() {
-  const [items, setItems] = useState(activities);
+  const [items, setItems] = useState([]);
 
   useEffect(() => {
-    // Later, this can come from your backend activity API.
-    setItems(activities);
+    let cancelled = false;
+
+    const loadActivities = async () => {
+      try {
+        const response = await getUserActivities();
+
+        const activities = response?.data || [];
+
+        if (!cancelled) {
+          setItems(activities);
+        }
+      } catch (error) {
+        console.error(
+          'Failed to load user activities:',
+          error
+        );
+      }
+    };
+
+    loadActivities();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (!items.length) return null;
@@ -31,9 +44,9 @@ export default function ActivityTicker() {
           <div className="animate-activity-ticker flex w-max items-center gap-12 whitespace-nowrap px-6">
             {[...items, ...items].map((activity, index) => (
               <span
-                key={index}
+                key={`${activity.type}-${activity.createdAt}-${index}`}
                 className="text-sm font-medium text-ink">
-                • {activity}
+                • {activity.message}
               </span>
             ))}
           </div>
