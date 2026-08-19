@@ -934,9 +934,8 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         {/* MINI FARM BOT */}
         <MiniFarmBot />
       </div>
-
-      <ActivityTicker />
     </DashboardLayout>
+    <ActivityTicker />
   );
 }
  
