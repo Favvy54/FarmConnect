@@ -6,6 +6,7 @@ import {
   Check,
   CompassIcon,
   MapPin,
+
 } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import DashboardLayout from '../components/DashboardLayout.jsx';
@@ -816,7 +817,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         </div>
       </div>
 
-      <div className="mb-6 flex gap-3 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden pb-1">
+      <div className="flex gap-3 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden pb-1">
         {CATEGORY_PILLS.map((cat) => (
           <button
             key={cat}
@@ -831,93 +832,102 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         ))}
       </div>
 
-      {loading || searching ? (
-        <p className="text-body-text">Loading listings…</p>
-      ) : filteredListings.length === 0 ? (
-        <div className="flex flex-col items-center text-center py-6 w-[50%] mx-auto">
-          <div className="w-27 h-24  md:w-33.75 md:h-30 rounded-full bg-green-light flex items-center justify-center mb-4">
-            <img
-              src="/empty-nearby,png"
-              alt="No Listing"
-              className="object-cover w-full h-full"
+      <div className="flex flex-col gap-6">
+        {loading || searching ? (
+          <p className="text-body-text">Loading listings…</p>
+        ) : filteredListings.length === 0 ? (
+          <div className="rounded-2xl border border-border-muted bg-white p-5 mt-6">
+            <div className="flex flex-col items-center text-center py-6 w-[50%] mx-auto">
+              <div className="w-27 h-24  md:w-33.75 md:h-30 rounded-full bg-green-light flex items-center justify-center mb-4">
+                <img
+                  src="/empty-nearby.png"
+                  alt="No Listing"
+                  className="object-cover w-full h-full"
+                />
+              </div>
+              <p className="text-regular font-medium text-ink">
+                No meals nearby
+              </p>
+              <p className="text-normal text-ink mt-1 max-w-xs">
+                There is no available listing in your area at the moment
+              </p>
+              <PrimaryButton
+                onClick={() => window.location.reload()}
+                className="w-[40%] rounded-2xl text-center py-3 mt-2">
+                <span
+                  className="flex justify-center items-center
+              text-normal text-white gap-1">
+                  Refresh
+                </span>
+              </PrimaryButton>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-6">
+            <GridListingRow
+              icon={<CompassIcon className="h-6 w-6 text-green-normal" />}
+              title={viewMode === 'market' ? 'Marketplace' : 'Explore Meals'}
+              listings={exploreMeals}
+              accentClass="text-green-normal"
+              onViewMore={() => onNavigate?.('listings')}
+              onReserve={(listing) => setReserveListing(listing)}
+            />
+            <ReserveMealModal
+              listing={reserveListing}
+              isOpen={!!reserveListing}
+              onClose={() => setReserveListing(null)}
+              onNavigate={onNavigate}
             />
           </div>
-          <p className="text-regular font-medium text-ink">No meals nearby</p>
-          <p className="text-normal text-ink mt-1 max-w-xs">
-            There is no available listing in your area at the moment
-          </p>
-          <PrimaryButton
-            onClick={() => window.location.reload()}
-            className="w-fit rounded-2xl text-center py-4 mt-2">
-            <span
-              className="flex justify-center items-center
+        )}
+        {loading || searching ? (
+          <></>
+        ) : filteredListings.length === 0 ? (
+          <div className="rounded-2xl border border-border-muted bg-white p-5">
+            <div className="flex flex-col items-center text-center py-6 w-[50%] mx-auto">
+              <div className="w-27 h-24  md:w-33.75 md:h-30 rounded-full bg-green-light flex items-center justify-center mb-4">
+                <img
+                  src="/empty-last-chance-state.png"
+                  alt="No Listing"
+                  className="object-cover w-full h-full"
+                />
+              </div>
+              <p className="text-regular font-medium text-ink">
+                No meals nearby
+              </p>
+              <p className="text-normal text-ink mt-1 max-w-xs">
+                There is no available listing in your area at the moment
+              </p>
+              <PrimaryButton
+                onClick={() => window.location.reload()}
+                className="w-[40%] rounded-2xl text-center py-3 mt-2">
+                <span
+                  className="flex justify-center items-center
               text-normal text-white gap-1">
-              Refresh
-            </span>
-          </PrimaryButton>
-        </div>
-      ) : (
-        <div className="mt-6">
-          <GridListingRow
-            icon={<CompassIcon className="h-6 w-6 text-green-normal" />}
-            title={viewMode === 'market' ? 'Marketplace' : 'Explore Meals'}
-            listings={exploreMeals}
-            accentClass="text-green-normal"
-            onViewMore={() => onNavigate?.('listings')}
-            onReserve={(listing) => setReserveListing(listing)}
-          />
-          <ReserveMealModal
-            listing={reserveListing}
-            isOpen={!!reserveListing}
-            onClose={() => setReserveListing(null)}
-            onNavigate={onNavigate}
-          />
-        </div>
-      )} 
-
-      {loading || searching ? (
-        <p className="text-body-text">Loading listings…</p>
-      ) : filteredListings.length === 0 ? (
-        <div className="flex flex-col items-center text-center py-6 w-[50%] mx-auto">
-          <div className="w-27 h-24  md:w-33.75 md:h-30 rounded-full bg-green-light flex items-center justify-center mb-4">
-            <img
-              src="/empty-last-chance-state.png"
-              alt="No Listing"
-              className="object-cover w-full h-full"
-            />
+                  Refresh
+                </span>
+              </PrimaryButton>
+            </div>
           </div>
-          <p className="text-regular font-medium text-ink">No meals nearby</p>
-          <p className="text-normal text-ink mt-1 max-w-xs">
-            There is no available listing in your area at the moment
-          </p>
-          <PrimaryButton
-            onClick={() => window.location.reload()}
-            className="w-fit rounded-2xl text-center py-4 mt-2">
-            <span
-              className="flex justify-center items-center
-              text-normal text-white gap-1">
-              Refresh
-            </span>
-          </PrimaryButton>
-        </div>
-      ) : (
-        <div>
-          <ScrollListingRow
-            icon={<Clock className="h-6 w-6 text-orange-dark" />}
-            title="Last Chance"
-            listings={lastChance}
-            accentClass="text-orange-normal"
-            onViewMore={() => onNavigate?.('listings')}
-            onReserve={(listing) => setReserveListing(listing)}
-          />
-          <ReserveMealModal
-            listing={reserveListing}
-            isOpen={!!reserveListing}
-            onClose={() => setReserveListing(null)}
-            onNavigate={onNavigate}
-          />
-        </div>
-      )}
+        ) : (
+          <>
+            <ScrollListingRow
+              icon={<Clock className="h-6 w-6 text-orange-dark" />}
+              title="Last Chance"
+              listings={lastChance}
+              accentClass="text-orange-normal"
+              onViewMore={() => onNavigate?.('listings')}
+              onReserve={(listing) => setReserveListing(listing)}
+            />
+            <ReserveMealModal
+              listing={reserveListing}
+              isOpen={!!reserveListing}
+              onClose={() => setReserveListing(null)}
+              onNavigate={onNavigate}
+            />
+          </>
+        )}
+      </div>
 
       {/* FLOATING AI TOOLS */}
       <div className="fixed bottom-6 right-6 z-50 flex items-center gap-4">
@@ -926,7 +936,6 @@ export default function UserDashboard({ onNavigate, onLogout }) {
       </div>
 
       <ActivityTicker />
-    
     </DashboardLayout>
   );
 }
