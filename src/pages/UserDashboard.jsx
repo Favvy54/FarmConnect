@@ -875,7 +875,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
             onNavigate={onNavigate}
           />
         </div>
-      )}
+      )} 
 
       {loading || searching ? (
         <p className="text-body-text">Loading listings…</p>
