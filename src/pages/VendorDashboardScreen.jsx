@@ -11,6 +11,7 @@ import {
 
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import PrimaryButton from '../components/PrimaryButton.jsx';
+import VendorActivityTicker from '../components/VendorActivityTicker.jsx';
 
 import {
   getToken,
@@ -484,6 +485,7 @@ export default function VendorDashboardScreen({
         <div className="flex justify-end mt-6">
           <MiniFarmBot />
         </div>
+        <VendorActivityTicker />
       </div>
     </DashboardLayout>
   );
