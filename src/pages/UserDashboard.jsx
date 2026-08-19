@@ -6,10 +6,6 @@ import {
   Check,
   CompassIcon,
   MapPin,
-  MessageCircle,
-  X,
-  Send,
-  Sparkles,
 } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import DashboardLayout from '../components/DashboardLayout.jsx';
@@ -26,6 +22,7 @@ import {
 import LocationPicker from '../components/LocationPicker.jsx';
 import MiniFarmBot from "../components/MiniFarmBot.jsx";
 import ActivityTicker from '../components/ActivityTicker.jsx';
+import PrimaryButton from '../components/PrimaryButton.jsx';
 
 const CATEGORY_PILLS = [
  "Cooked Meals",
