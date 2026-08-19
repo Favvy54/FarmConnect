@@ -32,10 +32,10 @@ const CATEGORY_PILLS = [
 function MealCard({ listing, onReserve }) {
   const navigate = useNavigate();
   const image = listing.imageUrls?.[0] || '/img-placeholder.png';
-  const mealsLeft = Math.max(
-    0,
-    (listing.quantity || 0) - (listing.totalReservations || 0),
-  );
+   const mealsLeft = Math.max(
+     0,
+     (listing.quantity || 0) - (listing.totalReservations || 0),
+   );
 
   const location =
     listing.vendorId?.currentLocation ||

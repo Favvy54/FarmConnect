@@ -62,10 +62,10 @@ const CATEGORY_PILLS = [
 function MealCard({ listing, variant = 'grid', onReserve }) {
   const navigate = useNavigate();
   const image = listing.imageUrls?.[0] || '/img-placeholder.png';
-  const mealsLeft = Math.max(
-    0,
-    (listing.quantity || 0) - (listing.totalReservations || 0),
-  );
+    const mealsLeft = Math.max(
+      0,
+      (listing.quantity || 0) - (listing.totalReservations || 0),
+    );
   const minutesLeft = listing.minutesLeft || 0;
 
   const location =
@@ -259,7 +259,22 @@ export default function UserDashboard({ onNavigate, onLogout }) {
   const [manualCity, setManualCity] = useState('');
   const [manualState, setManualState] = useState('');
   const [findingLocation, setFindingLocation] =
-  useState(false);
+    useState(false);
+  
+  const handleReservationUpdate = (listingId, qty) => {
+    const updateListings = (listings) =>
+      listings.map((l) =>
+        l._id === listingId
+          ? {
+              ...l,
+              totalReservations: (l.totalReservations || 0) + qty,
+            }
+          : l,
+      );
+
+    setNearbyListings(updateListings);
+    setMarketListings(updateListings);
+  };
 
   const handleAISubmit = async (e) => {
   e.preventDefault();
@@ -862,7 +877,8 @@ export default function UserDashboard({ onNavigate, onLogout }) {
               </PrimaryButton>
             </div>
           </div>
-        ) : (
+          ) : (
+              
           <div className="mt-6">
             <GridListingRow
               icon={<CompassIcon className="h-6 w-6 text-green-normal" />}
@@ -877,6 +893,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
               isOpen={!!reserveListing}
               onClose={() => setReserveListing(null)}
               onNavigate={onNavigate}
+              onReserved={handleReservationUpdate}
             />
           </div>
         )}
@@ -924,6 +941,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
               isOpen={!!reserveListing}
               onClose={() => setReserveListing(null)}
               onNavigate={onNavigate}
+              onReserved={handleReservationUpdate}
             />
           </>
         )}
