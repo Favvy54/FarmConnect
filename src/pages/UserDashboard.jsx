@@ -25,6 +25,7 @@ import {
 
 import LocationPicker from '../components/LocationPicker.jsx';
 import MiniFarmBot from "../components/MiniFarmBot.jsx";
+import ActivityTicker from '../components/ActivityTicker.jsx';
 
 const CATEGORY_PILLS = [
  "Cooked Meals",
@@ -926,6 +927,9 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         {/* MINI FARM BOT */}
         <MiniFarmBot />
       </div>
+
+      <ActivityTicker />
+    
     </DashboardLayout>
   );
 }

@@ -11,6 +11,7 @@ import {
 
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import PrimaryButton from '../components/PrimaryButton.jsx';
+import VendorActivityTicker from '../components/VendorActivityTicker.jsx';
 
 import {
   getToken,
@@ -18,6 +19,7 @@ import {
   getDashboardAnalytics,
   getVendorReservations,
   getMyListings,
+  getVendorReservationAnalytics,
 } from '../services/auth.js';
 import MiniFarmBot from "../components/MiniFarmBot";
 
@@ -89,9 +91,17 @@ export default function VendorDashboardScreen({
 
         // ==================== DASHBOARD ANALYTICS ====================
 
-        const analyticsResponse = await getDashboardAnalytics();
-        const listingsResponse = await getMyListings();
-        const reservationsResponse = await getVendorReservations();
+        const [
+            analyticsResponse,
+            listingsResponse,
+            reservationsResponse,
+            reservationAnalyticsResponse,
+          ] = await Promise.all([
+            getDashboardAnalytics(),
+            getMyListings(),
+            getVendorReservations(),
+            getVendorReservationAnalytics(),
+          ]);
 
         if (!cancelled) {
           const analytics = analyticsResponse.analytics;
@@ -136,48 +146,62 @@ export default function VendorDashboardScreen({
             });
 
           setReservations(
-            todaysReservations.map((reservation) => ({
-              id: reservation._id,
-
-              name:
-                reservation.user?.fullName ||
-                'Customer',
-
-              meal:
-                reservation.listing?.foodName ||
-                'Meal',
-
-              reservedAt:
-                new Date(
-                  reservation.createdAt,
-                ).toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                }),
-
-              pickupBefore:
-                reservation.listing?.expiresAt
-                  ? new Date(
-                    reservation.listing.expiresAt,
+            reservationsResponse.data
+              .filter((reservation) => {
+                const reservationDate = new Date(reservation.reservedAt);
+                const today = new Date();
+          
+                return (
+                  reservationDate.getDate() === today.getDate() &&
+                  reservationDate.getMonth() === today.getMonth() &&
+                  reservationDate.getFullYear() === today.getFullYear()
+                );
+              })
+              .map((reservation) => ({
+                id: reservation._id,
+          
+                name:
+                  reservation.user?.fullName ||
+                  'Customer',
+          
+                meal:
+                  reservation.foodName ||
+                  reservation.listing?.foodName ||
+                  'Meal',
+          
+                reservedAt:
+                  new Date(
+                    reservation.reservedAt || reservation.createdAt,
                   ).toLocaleTimeString([], {
                     hour: '2-digit',
                     minute: '2-digit',
-                  })
-                  : '—',
-
-              timeRemaining:
-                reservation.timeRemaining ||
-                '—',
-
-              status: 'Reserved',
-            })),
+                  }),
+          
+                pickupBefore:
+                  reservation.listing?.expiresAt
+                    ? new Date(
+                        reservation.listing.expiresAt,
+                      ).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })
+                    : '—',
+          
+                timeRemaining:
+                  reservation.timeRemaining || '—',
+          
+                status:
+                  reservation.status === 'reserved'
+                    ? 'Reserved'
+                    : reservation.status,
+              })),
           );
 
           setStats({
             listings: analytics.activeListings,
 
             reservations:
-              todaysReservations.length,
+              reservationAnalyticsResponse?.data?.totalToday || 0,
 
             saved: analytics.mealsShared,
 
@@ -461,6 +485,7 @@ export default function VendorDashboardScreen({
         <div className="flex justify-end mt-6">
           <MiniFarmBot />
         </div>
+        <VendorActivityTicker />
       </div>
     </DashboardLayout>
   );

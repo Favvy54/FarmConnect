@@ -194,10 +194,50 @@ body {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }
+}
+
+/* Vendor Activity Ticker */
+@keyframes vendorActivityTicker {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-vendor-activity-ticker {
+  animation: vendorActivityTicker 12s linear infinite;
+}
+
+.animate-vendor-activity-ticker:hover {
+  animation-play-state: paused;
+}
+
+/* User Activity Ticker */
+@keyframes activityTicker {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-activity-ticker {
+  animation: activityTicker 12s linear infinite;
+}
+
+.animate-activity-ticker:hover {
+  animation-play-state: paused;
 }

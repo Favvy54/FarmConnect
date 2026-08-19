@@ -121,7 +121,7 @@ function ReservationDetailModal({
           <div className="flex items-center justify-between py-2.5">
             <span className="text-body2 text-body-text">Listing</span>
             <span className="text-body2 font-medium text-ink">
-              {reservation.foodName}
+              {reservation.foodName || reservation.listing?.foodName || 'Meal'}
             </span>
           </div>
           <div className="flex items-center justify-between py-2.5">
@@ -165,6 +165,36 @@ function ReservationDetailModal({
               {reservation.reservationId}
             </span>
           </div>
+        </div>
+        <div className="flex items-center justify-between py-2.5">
+          <span className="text-body2 text-body-text">
+            Pickup Code
+          </span>
+        
+          <span className="text-body2 font-medium text-ink">
+            {reservation.pickupCode || '—'}
+          </span>
+        </div>
+        <div className="flex items-center justify-between py-2.5">
+          <span className="text-body2 text-body-text">
+            Category
+          </span>
+        
+          <span className="text-body2 font-medium text-ink">
+            {reservation.category || reservation.listing?.category || '—'}
+          </span>
+        </div>
+        
+        <div className="flex items-center justify-between py-2.5">
+          <span className="text-body2 text-body-text">
+            Pickup Location
+          </span>
+        
+          <span className="text-body2 font-medium text-ink">
+            {reservation.pickupLocation ||
+              reservation.listing?.pickupLocation ||
+              '—'}
+          </span>
         </div>
 
         {reservation.status === 'reserved' && (
@@ -251,28 +281,26 @@ const loadAll = async () => {
   setError(null);
 
   try {
-    const [vendorResponse, currentRes, historyRes] = await Promise.all([
-      getVendorProfile(),
-      getVendorReservations(),
-      getVendorReservationHistory(),
-    ]);
-    
+    const [vendorResponse, reservationsResponse] =
+      await Promise.all([
+        getVendorProfile(),
+        getVendorReservations(),
+      ]);
 
-    console.log('currentRes raw:', currentRes);
-    console.log('historyRes raw:', historyRes);
-
-    // Vendor profile
     setVendor(vendorResponse?.data);
 
-    // Reservations
-    const current =
-      currentRes?.data?.reservations || currentRes?.data || currentRes || [];
+    const data =
+      reservationsResponse?.data?.reservations ||
+      reservationsResponse?.data ||
+      reservationsResponse ||
+      [];
 
-    const history = Array.isArray(historyRes) ? historyRes : [];
-
-    setReservations([...current, ...history]);
+    setReservations(Array.isArray(data) ? data : []);
   } catch (err) {
-    setError(err.message || 'Could not load reservations.');
+    setError(
+      err.message ||
+      'Could not load reservations.',
+    );
   } finally {
     setLoading(false);
   }
@@ -441,7 +469,7 @@ const loadAll = async () => {
                           {customerName}
                         </p>
                         <p className="truncate text-body2 text-charcoal">
-                          {r.foodName}
+                          {r.foodName || r.listing?.foodName || 'Meal'}
                         </p>
                       </div>
                     </div>

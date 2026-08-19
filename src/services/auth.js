@@ -591,3 +591,27 @@ export const getListingDetails = async (listingId) => {
     auth: true,
   });
 };
+
+export const getVendorReservationAnalytics = async () => {
+  return profileRequest(
+    "/vendors/vendor/analytics",
+    {
+      method: "GET",
+      auth: true,
+    }
+  );
+};
+
+export async function getVendorActivities() {
+  return profileRequest("/activities/vendor", {
+    method: "GET",
+    auth: true,
+  });
+}
+
+export async function getUserActivities() {
+  return profileRequest("/activities/user", {
+    method: "GET",
+    auth: true,
+  });
+}
