@@ -216,7 +216,7 @@ body {
 }
 
 .animate-vendor-activity-ticker {
-  animation: vendorActivityTicker 16s linear infinite;
+  animation: vendorActivityTicker 10s linear infinite;
 }
 
 .animate-vendor-activity-ticker:hover {
@@ -235,7 +235,7 @@ body {
 }
 
 .animate-activity-ticker {
-  animation: activityTicker 9s linear infinite;
+  animation: activityTicker 10s linear infinite;
 }
 
 .animate-activity-ticker:hover {
