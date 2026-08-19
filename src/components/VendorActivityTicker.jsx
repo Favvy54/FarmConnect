@@ -1,25 +1,44 @@
 import { useEffect, useState } from 'react';
-
-const activities = [
-  'A customer just reserved a meal from your listing',
-  'Your food listing is now available to nearby users',
-  'A customer just reserved 2 meals from your listing',
-  'Your listing is getting attention from nearby customers',
-  'A customer just picked up their reserved meal',
-  'Your food listing was successfully published',
-  'A customer just reserved a meal for pickup',
-  'Your listing has been viewed by a nearby customer',
-];
+import { getVendorActivities } from '../services/auth.js';
 
 export default function VendorActivityTicker() {
-  const [items, setItems] = useState(activities);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Later, this can come from your backend activity API.
-    setItems(activities);
+    let cancelled = false;
+
+    const loadActivities = async () => {
+      try {
+        const response = await getVendorActivities();
+
+        const activities = response?.data || [];
+
+        if (!cancelled) {
+          setItems(activities);
+        }
+      } catch (error) {
+        console.error(
+          'Failed to load vendor activities:',
+          error
+        );
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadActivities();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  if (!items.length) return null;
+  if (loading || !items.length) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 overflow-hidden border-t border-border-muted bg-white">
@@ -32,9 +51,9 @@ export default function VendorActivityTicker() {
           <div className="animate-activity-ticker flex w-max items-center gap-12 whitespace-nowrap px-6">
             {[...items, ...items].map((activity, index) => (
               <span
-                key={index}
+                key={`${activity.type}-${activity.createdAt}-${index}`}
                 className="text-sm font-medium text-ink">
-                • {activity}
+                • {activity.message}
               </span>
             ))}
           </div>
