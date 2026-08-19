@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getUserActivities } from '../services/auth.js';
 
-export default function ActivityTicker() {
+export default function UserActivityTicker() {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
@@ -11,23 +11,36 @@ export default function ActivityTicker() {
       try {
         const response = await getUserActivities();
 
-        const activities = response?.data || [];
+        if (cancelled) return;
 
-        if (!cancelled) {
-          setItems(activities);
-        }
+        const activities =
+          response?.data || [];
+
+        setItems(
+          Array.isArray(activities)
+            ? activities
+            : [],
+        );
       } catch (error) {
         console.error(
           'Failed to load user activities:',
-          error
+          error,
         );
       }
     };
 
+    // Load immediately
     loadActivities();
+
+    // Check for new activities every 5 seconds
+    const interval = setInterval(
+      loadActivities,
+      5000,
+    );
 
     return () => {
       cancelled = true;
+      clearInterval(interval);
     };
   }, []);
 
@@ -42,13 +55,15 @@ export default function ActivityTicker() {
 
         <div className="relative flex-1 overflow-hidden">
           <div className="animate-activity-ticker flex w-max items-center gap-12 whitespace-nowrap px-6">
-            {[...items, ...items].map((activity, index) => (
-              <span
-                key={`${activity.type}-${activity.createdAt}-${index}`}
-                className="text-sm font-medium text-ink">
-                • {activity.message}
-              </span>
-            ))}
+            {[...items, ...items].map(
+              (activity, index) => (
+                <span
+                  key={`${activity._id}-${index}`}
+                  className="text-sm font-medium text-ink">
+                  • {activity.message}
+                </span>
+              ),
+            )}
           </div>
         </div>
       </div>
