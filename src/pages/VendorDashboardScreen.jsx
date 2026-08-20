@@ -549,6 +549,7 @@ export default function VendorDashboardScreen({
   const displayName = vendor?.businessName || 'there';
 
   return (
+   <> 
     <DashboardLayout
       active="home"
       onNavigate={onNavigate}
@@ -836,7 +837,6 @@ export default function VendorDashboardScreen({
         <div className="flex justify-end mt-6">
           <MiniFarmBot />
         </div>
-        <VendorActivityTicker />
       </div>
 
       {selected && !showCancelReason && (
@@ -857,5 +857,7 @@ export default function VendorDashboardScreen({
         />
       )}
     </DashboardLayout>
+    <VendorActivityTicker />
+   </>  
   );
 }
