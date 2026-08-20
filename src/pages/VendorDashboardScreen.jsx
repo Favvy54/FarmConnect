@@ -450,7 +450,7 @@ export default function VendorDashboardScreen({
             listings: analytics.activeListings,
 
             reservations:
-              reservationAnalyticsResponse?.data?.totalToday || 0,
+              todaysFiltered.length,
 
             saved: analytics.mealsShared,
 
@@ -549,6 +549,7 @@ export default function VendorDashboardScreen({
   const displayName = vendor?.businessName || 'there';
 
   return (
+   <> 
     <DashboardLayout
       active="home"
       onNavigate={onNavigate}
@@ -832,11 +833,6 @@ export default function VendorDashboardScreen({
             </div>
           </div>
         </div>
-        {/* MINI FARM BOT */}
-        <div className="flex justify-end mt-6">
-          <MiniFarmBot />
-        </div>
-        <VendorActivityTicker />
       </div>
 
       {selected && !showCancelReason && (
@@ -857,5 +853,11 @@ export default function VendorDashboardScreen({
         />
       )}
     </DashboardLayout>
+     {/* MINI FARM BOT */}
+     <div className="fixed bottom-6 right-6 z-50">
+      <MiniFarmBot />
+    </div>
+    <VendorActivityTicker />
+   </>  
   );
 }
