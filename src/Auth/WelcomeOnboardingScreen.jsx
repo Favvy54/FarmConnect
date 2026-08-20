@@ -18,7 +18,7 @@ export default function WelcomeOnboardingScreen({ onContinue }) {
             Let's personalize your experience. It'll only take a few minutes
           </p>
         </div>
-        <PrimaryButton onClick={onContinue}>Continue</PrimaryButton>
+        <PrimaryButton onClick={onContinue} className="w-[35%] mx-auto rounded-2xl text-center py-4 mt-2">Continue</PrimaryButton>
       </div>
     </AuthLayout>
   );

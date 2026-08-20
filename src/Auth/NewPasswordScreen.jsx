@@ -81,7 +81,7 @@ export default function NewPasswordScreen({onUpdate, onBack }) {
               <p className="text-caption text-error mt-1">{passwordError}</p>
             )}
           </div>
-          <PrimaryButton type="submit" disabled={loading}>
+          <PrimaryButton type="submit" disabled={loading} className="w-[35%] mx-auto rounded-2xl text-center py-4 mt-2">
             {loading ? "Updating..." : "Update Password"}
           </PrimaryButton>
         </form>

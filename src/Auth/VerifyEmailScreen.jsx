@@ -88,7 +88,8 @@ export default function VerifyEmailScreen({
               setLoading(false);
             }
           }}
-          disabled={loading}>
+          disabled={loading}
+          className="w-[35%] mx-auto rounded-2xl text-center py-4 mt-2">
           {loading ? 'Verifying...' : 'Confirm code'}
         </PrimaryButton>
 

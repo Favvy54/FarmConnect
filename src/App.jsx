@@ -131,7 +131,7 @@ export default function App() {
         />
         <Route
           path="/password-updated"
-          element={<PasswordUpdatedScreen onBack={() => navigate('/login')} />}
+          element={<PasswordUpdatedScreen onBackToLogin={() => navigate('/login')} />}
         />
         <Route
           path="/welcome-onboarding"

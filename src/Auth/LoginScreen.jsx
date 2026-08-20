@@ -102,7 +102,7 @@ export default function LoginScreen({ onLogin, onGoSignup, onForgotPassword }) {
             </button>
           </div>
 
-          <PrimaryButton type="submit" disabled={loading}>
+          <PrimaryButton type="submit" disabled={loading} className="w-[35%] mx-auto rounded-2xl text-center py-4 mt-2">
             {loading ? 'Logging in...' : 'Log in'}
           </PrimaryButton>
 

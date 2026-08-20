@@ -433,30 +433,32 @@ const loadAll = async () => {
 
       {error && <p className="mb-4 text-body2 text-error">{error}</p>}
 
+      <div className="md:pl-2 w-full mt-10 flex flex-col" style={{ height: 'calc(100vh - 200px)' }}>
       <TextField
         icon={Search}
         placeholder="Search Reservation"
         variant="search"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full mt-4"
+        className="w-full shrink-0"
       />
 
-      <div className="mt-6 flex gap-6 border-b border-border-muted">
+      <div className="mt-6 flex gap-2 md:gap-6 border-b border-border-muted pb-px shrink-0">
         {TABS.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`pb-3 text-body1 font-medium transition-colors ${
+            className={`pb-3 px-1 md:px-0 text-caption md:text-body1 font-medium transition-colors whitespace-nowrap ${
               activeTab === tab
                 ? 'border-b-2 border-green-normal text-green-normal'
                 : 'text-body-text'
             }`}>
-            {tab}({counts[tab]})
+            {tab}<span className="ml-0.5">({counts[tab]})</span>
           </button>
         ))}
       </div>
 
+      <div className="flex-1 overflow-auto mt-4 scrollbar-hide">
       {loading ? (
         <p className="mt-6 text-body-text">Loading reservations…</p>
       ) : filtered.length === 0 ? (
@@ -476,71 +478,74 @@ const loadAll = async () => {
           </p>
         </div>
       ) : (
-        <div className="mt-4 overflow-hidden rounded-2xl border border-border-muted">
-          <div className="min-w-22">
-            <div className="grid grid-cols-[minmax(240px,1fr)_180px_150px_150px_140px_90px] items-center bg-[#f3f3f3] px-6 py-3 text-charcoal text-normal font-bold">
-              <span>Customer</span>
-              <span>Reserved At</span>
-              <span>Pickup Before</span>
-              <span>Time remaining</span>
-              <span>Status</span>
-              <span>Action</span>
-            </div>
+        <div className="overflow-x-auto rounded-2xl border border-border-muted scrollbar-hide">
+            <div className="min-w-[1000px]">
+              <div className="grid grid-cols-[minmax(240px,1fr)_180px_150px_150px_140px_90px] items-center bg-[#f3f3f3] px-6 py-3 text-charcoal text-normal font-bold">
+                <span>Customer</span>
+                <span>Reserved At</span>
+                <span>Pickup Before</span>
+                <span>Time remaining</span>
+                <span>Status</span>
+                <span>Action</span>
+              </div>
 
-            <div className="divide-y divide-border-muted">
-              {filtered.map((r) => {
-                const deadline = getDeadline(r);
-                const customerName = r.user?.fullName || 'Customer';
-                return (
-                  <div
-                    key={r._id || r.reservationId}
-                    className="grid grid-cols-[minmax(240px,1fr)_180px_150px_150px_140px_90px] items-center px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      {r.user?.profileImage ? (
-                        <img
-                          src={r.user.profileImage}
-                          alt={customerName}
-                          className="h-10 w-10 shrink-0 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-light text-body1 font-semibold text-green-normal">
-                          {customerName[0]}
+              <div className="divide-y divide-border-muted">
+                {filtered.map((r) => {
+                  const deadline = getDeadline(r);
+                  const customerName = r.user?.fullName || 'Customer';
+                  return (
+                    <div
+                      key={r._id || r.reservationId}
+                      className="grid grid-cols-[minmax(240px,1fr)_180px_150px_150px_140px_90px] items-center px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        {r.user?.profileImage ? (
+                          <img
+                            src={r.user.profileImage}
+                            alt={customerName}
+                            className="h-10 w-10 shrink-0 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-light text-body1 font-semibold text-green-normal">
+                            {customerName[0]}
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-body1 font-bold text-ink">
+                            {customerName}
+                          </p>
+                          <p className="truncate text-body2 text-charcoal">
+                            {r.foodName || r.listing?.foodName || 'Meal'}
+                          </p>
                         </div>
-                      )}
-                      <div>
-                        <p className="text-body1 font-bold text-ink">
-                          {customerName}
-                        </p>
-                        <p className="truncate text-body2 text-charcoal">
-                          {r.foodName || r.listing?.foodName || 'Meal'}
-                        </p>
                       </div>
+                      <span className="text-body2 text-ink">
+                        {formatTime(r.reservedAt)}
+                      </span>
+                      <span className="text-body2 text-ink">
+                        {formatTime(deadline)}
+                      </span>
+                      <TimeRemaining reservation={r} />
+                      <span
+                        className={`w-fit rounded-full px-3 py-1 text-body2 font-medium ${
+                          statusStyles[r.status] || ''
+                        }`}>
+                        {statusLabels[r.status] || r.status}
+                      </span>
+                      <button
+                        onClick={() => setSelected(r)}
+                        className="rounded-lg border border-border-muted px-4 py-1.5 text-body2 text-ink w-fit">
+                        View
+                      </button>
                     </div>
-                    <span className="text-body2 text-ink">
-                      {formatTime(r.reservedAt)}
-                    </span>
-                    <span className="text-body2 text-ink">
-                      {formatTime(deadline)}
-                    </span>
-                    <TimeRemaining reservation={r} />
-                    <span
-                      className={`w-fit rounded-full px-3 py-1 text-body2 font-medium ${
-                        statusStyles[r.status] || ''
-                      }`}>
-                      {statusLabels[r.status] || r.status}
-                    </span>
-                    <button
-                      onClick={() => setSelected(r)}
-                      className="rounded-lg border border-border-muted px-4 py-1.5 text-body2 text-ink w-fit">
-                      View
-                    </button>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
         </div>
       )}
+      </div>
+
+      </div>
 
       {selected && !showCancelReason && (
         <ReservationDetailModal

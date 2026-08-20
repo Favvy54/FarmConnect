@@ -19,7 +19,7 @@ export default function PasswordUpdatedScreen({ onBackToLogin }) {
           </p>
         </div>
 
-        <PrimaryButton onClick={onBackToLogin}>Back to Login</PrimaryButton>
+        <PrimaryButton onClick={onBackToLogin} className="w-[35%] mx-auto rounded-2xl text-center py-4 mt-2">Back to Login</PrimaryButton>
       </div>
     </AuthLayout>
   );

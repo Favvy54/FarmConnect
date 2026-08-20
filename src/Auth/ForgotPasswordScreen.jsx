@@ -52,7 +52,7 @@ export default function ForgotPasswordScreen({ onSendReset, onBack }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <PrimaryButton type="submit" disabled={loading}>
+          <PrimaryButton type="submit" disabled={loading} className="w-[35%] mx-auto rounded-2xl text-center py-4 mt-2">
             {loading ? "Sending..." : "Send Reset Link"}
           </PrimaryButton>
         </form>

@@ -205,7 +205,7 @@ export default function SignupScreen({ onSignup, onGoLogin }) {
             </span>
           </label>
 
-          <PrimaryButton type="submit" disabled={loading}>
+          <PrimaryButton type="submit" disabled={loading} className="w-[35%] mx-auto rounded-2xl text-center py-4 mt-2">
             {loading ? 'Creating account...' : 'Sign up'}
           </PrimaryButton>
 

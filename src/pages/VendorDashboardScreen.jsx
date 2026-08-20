@@ -596,12 +596,12 @@ export default function VendorDashboardScreen({
         </div>
 
         <div
-          className="grid gap-6 [grid-template-areas:'quick''reservation''active']
+          className="grid gap-6 overflow-hidden [grid-template-areas:'quick''reservation''active']
         md:[grid-template-areas:'quick''reservation''active']
         lg:grid-cols-[1fr_1fr]
         lg:[grid-template-areas:'reservation_reservation''active_quick']">
           {/* Today's Reservation */}
-          <div className="[grid-area:reservation] border-2 border-border-fade mb-6 px-5 py-4.25 rounded-xl">
+          <div className="[grid-area:reservation] border-2 border-border-fade mb-6 px-5 py-4.25 rounded-xl overflow-hidden">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-ink text-regular">
                 Today's Reservation
@@ -631,8 +631,8 @@ export default function VendorDashboardScreen({
               </div>
             ) : (
               <>
-                <div className="mt-4 rounded-2xl border border-border-muted overflow-auto">
-                  <div className="min-w-226">
+                <div className="mt-4 rounded-2xl border border-border-muted overflow-x-auto scrollbar-hide">
+                  <div className="min-w-[900px]">
                     {/* Header */}
                     <div className="grid grid-cols-[minmax(240px,1fr)_180px_150px_150px_140px_90px] items-center bg-[#f3f3f3] px-6 py-3 text-charcoal text-normal font-bold">
                       <span>Customer</span>
@@ -792,7 +792,7 @@ export default function VendorDashboardScreen({
           </div>
 
           {/* Quick Actions */}
-          <div className="[grid-area:quick] bg-green-light h-fit px-5.75 py-4.25 rounded-2xl">
+          <div className="[grid-area:quick] w-100vw bg-green-light h-fit px-5.75 py-4.25 rounded-2xl">
             <h2 className="font-semibold mb-4.75 text-ink text-regular">
               Quick Action
             </h2>
