@@ -54,34 +54,56 @@ function formatDateTime(date) {
 }
 
 function TimeRemaining({ reservation }) {
-  const deadline = getDeadline(reservation);
-  const [msLeft, setMsLeft] = useState(() =>
-    deadline ? deadline - new Date() : 0,
-  );
+  const getRemaining = () => {
+    const deadline = getDeadline(reservation);
+    if (!deadline) return 0;
+
+    return Math.max(0, deadline.getTime() - Date.now());
+  };
+
+  const [msLeft, setMsLeft] = useState(getRemaining);
 
   useEffect(() => {
-    if (reservation.status !== 'reserved' || !deadline) return;
-    const interval = setInterval(() => {
-      setMsLeft(deadline - new Date());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [reservation.status, deadline]);
+    if (reservation.status !== 'reserved') return;
 
-  if (reservation.status !== 'reserved' || !deadline || msLeft <= 0) {
+    const interval = setInterval(() => {
+      setMsLeft(getRemaining());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [reservation]);
+
+  if (reservation.status !== 'reserved') {
     return <span className="text-body-text">—</span>;
   }
 
-  const minutes = Math.ceil(msLeft / 60000);
-  const urgent = minutes <= 15;
+  if (msLeft <= 0) {
+    return <span className="font-medium text-error">Expired</span>;
+  }
+
+  const totalSeconds = Math.floor(msLeft / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const urgent = msLeft <= 15 * 60 * 1000;
+
+  let displayTime;
+
+  if (hours > 0) {
+    displayTime = `${hours}h ${minutes}m`;
+  } else {
+    displayTime = `${minutes}m ${seconds}s`;
+  }
 
   return (
     <span
       className={
         urgent
-          ? 'font-medium text-orange-normal'
+          ? 'font-medium text-orange-dark'
           : 'font-medium text-green-normal'
       }>
-      {minutes} min
+      {displayTime}
     </span>
   );
 }
@@ -93,19 +115,38 @@ function ReservationDetailModal({
   onCancelClick,
   actionLoading,
 }) {
-  const deadline = getDeadline(reservation);
-  const msLeft = deadline ? deadline - new Date() : 0;
-  const minutesLeft = msLeft > 0 ? Math.ceil(msLeft / 60000) : 0;
-  const customerName = reservation.user?.fullName || 'Customer';
+const [now, setNow] = useState(Date.now());
+
+useEffect(() => {
+  if (reservation.status !== 'reserved') return;
+
+  const interval = setInterval(() => {
+    setNow(Date.now());
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, [reservation.status]);
+
+const deadline = getDeadline(reservation);
+const msLeft = deadline ? deadline.getTime() - now : 0;
+const customerName = reservation.user?.fullName || 'Customer';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+    <div className="fixed top-3 bottom-3 overflow-y-auto inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-light text-body1 font-semibold text-green-normal">
-              {customerName[0]}
-            </div>
+            {reservation.user?.profileImage ? (
+              <img
+                src={reservation.user.profileImage}
+                alt={customerName}
+                className="h-12 w-12 shrink-0 rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-light text-body1 font-semibold text-green-normal">
+                {customerName[0]}
+              </div>
+            )}
             <h3 className="text-lg font-bold text-ink">{customerName}</h3>
           </div>
           <button onClick={onClose} className="text-body-text hover:text-ink">
@@ -145,9 +186,9 @@ function ReservationDetailModal({
           <div className="flex items-center justify-between py-2.5">
             <span className="text-body2 text-body-text">Time Remaining</span>
             <span className="text-body2 font-medium text-orange-normal">
-              {reservation.status === 'reserved' && minutesLeft > 0
-                ? `${minutesLeft} minutes`
-                : '—'}
+              {reservation.status === 'reserved' && msLeft > 0
+                ? `${Math.floor(msLeft / 60000)}m ${Math.floor((msLeft % 60000) / 1000)}s`
+                : 'Expired'}
             </span>
           </div>
           <div className="flex items-center justify-between py-2.5">
@@ -167,29 +208,23 @@ function ReservationDetailModal({
           </div>
         </div>
         <div className="flex items-center justify-between py-2.5">
-          <span className="text-body2 text-body-text">
-            Pickup Code
-          </span>
-        
+          <span className="text-body2 text-body-text">Pickup Code</span>
+
           <span className="text-body2 font-medium text-ink">
             {reservation.pickupCode || '—'}
           </span>
         </div>
         <div className="flex items-center justify-between py-2.5">
-          <span className="text-body2 text-body-text">
-            Category
-          </span>
-        
+          <span className="text-body2 text-body-text">Category</span>
+
           <span className="text-body2 font-medium text-ink">
             {reservation.category || reservation.listing?.category || '—'}
           </span>
         </div>
-        
+
         <div className="flex items-center justify-between py-2.5">
-          <span className="text-body2 text-body-text">
-            Pickup Location
-          </span>
-        
+          <span className="text-body2 text-body-text">Pickup Location</span>
+
           <span className="text-body2 font-medium text-ink">
             {reservation.pickupLocation ||
               reservation.listing?.pickupLocation ||
@@ -441,9 +476,9 @@ const loadAll = async () => {
           </p>
         </div>
       ) : (
-        <div className="mt-4 rounded-2xl border border-border-muted overflow-auto">
-          <div className="min-w-225">
-            <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_auto] bg-[#f3f3f3] px-6 py-3 text-charcoal text-normal font-bold">
+        <div className="mt-4 overflow-hidden rounded-2xl border border-border-muted">
+          <div className="min-w-22">
+            <div className="grid grid-cols-[minmax(240px,1fr)_180px_150px_150px_140px_90px] items-center bg-[#f3f3f3] px-6 py-3 text-charcoal text-normal font-bold">
               <span>Customer</span>
               <span>Reserved At</span>
               <span>Pickup Before</span>
@@ -459,11 +494,19 @@ const loadAll = async () => {
                 return (
                   <div
                     key={r._id || r.reservationId}
-                    className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_auto] items-center px-6 py-4">
+                    className="grid grid-cols-[minmax(240px,1fr)_180px_150px_150px_140px_90px] items-center px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-light text-body1 font-semibold text-green-normal">
-                        {customerName[0]}
-                      </div>
+                      {r.user?.profileImage ? (
+                        <img
+                          src={r.user.profileImage}
+                          alt={customerName}
+                          className="h-10 w-10 shrink-0 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-light text-body1 font-semibold text-green-normal">
+                          {customerName[0]}
+                        </div>
+                      )}
                       <div>
                         <p className="text-body1 font-bold text-ink">
                           {customerName}

@@ -267,7 +267,7 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
               </p>
             ) : (
               <div className="overflow-x-auto">
-                <div className="min-w-[720px]">
+                <div className="min-w-180">
                   <div className="grid grid-cols-[2fr_2fr_1.2fr_1fr_auto] px-2 py-2 text-caption font-semibold text-body-text">
                     <span>Food</span>
                     <span>Vendor</span>

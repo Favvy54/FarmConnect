@@ -91,9 +91,16 @@ export default function UserProfileScreen({ onComplete }) {
     );
   };
 
+  const maxDob = (() => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 16);
+    return d.toISOString().split('T')[0];
+  })();
+
   const validateForm = () => {
     if (!gender) return 'Please select a gender.';
     if (!dateOfBirth) return 'Date of birth is required.';
+    if (dateOfBirth > maxDob) return 'You must be at least 16 years old.';
     if (!state) return 'Please select a state.';
     if (!city) return 'Please select a city.';
     if (!streetAddress.trim()) return 'Street address is required.';
@@ -177,6 +184,7 @@ export default function UserProfileScreen({ onComplete }) {
             required
             value={dateOfBirth}
             onChange={(e) => setDateOfBirth(e.target.value)}
+            max={maxDob}
             className="w-full rounded-xl border border-border-muted px-4 py-3 text-body1 text-ink focus:outline-none focus:ring-2 focus:ring-green-normal"
           />
         </div>

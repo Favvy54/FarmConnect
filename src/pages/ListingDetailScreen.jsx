@@ -387,7 +387,7 @@ export default function ListingDetailScreen({
               </div>
               <div className="flex items-center justify-between py-3">
                 <span className="flex gap-2 items-center text-body-text text-body2">
-                  <Clock className="h-4 text-orange-normal w-4" /> Pending
+                  <Clock className="h-4 text-orange-dark w-4" /> Pending
                   Pickups
                 </span>
                 <span className="font-medium text-body2 text-ink">
@@ -429,9 +429,17 @@ export default function ListingDetailScreen({
                 <div
                   key={r._id || r.reservationId}
                   className="flex gap-3 items-center">
-                  <div className="bg-green-light flex font-semibold h-10 items-center justify-center rounded-full shrink-0 text-body1 text-green-normal w-10">
-                    {(r.user?.fullName || 'U')[0]}
-                  </div>
+                    {r.user?.profileImage ? (
+                      <img
+                        src={r.user.profileImage}
+                        alt={r.user?.fullName || 'User'}
+                        className="h-10 w-10 shrink-0 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="bg-green-light flex font-semibold h-10 items-center justify-center rounded-full shrink-0 text-body1 text-green-normal w-10">
+                        {(r.user?.fullName || 'U')[0]}
+                      </div>
+                    )}
                   <div className="flex-1">
                     <p className="font-bold text-body1 text-ink">
                       {r.user?.fullName || 'User'}

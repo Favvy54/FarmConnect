@@ -13,7 +13,7 @@ import TextField from '@/components/TextField.jsx';
 import { useLocation, useNavigate } from 'react-router';
 import SuccessToast from '../components/SuccessToast.jsx';
 
-import { getMyListings, getVendorProfile } from '../services/auth';
+import { getMyListings, getVendorProfile, getListingDetails } from '../services/auth';
 
 const TABS = ['All', 'Active', 'Sold Out', 'Expired'];
 
@@ -65,46 +65,49 @@ export default function ManageListingScreen({
 
         const listings = await getMyListings(searchTerm);
 
-          console.log(
-            'raw listings:',
-            listings.map((l) => ({
-              id: l._id,
-              foodName: l.foodName,
-              expiryDuration: l.expiryDuration,
-              expiresAt: l.expiresAt,
-              updatedAt: l.updatedAt,
-              createdAt: l.createdAt,
-            })),
-          );
-
         if (!cancelled) {
-          const formatted = listings.map((listing) => ({
-            id: listing._id,
-            raw: listing, // full original listing needed to prefill the edit form
-            image: listing.imageUrls?.[0] || '/img-placeholder.png',
-            name: listing.foodName,
-            createdOn: new Date(listing.createdAt).toLocaleDateString(),
+          const formatted = await Promise.all(
+            listings.map(async (listing) => {
+              let reserved = 0;
 
-            status:
-              listing.status === 'available'
-                ? 'ACTIVE'
-                : listing.status === 'completed'
-                  ? 'SOLD OUT'
-                  : listing.status === 'expired'
-                    ? 'EXPIRED'
-                    : 'CANCELLED',
+              try {
+                const details = await getListingDetails(listing._id);
+                reserved = details?.reservedQuantity || details?.data?.reservedQuantity || 0;
+              } catch {
+                reserved = (listing.totalQuantity || 0) - (listing.quantity || 0);
+              }
 
-            available: listing.quantity,
-            reserved: listing.totalReservations,
-            left: listing.quantity - listing.totalReservations,
-            pickupEnds: listing.expiresAt
-              ? new Date(listing.expiresAt).toLocaleTimeString([], {
-                  hour: 'numeric',
-                  minute: '2-digit',
-                  hour12: true,
-                })
-              : 'Not set',
-          }));
+              return {
+                id: listing._id,
+                raw: listing,
+                image: listing.imageUrls?.[0] || '/img-placeholder.png',
+                name: listing.foodName,
+                createdOn: new Date(listing.createdAt).toLocaleDateString(),
+
+                status:
+                  listing.quantity === 0
+                    ? 'SOLD OUT'
+                    : listing.status === 'available'
+                      ? 'ACTIVE'
+                      : listing.status === 'completed'
+                        ? 'SOLD OUT'
+                        : listing.status === 'expired'
+                          ? 'EXPIRED'
+                          : 'CANCELLED',
+
+                total: listing.totalQuantity || 0,
+                reserved,
+                left: (listing.totalQuantity || 0) - reserved,
+                pickupEnds: listing.expiresAt
+                  ? new Date(listing.expiresAt).toLocaleTimeString([], {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true,
+                    })
+                  : 'Not set',
+              };
+            }),
+          );
 
           setListings(formatted);
         }
@@ -130,19 +133,21 @@ export default function ManageListingScreen({
   }, [search]);
 
   const counts = {
-    All: listings.length,
+    All: listings.filter((l) => l.left > 0).length,
 
-    Active: listings.filter((l) => l.status === 'ACTIVE').length,
+    Active: listings.filter((l) => l.status === 'ACTIVE' && l.left > 0).length,
 
-    'Sold Out': listings.filter((l) => l.status === 'SOLD OUT').length,
+    'Sold Out': listings.filter((l) => l.left === 0).length,
 
     Expired: listings.filter((l) => l.status === 'EXPIRED').length,
   };
 
   const filtered =
     activeTab === 'All'
-      ? listings
-      : listings.filter((l) => l.status === activeTab.toUpperCase());
+      ? listings.filter((l) => l.left > 0)
+      : activeTab === 'Sold Out'
+        ? listings.filter((l) => l.left === 0)
+        : listings.filter((l) => l.status === activeTab.toUpperCase() && l.left > 0);
 
   return (
     <DashboardLayout
@@ -288,7 +293,7 @@ export default function ManageListingScreen({
                           {l.status}
                         </span>
                         <div className="text-body2 text-ink">
-                          {l.available} Available
+                          {l.total} Total
                           <br />
                           {l.reserved} Reserved
                           <br />

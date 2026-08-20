@@ -5,7 +5,7 @@ export default function WelcomeOnboardingScreen({ onContinue }) {
   return (
     <AuthLayout
       showTagline={false}
-      showLogo={false}
+      showLogo={true}
       photoAlt="Vendor plating a meal while a customer reserves it on their phone, with nearby, reserved, and pickup deadline callouts">
       <div className="text-center flex flex-col gap-8">
         <div>

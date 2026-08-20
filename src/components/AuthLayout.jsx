@@ -24,15 +24,13 @@ export default function AuthLayout({
   },
 }) {
   return (
-    <div className="h-screen max-w-screen flex min-h-screen">
-      {/* Left photo panel */}
-
-      <div className="hidden lg:block fixed left-0 top-0 lg:w-[40%] h-screen overflow-hidden">
+    <div className="h-screen max-w-screen flex min-h-screen overflow-hidden">
+      {/* Left photo panel — fixed, never scrolls */}
+      <div className="hidden lg:flex fixed left-0 top-0 w-1/2 h-screen overflow-hidden">
         <AdvancedImage
           cldImg={photoSrc}
           alt={photoAlt}
-          className={`absolute inset-0 w-full h-full rounded-r-3xl object-cover
-          }`}
+          className="absolute inset-0 w-full h-full rounded-r-3xl object-cover"
         />
 
         {showLogo && (
@@ -59,11 +57,28 @@ export default function AuthLayout({
         )}
       </div>
 
-      {/* Right form panel — scrolls internally only if content genuinely overflows */}
-
-      <div
-        className='w-full px-6 lg:ml-[45%]  lg:w-[50%] h-screen   py-6 '>
-        <div className={`w-full `}>{children}</div>
+      {/* Right form panel — scrolls internally when content overflows, centered when it doesn't */}
+      <div className="w-full lg:ml-[50%] lg:w-1/2 h-screen overflow-y-auto py-6">
+        <div className="flex items-center justify-center min-h-full px-6">
+          <div className="w-full">
+            {showLogo && (
+              <div className="lg:hidden flex items-center gap-2 mb-8">
+                <AdvancedImage
+                  cldImg={logos.header}
+                  alt="FarmConnect logo"
+                  className="w-7 h-7"
+                />
+                <span className="text-2xl font-semibold text-ink">
+                  Farm
+                  <span className="font-normal text-body-text text-2xl">
+                    Connect
+                  </span>
+                </span>
+              </div>
+            )}
+            {children}
+          </div>
+        </div>
       </div>
     </div>
   );
