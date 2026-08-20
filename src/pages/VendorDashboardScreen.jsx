@@ -450,7 +450,7 @@ export default function VendorDashboardScreen({
             listings: analytics.activeListings,
 
             reservations:
-              reservationAnalyticsResponse?.data?.totalToday || 0,
+              todaysFiltered.length,
 
             saved: analytics.mealsShared,
 
