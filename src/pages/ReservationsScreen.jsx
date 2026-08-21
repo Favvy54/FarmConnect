@@ -13,6 +13,7 @@ import {
   getCurrentReservations,
   getReservationHistory,
   getUserDashboardAnalytics,
+  getAppUserProfile,
 } from '../services/auth.js';
 import notify from '../services/toast.js';
 
@@ -110,6 +111,24 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
     cancelledReservations: 0,
     mealsRescued: 0,
   });
+  const [userProfile, setUserProfile] = useState({
+    profileImage: '',
+  });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const profileRes = await getAppUserProfile();
+        const profile = profileRes?.data || profileRes;
+
+        setUserProfile({
+          profileImage: profile?.profileImage || '',
+        });
+      } catch {
+        // Profile image is optional — don't block reservations on failure.
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -172,7 +191,8 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
       onNavigate={onNavigate}
       onLogout={onLogout}
       title="Reservation"
-      subtitle="Manage your active and past food reservations">
+      subtitle="Manage your active and past food reservations"
+      profileImage={userProfile.profileImage}>
       {error && <p className="mb-4 text-body2 text-error">{error}</p>}
 
       <div className=" mt-4 mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">

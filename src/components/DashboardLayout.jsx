@@ -26,19 +26,21 @@ export default function DashboardLayout({
 
   return (
     <>
-      <div className="fixed max-w-screen h-16 md:hidden top-0 left-0 w-full  bg-white border-b border-border-muted z-30 flex items-center  gap-6 justify-between px-2 ">
-        <button
-          onClick={() => setSidebarOpen(true)}
-          className="w-10 h-10 flex  items-center justify-center">
-          <Menu className="w-6 h-6 text-ink" />
-        </button>
+      <div className="fixed h-16 md:hidden top-0 left-0 w-full bg-white border-b border-border-muted z-30 flex items-center px-2">
+        <div className="flex flex-1 items-center">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="w-10 h-10 flex items-center justify-center">
+            <Menu className="w-6 h-6 text-ink" />
+          </button>
+        </div>
         <div>
           <p className="text-body1 text-center font-semibold text-ink">
             Farm
             <span className="font-normal text-body1">Connect</span>
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-1 items-center justify-end gap-2">
           <Popover
             open={locationPopoverOpen}
             onOpenChange={setLocationPopoverOpen}>

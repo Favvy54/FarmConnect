@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import ReserveMealModal from '@/components/ReserveMealModal.jsx';
 import TextField from '../components/TextField.jsx';
+import PrimaryButton from '../components/PrimaryButton.jsx';
 import {
   getAllListings,
   getNearbyListings,
@@ -105,6 +106,7 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
     fullName: '',
     state: '',
     city: '',
+    profileImage: '',
   });
 
   const [listings, setListings] = useState([]);
@@ -125,6 +127,7 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
           fullName: profile?.fullName || '',
           state: profile?.state || '',
           city: profile?.city || '',
+          profileImage: profile?.profileImage || '',
         });
 
         // Default view: marketplace
@@ -208,7 +211,8 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
         userProfile.city
           ? `${userProfile.city}, ${userProfile.state}`
           : 'Location unavailable'
-      }>
+      }
+      profileImage={userProfile.profileImage}>
       {error && <p className="mb-4 text-body2 text-red-500">{error}</p>}
 
       <div className="mb-6 mt-3 flex items-center gap-3">
@@ -329,7 +333,7 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
         <div className="flex flex-col items-center text-center py-6 w-[50%] mx-auto">
           <div className="w-27 h-24  md:w-33.75 md:h-30 rounded-full bg-green-light flex items-center justify-center mb-4">
             <img
-              src="/empty-nearby,png"
+              src="/empty-nearby.png"
               alt="No Listing"
               className="object-cover w-full h-full"
             />
