@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect } from 'react'
 import { AdvancedImage } from "@cloudinary/react";
 import { backgrounds } from "../libs/cloudinaryImages";
 
@@ -6,20 +6,29 @@ const USER_TYPES = ['Restaurant', 'Students', 'Bakeries', 'Families', 'Event Cat
 
 const TYPE_IMAGES = {
   Restaurant: null,
-  Students: '/student.png',
-  Bakeries: '/bakers.png',
-  Families: '/family.png',
-  'Event Caterers': '/caterers.png',
-  Charities: '/charities.png',
+  Students: '/student.webp',
+  Bakeries: '/bakers.webp',
+  Families: '/family.webp',
+  'Event Caterers': '/caterers.webp',
+  Charities: '/charities.webp',
 }
 
 export default function WhoCanUse() {
   const [activeType, setActiveType] = useState('Restaurant')
 
+  // Preload every user-type image so switching tabs renders instantly.
+  useEffect(() => {
+    Object.values(TYPE_IMAGES).forEach((src) => {
+      if (!src) return;
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
+
   const activeImage = TYPE_IMAGES[activeType]
 
   return (
-    <section className="flex flex-col-reverse gap-16 px-3 pb-20 pt-20 md:pb-50 lg:flex-row md:justify-between md:items-center">
+    <section id="who-its-for" className="flex flex-col-reverse gap-16 px-3 pb-20 pt-20 md:pb-50 lg:flex-row md:justify-between md:items-center">
       <div className=" w-full lg:w-[50%]">
         <h2 className="text-h3 md:text-h2 font-bold text-green-normal">Who can use FarmConnect?</h2>
         <p className="text-body2 md:text-body1 text-body-text mt-3">
@@ -50,6 +59,8 @@ export default function WhoCanUse() {
               src={activeImage}
               alt={`${activeType} using FarmConnect`}
               className="w-full h-full object-cover"
+              loading="lazy"
+              decoding="async"
             />
           ) : (
             <AdvancedImage

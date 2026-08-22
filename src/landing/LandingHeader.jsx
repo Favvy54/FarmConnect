@@ -4,7 +4,11 @@ import { AdvancedImage } from '@cloudinary/react';
 import { logos } from '../libs/cloudinaryImages';
 import { Menu, X } from 'lucide-react';
 
-const NAV_LINKS = ['How It Works', 'Benefits', "Who It's For"];
+const NAV_LINKS = [
+  { label: 'How It Works', href: '#how-it-works' },
+  { label: 'Benefits', href: '#benefits' },
+  { label: "Who It's For", href: '#who-its-for' },
+];
 
 export default function LandingHeader({ onLogin, onSignup }) {
   const [isOpen, setIsOPen] = useState(false);
@@ -23,12 +27,12 @@ export default function LandingHeader({ onLogin, onSignup }) {
       </div>
 
       <nav className="hidden lg:flex items-center gap-8">
-        {NAV_LINKS.map((link) => (
+        {NAV_LINKS.map(({ label, href }) => (
           <a
-            key={link}
-            href="#"
+            key={label}
+            href={href}
             className="text-body1 text-body-text font-regular hover:text-green-normal">
-            {link}
+            {label}
           </a>
         ))}
       </nav>
@@ -69,12 +73,13 @@ export default function LandingHeader({ onLogin, onSignup }) {
           </div>
 
           <nav className="flex flex-col gap-8">
-            {NAV_LINKS.map((link) => (
+            {NAV_LINKS.map(({ label, href }) => (
               <a
-                key={link}
-                href="#"
+                key={label}
+                href={href}
+                onClick={() => setIsOPen(false)}
                 className="text-body1 text-body-text font-regular hover:text-green-normal">
-                {link}
+                {label}
               </a>
             ))}
           </nav>

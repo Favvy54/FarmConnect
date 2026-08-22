@@ -42,7 +42,7 @@ export default function HowItWorks() {
   const [mode, setMode] = useState('find') // 'find' | 'share'
 
   return (
-    <section className="bg-center bg-cover bg-no-repeat min-h-screen px-3 py-3 md:px-6"
+    <section id="how-it-works" className="bg-center bg-cover bg-no-repeat min-h-screen px-3 py-3 md:px-6"
     style={{ backgroundImage: `url(${backgrounds.food.toURL()})` }}>
       <div className=" text-center min-h-screen my-20">
         <h2 className="text-2xl md:text-h2 font-bold text-white md:text-center lg:text-left">How FarmConnect works</h2>

@@ -26,7 +26,7 @@ const FEATURES = [
 
 export default function WhyChoose() {
   return (
-    <section className="px-3 py-16 md:px-6">
+    <section id="benefits" className="px-3 py-16 md:px-6">
       <h2 className="text-h3 md:text-h2 font-bold text-green-normal">
         Why choose FarmConnect?
       </h2>

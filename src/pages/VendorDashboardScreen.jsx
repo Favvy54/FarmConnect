@@ -592,7 +592,7 @@ export default function VendorDashboardScreen({
                 <button
                   onClick={key === 'reservations' ? onManageReservation : undefined}
                   className="flex font-semibold gap-1 items-center mt-1 text-caption text-green-normal">
-                  {note} <ArrowRight className="h-5 w-5"/>
+                  {note} {key !== 'saved' && <ArrowRight className="h-5 w-5" />}
                 </button>
               </div>
             );
