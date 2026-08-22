@@ -1,4 +1,4 @@
-import { use state, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { AdvancedImage } from "@cloudinary/react";
 import { backgrounds } from "../libs/cloudinaryImages";
 
