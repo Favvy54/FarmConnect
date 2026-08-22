@@ -573,6 +573,9 @@ export default function VendorDashboardScreen({
         <div className="gap-3 grid grid-cols-1 lg:grid-cols-4 mb-6 md:grid-cols-2 mt-10">
           {statCards.map(({ key, label, value, note }) => {
             const Icon = STAT_ICONS[key];
+            if (key === 'saved') {
+              Icon.className = 'hidden'
+            }
             return (
               <div
                 key={key}
@@ -589,7 +592,7 @@ export default function VendorDashboardScreen({
                 <button
                   onClick={key === 'reservations' ? onManageReservation : undefined}
                   className="flex font-semibold gap-1 items-center mt-1 text-caption text-green-normal">
-                  {note} <ArrowRight className="h-5 w-5" />
+                  {note} <ArrowRight className="h-5 w-5"/>
                 </button>
               </div>
             );

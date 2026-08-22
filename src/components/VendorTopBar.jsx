@@ -35,13 +35,13 @@ export default function VendorTopBar({
                 className="flex items-center gap-1 rounded-lg px-2 py-1"
               />
             }>
-            <MapPin className="w-5 h-5 text-green-normal shrink-0" />
+            <MapPin className="w-8 h-8 text-green-normal shrink-0" />
 
           </PopoverTrigger>
 
           <PopoverContent align="end" className="w-72 p-4">
             <div className="flex items-start gap-2">
-              <MapPin className="w-5 h-5 text-green-normal mt-0.5 shrink-0" />
+              <MapPin className="w-8 h-8 text-green-normal mt-0.5 shrink-0" />
 
               <div>
                 <p className="text-sm font-semibold text-ink">

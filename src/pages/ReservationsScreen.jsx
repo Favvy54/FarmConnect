@@ -20,10 +20,10 @@ import notify from '../services/toast.js';
 const TABS = ['All', 'Completed', 'Expired', 'Cancelled'];
 
 const statusStyles = {
-  reserved: 'bg-green-light text-green-normal',
+  reserved: 'bg-green-normal text-white',
   completed: 'bg-green-light text-green-normal',
-  expired: 'bg-orange-light text-orange-dark',
-  cancelled: 'bg-red-100 text-error',
+  expired: 'bg-orange-dark text-white',
+  cancelled: 'bg-error text-white',
 };
 
 function getDeadline(reservation) {
@@ -201,7 +201,9 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
             <p className="text-body1 font-medium text-ink">
               Active reservation
             </p>
-            <Package className="h-5 w-5 text-green-normal" />
+            <span className="bg-green-light flex h-9 items-center justify-center rounded-full w-9">
+              <Package className="h-5 w-5 text-green-normal" />
+            </span>
           </div>
           <p className="text-2xl font-bold text-ink">
             {analytics.activeReservations}
@@ -210,7 +212,9 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
         <div className="rounded-2xl border border-border-muted bg-white p-5">
           <div className="mb-2 flex items-center justify-between">
             <p className="text-body1 font-medium text-ink">Total reservation</p>
-            <Calendar className="h-5 w-5 text-green-normal" />
+            <span className="bg-green-light flex h-9 items-center justify-center rounded-full w-9">
+              <Calendar className="h-5 w-5 text-green-normal" />
+            </span>
           </div>
           <p className="text-2xl font-bold text-ink">
             {analytics.totalReservations}
@@ -221,7 +225,9 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
             <p className="text-body1 font-medium text-ink">
               Completed reservation
             </p>
-            <CheckCircle2 className="h-5 w-5 text-green-normal" />
+            <span className="bg-green-light flex h-9 items-center justify-center rounded-full w-9">
+              <CheckCircle2 className="h-5 w-5 text-green-normal" />
+            </span>
           </div>
 
           <p className="text-2xl font-bold text-ink">
@@ -262,7 +268,7 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                    className={`flex h-10 items-center rounded-full px-4 text-sm font-medium transition-colors ${
                       activeTab === tab
                         ? 'bg-green-normal text-white'
                         : 'border border-border-muted text-body-text'
@@ -277,7 +283,7 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
                 variant="search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="sm:w-64"
+                className="w-full max-w-[650px] [&_input]:h-10"
               />
             </div>
 
@@ -288,7 +294,7 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
             ) : (
               <div className="overflow-x-auto">
                 <div className="min-w-180">
-                  <div className="grid grid-cols-[2fr_2fr_1.2fr_1fr_auto] px-2 py-2 text-caption font-semibold text-body-text">
+                  <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1fr)_auto] items-center px-2 py-2 text-caption font-semibold text-ink">
                     <span>Food</span>
                     <span>Vendor</span>
                     <span>Date</span>
@@ -299,8 +305,8 @@ export default function ReservationsScreen({ onNavigate, onLogout }) {
                     {historyFiltered.map((r) => (
                       <div
                         key={r._id || r.reservationId}
-                        className="grid grid-cols-[2fr_2fr_1.2fr_1fr_auto] items-center px-2 py-3">
-                        <span className="text-body1 font-medium text-ink">
+                        className="grid grid-cols-[minmax(0,2fr)_minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1fr)_auto] items-center px-2 py-3">
+                        <span className="text-normal font-regular text-ink">
                           {r.foodName}
                         </span>
                         <span className="text-body2 text-charcoal">

@@ -55,7 +55,7 @@ export default function DashboardLayout({
                 className="w-7 h-7 shrink-0"
                 style={{
                   color: locationPopoverOpen
-                    ? '#22C55E' /* your green-normal hex */
+                    ? '#4e8b45' /* your green-normal hex */
                     : '#2e2e2e',
                 }}
               />
@@ -63,7 +63,7 @@ export default function DashboardLayout({
 
             <PopoverContent align="end" className="w-72 p-4">
               <div className="flex items-start gap-2">
-                <MapPin className="w-5 h-5 text-green-normal mt-0.5 shrink-0" />
+                <MapPin className="w-7 h-7 text-green-normal mt-0.5 shrink-0" />
                 <div>
                   <p className="text-sm font-semibold text-ink">
                     Business location

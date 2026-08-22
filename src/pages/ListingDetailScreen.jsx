@@ -184,16 +184,26 @@ export default function ListingDetailScreen({
   }
 
   const total =
-    listingDetails?.totalQuantity || 0;
+    listingDetails?.totalQuantity ??
+    listing?.totalQuantity ??
+    0;
 
-  const reserved =
-    listingDetails?.reservedQuantity || 0;
+  // Keep the three stats internally consistent:
+  // Reserved is derived from quantities when missing, and Available
+  // always equals Total - Reserved.
+  const reserved = Math.min(
+    listingDetails?.reservedQuantity ??
+      Math.max(total - (listingDetails?.availableQuantity ?? 0), 0),
+    total,
+  );
 
   const available =
-    listingDetails?.availableQuantity || 0;
+    listingDetails?.availableQuantity ?? Math.max(total - reserved, 0);
 
+  // Derived from the same reserved/total figures rendered above so the
+  // progress bar always tallies with the "Reserved" stat.
   const percentReserved =
-    listingDetails?.reservedPercentage || 0;
+    total > 0 ? Math.min(Math.round((reserved / total) * 100), 100) : 0;
 
   const totalReservations =
     listingDetails?.reservationSummary?.totalReservations || 0;
@@ -216,7 +226,7 @@ export default function ListingDetailScreen({
       onLogout={onLogout}
       hideTopBar
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex max-w-270 items-center justify-between mb-4">
         <button
           onClick={() => navigate(-1)}
           className="flex font-medium gap-1 items-center text-body1 text-green-normal">
@@ -319,7 +329,7 @@ export default function ListingDetailScreen({
         </div>
       </div>
 
-      <div className="gap-6 grid lg:grid-cols-[1fr_360px] mt-6">
+      <div className="gap-6 grid lg:grid-cols-[1fr_1fr] mt-6">
         {/* LEFT — performance + summary */}
         <div className="space-y-6">
           <div className="bg-white border border-border-muted p-5 rounded-2xl">

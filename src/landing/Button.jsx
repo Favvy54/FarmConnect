@@ -3,7 +3,7 @@ export default function Button({ label, icon: Icon, variant = 'filled', onClick,
     'flex items-center justify-center gap-1.5 rounded-2xl px-2 py-2 text-caption md:text-body1 font-medium transition-colors whitespace-nowrap'
   const styles = {
     filled:
-      'bg-green-normal text-white hover:bg-green-normal-hover active:bg-green-normal-active hover:text-white',
+      'bg-green-normal py-2.5 text-white hover:bg-green-normal-hover active:bg-green-normal-active hover:text-white',
     outline:
       'bg-transparent border-2 border-green-normal text-green-normal hover:bg-green-light',
     'filled-white': 'bg-white text-green-normal hover:bg-green-light',
