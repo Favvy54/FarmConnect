@@ -202,7 +202,7 @@ export default function ManageListingScreen({
             </span>
           </PrimaryButton>
         </div>
-        <div className="flex w-fit px-4 justify-between border-b-4 border-border-muted mb-6">
+        <div className="flex w-fit gap-6 justify-between border-b-4 border-border-muted mb-6">
           {TABS.map((tab) => (
             <button
               key={tab}
