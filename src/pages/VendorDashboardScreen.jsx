@@ -362,7 +362,7 @@ export default function VendorDashboardScreen({
         const token = getToken();
 
         const vendorResponse = await fetch(
-          'https://farmconnect-backend-1.onrender.com/api/vendors/profile',
+          'https://farmconnect-backend-docker.onrender.com/api/vendors/profile',
           {
             headers: {
               Authorization: `Bearer ${token}`,
