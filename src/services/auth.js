@@ -167,7 +167,7 @@ export const getCurrentUser = async () => {
   const token = getToken();
 
   const response = await fetch(
-    "https://farmconnect-backend-1.onrender.com/api/v1/auth/me",
+    "https://farmconnect-backend-docker.onrender.com/api/v1/auth/me",
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -188,7 +188,7 @@ export const getMyListings = async (search = "") => {
   const token = getToken();
 
   const url = new URL(
-    "https://farmconnect-backend-1.onrender.com/api/listings/my-listings"
+    "https://farmconnect-backend-docker.onrender.com/api/listings/my-listings"
   );
 
   if (search.trim()) {
