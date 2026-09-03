@@ -30,9 +30,9 @@ const socket = io("https://farmconnect-backend-docker.onrender.com", {
 
 console.log("Socket connected:", socket.connected);
 
-socket.on("connect", () => {
+/*socket.on("connect", () => {
     console.log("Socket connected:", socket.id);
-});
+});*/
 
 export function getRole() {
   return localStorage.getItem(ROLE_KEY);
