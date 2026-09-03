@@ -22,7 +22,7 @@ export function getToken() {
   return localStorage.getItem(TOKEN_KEY);
 };
 
-const socket = io("https://farmconnect-backend-docker.onrender.com", {
+/*const socket = io("https://farmconnect-backend-docker.onrender.com", {
     auth: {
         token: getToken(),
     },
@@ -30,7 +30,7 @@ const socket = io("https://farmconnect-backend-docker.onrender.com", {
 
 console.log("Socket connected:", socket.connected);
 
-/*socket.on("connect", () => {
+socket.on("connect", () => {
     console.log("Socket connected:", socket.id);
 });*/
 
