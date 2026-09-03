@@ -20,7 +20,19 @@ export function saveSession({ token, role, email }) {
 
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY);
-}
+};
+
+const socket = io("https://farmconnect-backend-docker.onrender.com", {
+    auth: {
+        token: getToken(),
+    },
+});
+
+console.log("Socket connected:", socket.connected);
+
+socket.on("connect", () => {
+    console.log("Socket connected:", socket.id);
+});
 
 export function getRole() {
   return localStorage.getItem(ROLE_KEY);
@@ -60,7 +72,7 @@ async function apiRequest(path, { method = 'POST', body, auth = false } = {}) {
   return data;
 }
 
-// Vendor resquest
+// Vendor request
 
 async function profileRequest(
   path,
