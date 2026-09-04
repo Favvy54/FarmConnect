@@ -11,7 +11,7 @@ import {
   getAppUserProfile,
   getToken,
 } from '../services/auth.js';
-import { getSocket } from '../services/socket.js';
+import { getSocket, connectSocket} from '../services/socket.js';
 
 const CATEGORY_PILLS = [
   'Cooked Meals',
