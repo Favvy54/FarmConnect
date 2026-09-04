@@ -29,8 +29,8 @@ import UserListingsScreen from './pages/UserListingsScreen.jsx';
 import ReservationsScreen from './pages/ReservationsScreen.jsx';
 import ReservationDetailScreen from './pages/ReservationDetailScreen.jsx';
 import { getRole } from './services/auth';
-import { getCurrentUser } from './services/auth';
-import { connectSocket, getToken } from './services/socket.js';
+import { getCurrentUser, , getToken } from './services/auth';
+import { connectSocket } from './services/socket.js';
 
 //is edits possible
 
