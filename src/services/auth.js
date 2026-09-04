@@ -1,3 +1,9 @@
+import {
+  connectSocket,
+  disconnectSocket
+} from "./socket.js";
+
+
 const BASE_URL = 'https://farmconnect-backend-docker.onrender.com/api/v1';
 const PROFILE_URL = 'https://farmconnect-backend-docker.onrender.com/api';
 const TOKEN_KEY = 'farmconnect_token';
@@ -21,18 +27,6 @@ export function saveSession({ token, role, email }) {
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY);
 };
-
-/*const socket = io("https://farmconnect-backend-docker.onrender.com", {
-    auth: {
-        token: getToken(),
-    },
-});
-
-console.log("Socket connected:", socket.connected);
-
-socket.on("connect", () => {
-    console.log("Socket connected:", socket.id);
-});*/
 
 export function getRole() {
   return localStorage.getItem(ROLE_KEY);
@@ -113,10 +107,7 @@ export async function register(userData) {
 // Login
 export async function login(email, password) {
   const data = await apiRequest('/auth/login', {
-    body: {
-      email,
-      password,
-    },
+    body: { email, password }
   });
 
   saveSession({
@@ -124,6 +115,8 @@ export async function login(email, password) {
     role: data.data.user?.role,
     email: data.data.user?.email,
   });
+
+  connectSocket(data.data.token);
 
   return data.data;
 }
@@ -225,10 +218,9 @@ export const getMyListings = async (search = "") => {
 // Logout
 export async function logout() {
   try {
-    await apiRequest('/auth/logout', {
-      auth: true,
-    });
+    await apiRequest('/auth/logout', { auth: true });
   } finally {
+    disconnectSocket();
     clearSession();
   }
 }
