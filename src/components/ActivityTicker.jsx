@@ -1,72 +1,144 @@
 import { useEffect, useState } from 'react';
 import { getUserActivities } from '../services/auth.js';
 
+
+const formatRelativeTime = (date) => {
+
+  const now = Date.now();
+  const created = new Date(date).getTime();
+
+  const difference = Math.max(0, now - created);
+
+  const seconds = Math.floor(difference / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+
+  if (seconds < 60) {
+    return 'just now';
+  }
+
+  if (minutes < 60) {
+    return `${ minutes } ${ minutes === 1 ? 'min' : 'mins' } ago`;
+  }
+
+  if (hours < 24) {
+    return `${ hours } ${ hours === 1 ? 'hr' : 'hrs' } ago`;
+  }
+
+  return '24 hrs ago';
+};
+
+
 export default function ActivityTicker() {
+
   const [items, setItems] = useState([]);
 
+
   useEffect(() => {
+
     let cancelled = false;
 
+
     const loadActivities = async () => {
+
       try {
+
         const response = await getUserActivities();
 
         if (cancelled) return;
 
+
         const activities =
           response?.data || [];
+
 
         setItems(
           Array.isArray(activities)
             ? activities
             : [],
         );
+
       } catch (error) {
+
         console.error(
           'Failed to load user activities:',
           error,
         );
+
       }
+
     };
+
 
     // Load immediately
     loadActivities();
 
-    // Check for new activities every 5 seconds
+
+    // Refresh activities every 5 seconds
     const interval = setInterval(
       loadActivities,
       5000,
     );
 
+
     return () => {
+
       cancelled = true;
+
       clearInterval(interval);
+
     };
+
   }, []);
 
-  if (!items.length) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 overflow-hidden border-t border-border-muted bg-white">
+    <div className="bg-white border-border-muted border-t bottom-0 fixed left-0 overflow-hidden right-0 z-40">
+
       <div className="flex h-10 items-center">
-        <div className="shrink-0 bg-green-normal px-4 py-2 text-sm font-semibold text-white">
+
+        <div className="bg-green-normal font-semibold px-4 py-2 shrink-0 text-sm text-white">
           Live Activity
         </div>
 
-        <div className="relative flex-1 overflow-hidden">
-          <div className="animate-activity-ticker flex w-max items-center gap-12 whitespace-nowrap px-6">
-            {[...items, ...items].map(
-              (activity, index) => (
-                <span
-                  key={`${activity._id}-${index}`}
-                  className="text-sm font-medium text-ink">
-                  • {activity.message}
-                </span>
-              ),
-            )}
-          </div>
+
+        <div className="flex-1 overflow-hidden relative">
+
+          {items.length > 0 ? (
+
+            <div className="animate-activity-ticker flex gap-12 items-center px-6 w-max whitespace-nowrap">
+
+              {[...items, ...items].map(
+                (activity, index) => (
+
+                  <span
+                    key={`${ activity._id } -${ index } `}
+                    className="font-medium text-ink text-sm"
+                  >
+                    • {activity.message} —{' '}
+                    {formatRelativeTime(
+                      activity.createdAt,
+                    )}
+                  </span>
+
+                ),
+              )}
+
+            </div>
+
+          ) : (
+
+            <div className="font-medium px-6 text-ink text-sm">
+              No recent activity right now.
+            </div>
+
+          )}
+
         </div>
+
       </div>
+
     </div>
   );
+
 }

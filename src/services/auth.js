@@ -1,5 +1,5 @@
-const BASE_URL = 'https://farmconnect-backend-1.onrender.com/api/v1';
-const PROFILE_URL = 'https://farmconnect-backend-1.onrender.com/api';
+const BASE_URL = 'https://farmconnect-backend-docker.onrender.com/api/v1';
+const PROFILE_URL = 'https://farmconnect-backend-docker.onrender.com/api';
 const TOKEN_KEY = 'farmconnect_token';
 const ROLE_KEY = 'farmconnect_role';
 const EMAIL_KEY = 'farmconnect_email';
@@ -20,7 +20,19 @@ export function saveSession({ token, role, email }) {
 
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY);
-}
+};
+
+/*const socket = io("https://farmconnect-backend-docker.onrender.com", {
+    auth: {
+        token: getToken(),
+    },
+});
+
+console.log("Socket connected:", socket.connected);
+
+socket.on("connect", () => {
+    console.log("Socket connected:", socket.id);
+});*/
 
 export function getRole() {
   return localStorage.getItem(ROLE_KEY);
@@ -60,7 +72,7 @@ async function apiRequest(path, { method = 'POST', body, auth = false } = {}) {
   return data;
 }
 
-// Vendor resquest
+// Vendor request
 
 async function profileRequest(
   path,
@@ -167,7 +179,7 @@ export const getCurrentUser = async () => {
   const token = getToken();
 
   const response = await fetch(
-    "https://farmconnect-backend-1.onrender.com/api/v1/auth/me",
+    "https://farmconnect-backend-docker.onrender.com/api/v1/auth/me",
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -188,7 +200,7 @@ export const getMyListings = async (search = "") => {
   const token = getToken();
 
   const url = new URL(
-    "https://farmconnect-backend-1.onrender.com/api/listings/my-listings"
+    "https://farmconnect-backend-docker.onrender.com/api/listings/my-listings"
   );
 
   if (search.trim()) {
