@@ -9,6 +9,7 @@ import {
   getAllListings,
   getNearbyListings,
   getAppUserProfile,
+  getToken,
 } from '../services/auth.js';
 import { getSocket } from '../services/socket.js';
 
@@ -143,20 +144,34 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
     })();
   }, []);
 
-  useEffect(() => {
-  const socket = getSocket();
+useEffect(() => {
+  let socket = getSocket();
 
   if (!socket) {
-    console.warn('⚠️ Socket is not available on UserListingsScreen.');
+    console.log('🔄 Socket not ready yet. Initializing from existing session...');
+
+    const token = getToken();
+
+    if (!token) {
+      console.warn('⚠️ No authentication token available for Socket.IO.');
+      return;
+    }
+
+    socket = connectSocket(token);
+  }
+
+  if (!socket) {
+    console.warn('⚠️ Unable to initialize Socket.IO.');
     return;
   }
 
   const handleNewListing = async (data) => {
     console.log('📥 listing:new received:', data);
 
-    // Do not replace nearby results with the entire marketplace.
     if (viewMode !== 'market') {
-      console.log('📍 User is viewing nearby listings. Skipping marketplace refresh.');
+      console.log(
+        '📍 User is viewing nearby listings. Skipping marketplace refresh.',
+      );
       return;
     }
 
@@ -175,6 +190,7 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
         '❌ Failed to refresh listings after listing:new:',
         err,
       );
+
       setError(err.message || 'Could not refresh listings.');
     } finally {
       setLoading(false);
