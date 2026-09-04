@@ -166,36 +166,36 @@ useEffect(() => {
   }
 
   const handleNewListing = async (data) => {
-    console.log('📥 listing:new received:', data);
+  console.log('📥 listing:new received:', data);
 
-    if (viewMode !== 'market') {
-      console.log(
-        '📍 User is viewing nearby listings. Skipping marketplace refresh.',
-      );
-      return;
-    }
+  if (viewMode !== 'market') {
+    console.log(
+      '📍 User is viewing nearby listings. Skipping marketplace refresh.',
+    );
+    return;
+  }
 
-    try {
-      console.log('🔄 Refreshing marketplace listings from backend...');
+  try {
+    console.log('🔄 Silently fetching latest marketplace listings...');
 
-      setLoading(true);
+    // IMPORTANT:
+    // Do NOT set loading here.
+    // The existing UI should remain visible while we fetch.
+    const results = await getAllListings(search.trim());
 
-      const results = await getAllListings(search.trim());
+    setListings(Array.isArray(results) ? results : []);
 
-      setListings(Array.isArray(results) ? results : []);
+    console.log('✅ Marketplace listings updated silently.');
+  } catch (err) {
+    console.error(
+      '❌ Failed to update listings after listing:new:',
+      err,
+    );
 
-      console.log('✅ Marketplace listings refreshed.');
-    } catch (err) {
-      console.error(
-        '❌ Failed to refresh listings after listing:new:',
-        err,
-      );
-
-      setError(err.message || 'Could not refresh listings.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Don't replace the existing UI with an error state.
+    // The user can continue using the listings that's already on screen.
+  }
+};
 
   socket.on('listing:new', handleNewListing);
 
