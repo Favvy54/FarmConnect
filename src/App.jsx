@@ -29,7 +29,7 @@ import UserListingsScreen from './pages/UserListingsScreen.jsx';
 import ReservationsScreen from './pages/ReservationsScreen.jsx';
 import ReservationDetailScreen from './pages/ReservationDetailScreen.jsx';
 import { getRole } from './services/auth';
-import { getCurrentUser, , getToken } from './services/auth';
+import { getCurrentUser, getToken } from './services/auth';
 import { connectSocket } from './services/socket.js';
 
 //is edits possible
