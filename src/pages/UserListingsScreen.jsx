@@ -10,6 +10,7 @@ import {
   getNearbyListings,
   getAppUserProfile,
 } from '../services/auth.js';
+import { getSocket } from '../services/socket.js';
 
 const CATEGORY_PILLS = [
   'Cooked Meals',
@@ -50,26 +51,26 @@ function MealCard({ listing, onReserve }) {
   return (
     <div
       onClick={handleClick}
-      className="w-full rounded-2xl border border-border-muted bg-white overflow-hidden shadow-sm flex flex-col cursor-pointer">
+      className="bg-white border border-border-muted cursor-pointer flex flex-col overflow-hidden rounded-2xl shadow-sm w-full">
       <img
         src={image}
         alt={listing.foodName}
-        className="h-40 w-full object-cover"
+        className="h-40 object-cover w-full"
       />
 
-      <div className="flex flex-1 flex-col justify-between px-3 pb-3 pt-3">
+      <div className="flex flex-1 flex-col justify-between pb-3 pt-3 px-3">
         <div className="flex flex-col gap-1">
-          <p className="text-regular font-bold text-ink">{listing.foodName}</p>
-          <p className="text-normal text-charcoal">
+          <p className="font-bold text-ink text-regular">{listing.foodName}</p>
+          <p className="text-charcoal text-normal">
             {listing.vendorName || listing.vendorId?.businessName}
           </p>
         </div>
 
-        <span className="text-normal font-semibold text-green-normal">
+        <span className="font-semibold text-green-normal text-normal">
           {listing.isFree ? 'Free' : `₦${listing.price}`}
         </span>
 
-        <div className="mt-1 flex gap-4 items-center justify-between text-normal">
+        <div className="flex gap-4 items-center justify-between mt-1 text-normal">
           <p
             className={
               mealsLeft <= 5
@@ -86,7 +87,7 @@ function MealCard({ listing, onReserve }) {
             e.stopPropagation();
             onReserve?.(listing);
           }}
-          className="mt-3 w-full rounded-xl bg-green-normal py-2.5 text-sm font-semibold text-white">
+          className="bg-green-normal font-semibold mt-3 py-2.5 rounded-xl text-sm text-white w-full">
           Reserve now
         </button>
       </div>
@@ -141,6 +142,54 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
       }
     })();
   }, []);
+
+  useEffect(() => {
+  const socket = getSocket();
+
+  if (!socket) {
+    console.warn('⚠️ Socket is not available on UserListingsScreen.');
+    return;
+  }
+
+  const handleNewListing = async (data) => {
+    console.log('📥 listing:new received:', data);
+
+    // Do not replace nearby results with the entire marketplace.
+    if (viewMode !== 'market') {
+      console.log('📍 User is viewing nearby listings. Skipping marketplace refresh.');
+      return;
+    }
+
+    try {
+      console.log('🔄 Refreshing marketplace listings from backend...');
+
+      setLoading(true);
+
+      const results = await getAllListings(search.trim());
+
+      setListings(Array.isArray(results) ? results : []);
+
+      console.log('✅ Marketplace listings refreshed.');
+    } catch (err) {
+      console.error(
+        '❌ Failed to refresh listings after listing:new:',
+        err,
+      );
+      setError(err.message || 'Could not refresh listings.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  socket.on('listing:new', handleNewListing);
+
+  console.log('👂 Listening for listing:new');
+
+  return () => {
+    socket.off('listing:new', handleNewListing);
+    console.log('🧹 Removed listing:new listener');
+  };
+}, [viewMode, search]);
 
   // Search debounces into a fresh market-list call, same pattern as the dashboard.
   useEffect(() => {
@@ -215,14 +264,14 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
       profileImage={userProfile.profileImage}>
       {error && <p className="mb-4 text-body2 text-red-500">{error}</p>}
 
-      <div className="mb-6 mt-3 flex items-center gap-3">
+      <div className="flex gap-3 items-center mb-6 mt-3">
         <TextField
           icon={Search}
           placeholder="Search by meal, category, vendor, or location"
           variant="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full lg:w-[80%]"
+          className="lg:w-[80%] w-full"
         />
 
         <div className="lg:w-[20%] relative shrink-0">
@@ -242,7 +291,7 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
                 className="fixed inset-0 z-10"
                 onClick={() => setIsFilterOpen(false)}
               />
-              <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-xl border border-border-muted bg-white shadow-lg">
+              <div className="absolute bg-white border border-border-muted mt-2 overflow-hidden right-0 rounded-xl shadow-lg w-48 z-20">
                 <button
                   onClick={() => {
                     setViewMode('market');
@@ -252,10 +301,10 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
                       setListings(Array.isArray(results) ? results : []);
                     });
                   }}
-                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-light/40">
+                  className="flex font-medium hover:bg-green-light/40 items-center justify-between px-4 py-3 text-ink text-left text-sm w-full">
                   Market Listings
                   {viewMode === 'market' && (
-                    <Check className="h-4 w-4 text-green-normal" />
+                    <Check className="h-4 text-green-normal w-4" />
                   )}
                 </button>
 
@@ -265,23 +314,23 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
                     setIsFilterOpen(false);
                     await loadNearbyListings();
                   }}
-                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-light/40">
+                  className="flex font-medium hover:bg-green-light/40 items-center justify-between px-4 py-3 text-ink text-left text-sm w-full">
                   Nearby Listings
                   {viewMode === 'nearby' && (
-                    <Check className="h-4 w-4 text-green-normal" />
+                    <Check className="h-4 text-green-normal w-4" />
                   )}
                 </button>
 
-                <div className="my-1 border-t border-border-muted" />
+                <div className="border-border-muted border-t my-1" />
                 <button
                   onClick={() => {
                     setSortBy('newest');
                     setIsFilterOpen(false);
                   }}
-                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-light/40">
+                  className="flex font-medium hover:bg-green-light/40 items-center justify-between px-4 py-3 text-ink text-left text-sm w-full">
                   Newest Listings
                   {sortBy === 'newest' && (
-                    <Check className="h-4 w-4 text-green-normal" />
+                    <Check className="h-4 text-green-normal w-4" />
                   )}
                 </button>
                 <button
@@ -289,10 +338,10 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
                     setSortBy('price_low');
                     setIsFilterOpen(false);
                   }}
-                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-light/40">
+                  className="flex font-medium hover:bg-green-light/40 items-center justify-between px-4 py-3 text-ink text-left text-sm w-full">
                   Price: Low to High
                   {sortBy === 'price_low' && (
-                    <Check className="h-4 w-4 text-green-normal" />
+                    <Check className="h-4 text-green-normal w-4" />
                   )}
                 </button>
                 <button
@@ -300,10 +349,10 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
                     setSortBy('price_high');
                     setIsFilterOpen(false);
                   }}
-                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-light/40">
+                  className="flex font-medium hover:bg-green-light/40 items-center justify-between px-4 py-3 text-ink text-left text-sm w-full">
                   Price: High to Low
                   {sortBy === 'price_high' && (
-                    <Check className="h-4 w-4 text-green-normal" />
+                    <Check className="h-4 text-green-normal w-4" />
                   )}
                 </button>
               </div>
@@ -312,7 +361,7 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
         </div>
       </div>
 
-      <div className="mb-6 flex gap-3 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden pb-1">
+      <div className="[&::-webkit-scrollbar]:hidden flex gap-3 mb-6 overflow-x-auto pb-1 scrollbar-none">
         {CATEGORY_PILLS.map((cat) => (
           <button
             key={cat}
@@ -330,16 +379,16 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
       {loading ? (
         <p className="text-body-text">Loading listings…</p>
       ) : filteredListings.length === 0 ? (
-        <div className="flex flex-col items-center text-center py-6 w-[50%] mx-auto">
-          <div className="w-27 h-24  md:w-33.75 md:h-30 rounded-full bg-green-light flex items-center justify-center mb-4">
+        <div className="flex flex-col items-center mx-auto py-6 text-center w-[50%]">
+          <div className="bg-green-light flex h-24 items-center justify-center mb-4 md:h-30 md:w-33.75 rounded-full w-27">
             <img
               src="/empty-nearby.png"
               alt="No Listing"
-              className="object-cover w-full h-full"
+              className="h-full object-cover w-full"
             />
           </div>
-          <p className="text-regular font-medium text-ink">No meals nearby</p>
-          <p className="text-normal text-ink mt-1 max-w-xs">
+          <p className="font-medium text-ink text-regular">No meals nearby</p>
+          <p className="max-w-xs mt-1 text-ink text-normal">
             There is no available listing in your area at the moment
           </p>
           <PrimaryButton onClick={() => window.location.reload()}>
@@ -351,12 +400,12 @@ export default function UserListingsScreen({ onNavigate, onLogout }) {
           </PrimaryButton>
         </div>
       ) : (
-        <div className="rounded-2xl border border-border-muted bg-white p-5">
-          <div className="mb-4 flex items-center gap-2">
-            <Grid3x3 className="h-6 w-6 text-green-normal" />
-            <h2 className="text-lg font-semibold text-ink">All Listings</h2>
+        <div className="bg-white border border-border-muted p-5 rounded-2xl">
+          <div className="flex gap-2 items-center mb-4">
+            <Grid3x3 className="h-6 text-green-normal w-6" />
+            <h2 className="font-semibold text-ink text-lg">All Listings</h2>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="gap-4 grid grid-cols-1 lg:grid-cols-3 sm:grid-cols-2">
             {filteredListings.map((l, index) => (
               <MealCard
                 key={l._id || l.id || index}
