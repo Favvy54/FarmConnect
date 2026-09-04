@@ -30,7 +30,7 @@ import ReservationsScreen from './pages/ReservationsScreen.jsx';
 import ReservationDetailScreen from './pages/ReservationDetailScreen.jsx';
 import { getRole } from './services/auth';
 import { getCurrentUser } from './services/auth';
-import { connectSocket } from './services/socket.js';
+import { connectSocket, getToken } from './services/socket.js';
 
 //is edits possible
 
@@ -42,7 +42,7 @@ export default function App() {
 
     listenForForegroundNotifications();
   }, []);
-  
+
   useEffect(() => {
   const token = getToken();
 
