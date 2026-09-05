@@ -26,6 +26,10 @@ import {
   cancelVendorReservation,
   getListingDetails,
 } from '../services/auth.js';
+import {
+  getSocket,
+  connectSocket,
+} from '../services/socket.js';
 import MiniFarmBot from "../components/MiniFarmBot";
 
 const STAT_ICONS = {
@@ -472,6 +476,101 @@ export default function VendorDashboardScreen({
 
     return () => {
       cancelled = true;
+    };
+  }, []);
+    useEffect(() => {
+    let socket = getSocket();
+  
+    if (!socket) {
+      console.log(
+        '🔄 VendorDashboard: Socket not ready. Initializing from existing session...',
+      );
+  
+      const token = getToken();
+  
+      if (!token) {
+        console.warn(
+          '⚠️ VendorDashboard: No authentication token available for Socket.IO.',
+        );
+        return;
+      }
+  
+      socket = connectSocket(token);
+    }
+  
+    if (!socket) {
+      console.warn(
+        '⚠️ VendorDashboard: Unable to initialize Socket.IO.',
+      );
+      return;
+    }
+  
+    const handleNewReservation = async (data) => {
+      console.log(
+        '📥 VendorDashboard received reservation:new:',
+        data,
+      );
+  
+      try {
+        /*
+         * Do NOT setLoading(true).
+         * The dashboard should remain visible while the
+         * new reservation is fetched.
+         */
+  
+        console.log(
+          '🔄 VendorDashboard: Silently refreshing reservations...',
+        );
+  
+        const reservationsResponse = await getVendorReservations();
+  
+        const reservations =
+          reservationsResponse?.data || reservationsResponse || [];
+  
+        const today = new Date();
+  
+        const todaysFiltered = reservations.filter((reservation) => {
+          const reservationDate = new Date(
+            reservation.reservedAt || reservation.createdAt,
+          );
+  
+          return (
+            reservationDate.getDate() === today.getDate() &&
+            reservationDate.getMonth() === today.getMonth() &&
+            reservationDate.getFullYear() === today.getFullYear()
+          );
+        });
+  
+        setRawTodayReservations(todaysFiltered);
+  
+        setStats((currentStats) => ({
+          ...currentStats,
+          reservations: todaysFiltered.length,
+        }));
+  
+        console.log(
+          '✅ VendorDashboard: Reservations updated silently.',
+        );
+      } catch (err) {
+        console.error(
+          '❌ VendorDashboard: Failed to update reservations after reservation:new:',
+          err,
+        );
+      }
+    };
+  
+    socket.on('reservation:new', handleNewReservation);
+  
+    console.log(
+      '👂 VendorDashboard listening for reservation:new',
+    );
+  
+    return () => {
+      socket.off('reservation:new', handleNewReservation);
+  
+      console.log(
+        '🧹 VendorDashboard removed reservation:new listener',
+      );
     };
   }, []);
 
