@@ -18,7 +18,13 @@ import {
   getAppUserProfile,
   updateAppUserLocation,
   getCoordinatesFromLocation,
+  getToken,
 } from '../services/auth.js';
+
+import {
+  getSocket,
+  connectSocket,
+} from '../services/socket.js'
 
 import LocationPicker from '../components/LocationPicker.jsx';
 import MiniFarmBot from "../components/MiniFarmBot.jsx";
@@ -93,28 +99,28 @@ function MealCard({ listing, variant = 'grid', onReserve }) {
         <img
           src={image}
           alt={listing.foodName}
-          className="h-40 w-full object-cover"
+          className="h-40 object-cover w-full"
         />
         {variant === 'urgent' && minutesLeft > 0 && (
-          <span className="absolute right-2 top-2 rounded-full bg-white px-2 py-1 text-xs font-semibold text-orange-normal shadow">
+          <span className="absolute bg-white font-semibold px-2 py-1 right-2 rounded-full shadow text-orange-normal text-xs top-2">
             {minutesLeft} mins left
           </span>
         )}
       </div>
 
-      <div className="flex flex-1  flex-col justify-between px-3 pb-3 pt-3">
+      <div className="flex flex-1 flex-col justify-between pb-3 pt-3 px-3">
         <div className="flex flex-col gap-1">
-          <p className="text-regular font-bold text-ink">{listing.foodName}</p>
-          <p className="text-normal text-charcoal">
+          <p className="font-bold text-ink text-regular">{listing.foodName}</p>
+          <p className="text-charcoal text-normal">
             {listing.vendorName || listing.vendorId?.businessName}
           </p>
         </div>
 
-        <span className="text-normal font-semibold text-green-normal">
+        <span className="font-semibold text-green-normal text-normal">
           {listing.isFree ? 'Free' : `₦${listing.price}`}
         </span>
 
-        <div className="mt-1 flex gap-4 items-center justify-between text-normal">
+        <div className="flex gap-4 items-center justify-between mt-1 text-normal">
           <p
             className={
           
@@ -149,11 +155,11 @@ function GridListingRow({
   const displayListings = listings.slice(0, 12);
 
   return (
-    <div className="rounded-2xl border border-border-muted bg-white p-5">
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+    <div className="bg-white border border-border-muted p-5 rounded-2xl">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex gap-2 items-center">
           {icon}
-          <h2 className="text-lg font-semibold text-ink">{title}</h2>
+          <h2 className="font-semibold text-ink text-lg">{title}</h2>
         </div>
         <button
           onClick={onViewMore}
@@ -190,11 +196,11 @@ function ScrollListingRow({
   onReserve,
 }) {
   return (
-    <div className="rounded-2xl border border-border-muted bg-white p-5">
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+    <div className="bg-white border border-border-muted p-5 rounded-2xl">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex gap-2 items-center">
           {icon}
-          <h2 className="text-lg font-semibold text-ink">{title}</h2>
+          <h2 className="font-semibold text-ink text-lg">{title}</h2>
         </div>
         <button
           onClick={onViewMore}
@@ -202,7 +208,7 @@ function ScrollListingRow({
           View more →
         </button>
       </div>
-      <div className="flex gap-4 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden pb-2">
+      <div className="[&::-webkit-scrollbar]:hidden flex gap-4 overflow-x-auto pb-2 scrollbar-none">
         {listings.map((l, index) => (
           <MealCard
             key={l._id || l.id || index}
@@ -545,6 +551,129 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         }, []);
 
   useEffect(() => {
+    let socket = getSocket();
+
+    if (!socket) {
+      console.log(
+        '🔄 UserDashboard: Socket not ready. Initializing from existing session...',
+      );
+
+      const token = getToken();
+
+      if (!token) {
+        console.warn(
+          '⚠️ UserDashboard: No authentication token available for Socket.IO.',
+        );
+        return;
+      }
+
+      socket = connectSocket(token);
+    }
+
+    if (!socket) {
+      console.warn(
+        '⚠️ UserDashboard: Unable to initialize Socket.IO.',
+      );
+      return;
+    }
+
+    const handleNewListing = async (data) => {
+      console.log(
+        '📥 UserDashboard received listing:new:',
+        data,
+      );
+
+      try {
+        /*
+         * Do NOT setLoading(true) here.
+         *
+         * The dashboard should remain completely visible
+         * while the fresh data is being fetched.
+         */
+
+        if (viewMode === 'market' || search.trim()) {
+          console.log(
+            '🔄 UserDashboard: Silently refreshing marketplace...',
+          );
+
+          const results = await getAllListings(search.trim());
+
+          setMarketListings(
+            Array.isArray(results) ? results : [],
+          );
+
+          console.log(
+            '✅ UserDashboard: Marketplace updated silently.',
+          );
+
+          return;
+        }
+
+        /*
+         * Dashboard is currently showing nearby listings.
+         *
+         * Refresh nearby listings silently using the user's
+         * currently selected/saved coordinates.
+         */
+
+        if (
+          selectedLocation?.longitude != null &&
+          selectedLocation?.latitude != null
+        ) {
+          console.log(
+            '🔄 UserDashboard: Silently refreshing nearby listings...',
+          );
+
+          const nearby = await getNearbyListings(
+            selectedLocation.longitude,
+            selectedLocation.latitude,
+            30000,
+          );
+
+          setNearbyListings(
+            Array.isArray(nearby) ? nearby : [],
+          );
+
+          console.log(
+            '✅ UserDashboard: Nearby listings updated silently.',
+          );
+
+          return;
+        }
+
+        console.log(
+          'ℹ️ UserDashboard: No selected location available. Skipping nearby refresh.',
+        );
+      } catch (err) {
+        /*
+         * This is a background refresh.
+         *
+         * Don't replace the user's current dashboard with
+         * an error state if the socket-triggered refresh fails.
+         */
+        console.error(
+          '❌ UserDashboard: Failed to update listings after listing:new:',
+          err,
+        );
+      }
+    };
+
+    socket.on('listing:new', handleNewListing);
+
+    console.log(
+      '👂 UserDashboard listening for listing:new',
+    );
+
+    return () => {
+      socket.off('listing:new', handleNewListing);
+
+      console.log(
+        '🧹 UserDashboard removed listing:new listener',
+      );
+    };
+  }, [viewMode, search, selectedLocation]);
+
+  useEffect(() => {
     const trimmed = search.trim();
 
     if (!trimmed) {
@@ -649,7 +778,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         <button
           type="button"
           onClick={() => setShowLocationPicker(true)}
-          className="mb-4 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-medium text-green-normal transition-colors hover:bg-green-light">
+          className="font-medium gap-1.5 hover:bg-green-light inline-flex items-center mb-4 px-2 py-1 rounded-lg text-green-normal text-sm transition-colors">
           <MapPin className="h-4 w-4" />
           Change location
         </button>
@@ -658,20 +787,20 @@ export default function UserDashboard({ onNavigate, onLogout }) {
       {error && <p className="mb-4 text-body2 text-red-500">{error}</p>}
 
       {showLocationPicker && (
-        <div className="mb-6 rounded-2xl border border-border-muted bg-white p-5 shadow-sm">
+        <div className="bg-white border border-border-muted mb-6 p-5 rounded-2xl shadow-sm">
           <div className="mb-4">
-            <h2 className="text-lg font-semibold text-ink">
+            <h2 className="font-semibold text-ink text-lg">
               Set your location
             </h2>
 
-            <p className="mt-1 text-sm text-body-text">
+            <p className="mt-1 text-body-text text-sm">
               We couldn't get an accurate location from your browser. Select
               your current location on the map so we can show meals within 30 km
               of you.
             </p>
           </div>
 
-          <div className="space-y-3 mb-5">
+          <div className="mb-5 space-y-3">
             <TextField
               placeholder="City"
               variant="profile"
@@ -690,12 +819,12 @@ export default function UserDashboard({ onNavigate, onLogout }) {
               type="button"
               onClick={handleManualLocation}
               disabled={findingLocation}
-              className="w-full rounded-xl border border-green-normal bg-white px-4 py-3 text-sm font-semibold text-green-normal">
+              className="bg-white border border-green-normal font-semibold px-4 py-3 rounded-xl text-green-normal text-sm w-full">
               {findingLocation ? 'Finding Location...' : 'Find Location'}
             </button>
           </div>
 
-          <div className="mb-4 rounded-xl bg-green-light p-3 text-sm italic text-black">
+          <div className="bg-green-light italic mb-4 p-3 rounded-xl text-black text-sm">
             TIP: For the most accurate nearby results, use a mobile device with
             location services enabled.
           </div>
@@ -739,24 +868,24 @@ export default function UserDashboard({ onNavigate, onLogout }) {
                   setLoading(false);
                 }
               }}
-              className="mt-4 w-full rounded-xl bg-green-normal px-4 py-3 text-sm font-semibold text-white">
+              className="bg-green-normal font-semibold mt-4 px-4 py-3 rounded-xl text-sm text-white w-full">
               Use This Location
             </button>
           )}
         </div>
       )}
 
-      <div className="mb-6 mt-3 flex items-center gap-3">
+      <div className="flex gap-3 items-center mb-6 mt-3">
         <TextField
           icon={Search}
           placeholder="Search by meal, category, vendor, or location"
           variant="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className=" w-full lg:w-[80%]"
+          className="lg:w-[80%] w-full"
         />
 
-        <div className=" lg:w-[20%] relative shrink-0">
+        <div className="lg:w-[20%] relative shrink-0">
           <button
             onClick={() => setIsFilterOpen((v) => !v)}
             className={`flex h-12 w-12 items-center justify-center rounded-xl border transition-colors ${
@@ -774,35 +903,35 @@ export default function UserDashboard({ onNavigate, onLogout }) {
                 className="fixed inset-0 z-10"
                 onClick={() => setIsFilterOpen(false)}
               />
-              <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-xl border border-border-muted bg-white shadow-lg">
+              <div className="absolute bg-white border border-border-muted mt-2 overflow-hidden right-0 rounded-xl shadow-lg w-48 z-20">
                 <button
                   onClick={() => handleSelectViewMode('nearby')}
-                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-light/40">
+                  className="flex font-medium hover:bg-green-light/40 items-center justify-between px-4 py-3 text-ink text-left text-sm w-full">
                   Nearby Listings
                   {viewMode === 'nearby' && (
-                    <Check className="h-4 w-4 text-green-normal" />
+                    <Check className="h-4 text-green-normal w-4" />
                   )}
                 </button>
                 <button
                   onClick={() => handleSelectViewMode('market')}
-                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-light/40">
+                  className="flex font-medium hover:bg-green-light/40 items-center justify-between px-4 py-3 text-ink text-left text-sm w-full">
                   Market Listings
                   {viewMode === 'market' && (
-                    <Check className="h-4 w-4 text-green-normal" />
+                    <Check className="h-4 text-green-normal w-4" />
                   )}
                 </button>
 
-                <div className="my-1 border-t border-border-muted" />
+                <div className="border-border-muted border-t my-1" />
 
                 <button
                   onClick={() => {
                     setSortBy('newest');
                     setIsFilterOpen(false);
                   }}
-                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-light/40">
+                  className="flex font-medium hover:bg-green-light/40 items-center justify-between px-4 py-3 text-ink text-left text-sm w-full">
                   Newest Listings
                   {sortBy === 'newest' && (
-                    <Check className="h-4 w-4 text-green-normal" />
+                    <Check className="h-4 text-green-normal w-4" />
                   )}
                 </button>
                 <button
@@ -810,10 +939,10 @@ export default function UserDashboard({ onNavigate, onLogout }) {
                     setSortBy('price_low');
                     setIsFilterOpen(false);
                   }}
-                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-light/40">
+                  className="flex font-medium hover:bg-green-light/40 items-center justify-between px-4 py-3 text-ink text-left text-sm w-full">
                   Price: Low to High
                   {sortBy === 'price_low' && (
-                    <Check className="h-4 w-4 text-green-normal" />
+                    <Check className="h-4 text-green-normal w-4" />
                   )}
                 </button>
                 <button
@@ -821,10 +950,10 @@ export default function UserDashboard({ onNavigate, onLogout }) {
                     setSortBy('price_high');
                     setIsFilterOpen(false);
                   }}
-                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-light/40">
+                  className="flex font-medium hover:bg-green-light/40 items-center justify-between px-4 py-3 text-ink text-left text-sm w-full">
                   Price: High to Low
                   {sortBy === 'price_high' && (
-                    <Check className="h-4 w-4 text-green-normal" />
+                    <Check className="h-4 text-green-normal w-4" />
                   )}
                 </button>
               </div>
@@ -833,7 +962,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         </div>
       </div>
 
-      <div className="flex gap-3 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden pb-1">
+      <div className="[&::-webkit-scrollbar]:hidden flex gap-3 overflow-x-auto pb-1 scrollbar-none">
         {CATEGORY_PILLS.map((cat) => (
           <button
             key={cat}
@@ -852,24 +981,24 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         {loading || searching ? (
           <p className="text-body-text">Loading listings…</p>
         ) : filteredListings.length === 0 ? (
-          <div className="rounded-2xl border border-border-muted bg-white p-5 mt-6">
-            <div className="flex flex-col items-center text-center py-6 w-[50%] mx-auto">
-              <div className="w-27 h-24  md:w-33.75 md:h-30 rounded-full bg-green-light flex items-center justify-center mb-4">
+          <div className="bg-white border border-border-muted mt-6 p-5 rounded-2xl">
+            <div className="flex flex-col items-center mx-auto py-6 text-center w-[50%]">
+              <div className="bg-green-light flex h-24 items-center justify-center mb-4 md:h-30 md:w-33.75 rounded-full w-27">
                 <img
                   src="/empty-nearby.png"
                   alt="No Listing"
-                  className="object-cover w-full h-full"
+                  className="h-full object-cover w-full"
                 />
               </div>
-              <p className="text-regular font-medium text-ink">
+              <p className="font-medium text-ink text-regular">
                 No meals nearby
               </p>
-              <p className="text-normal text-ink mt-1 max-w-xs">
+              <p className="max-w-xs mt-1 text-ink text-normal">
                 There is no available listing in your area at the moment
               </p>
               <PrimaryButton
                 onClick={() => window.location.reload()}
-                className="w-[40%] rounded-2xl text-center py-3 mt-2">
+                className="mt-2 py-3 rounded-2xl text-center w-[40%]">
                 <span
                   className="flex justify-center items-center
               text-normal text-white gap-1">
@@ -882,7 +1011,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
               
           <div className="mt-6">
             <GridListingRow
-              icon={<CompassIcon className="h-6 w-6 text-green-normal" />}
+              icon={<CompassIcon className="h-6 text-green-normal w-6" />}
               title={viewMode === 'market' ? 'Marketplace' : 'Explore Meals'}
               listings={exploreMeals}
               accentClass="text-green-normal"
@@ -901,24 +1030,24 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         {loading || searching ? (
           <></>
         ) : filteredListings.length === 0 ? (
-          <div className="rounded-2xl border border-border-muted bg-white p-5">
-            <div className="flex flex-col items-center text-center py-6 w-[50%] mx-auto">
-              <div className="w-27 h-24  md:w-33.75 md:h-30 rounded-full bg-green-light flex items-center justify-center mb-4">
+          <div className="bg-white border border-border-muted p-5 rounded-2xl">
+            <div className="flex flex-col items-center mx-auto py-6 text-center w-[50%]">
+              <div className="bg-green-light flex h-24 items-center justify-center mb-4 md:h-30 md:w-33.75 rounded-full w-27">
                 <img
                   src="/empty-last-chance-state.png"
                   alt="No Listing"
-                  className="object-cover w-full h-full"
+                  className="h-full object-cover w-full"
                 />
               </div>
-              <p className="text-regular font-medium text-ink">
+              <p className="font-medium text-ink text-regular">
                 No meals nearby
               </p>
-              <p className="text-normal text-ink mt-1 max-w-xs">
+              <p className="max-w-xs mt-1 text-ink text-normal">
                 There is no available listing in your area at the moment
               </p>
               <PrimaryButton
                 onClick={() => window.location.reload()}
-                className="w-[40%] rounded-2xl text-center py-3 mt-2">
+                className="mt-2 py-3 rounded-2xl text-center w-[40%]">
                 <span
                   className="flex justify-center items-center
               text-normal text-white gap-1">
@@ -930,7 +1059,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
         ) : (
           <>
             <ScrollListingRow
-              icon={<Clock className="h-6 w-6 text-orange-dark" />}
+              icon={<Clock className="h-6 text-orange-dark w-6" />}
               title="Last Chance"
               listings={lastChance}
               accentClass="text-orange-normal"
@@ -949,7 +1078,7 @@ export default function UserDashboard({ onNavigate, onLogout }) {
       </div>
 
       {/* FLOATING AI TOOLS */}
-      <div className="fixed bottom-6 right-6 z-50 flex items-center gap-4">
+      <div className="bottom-6 fixed flex gap-4 items-center right-6 z-50">
         {/* MINI FARM BOT */}
         <MiniFarmBot />
       </div>
