@@ -4,12 +4,17 @@ import DashboardLayout from '../components/DashboardLayout.jsx';
 import TextField from '@/components/TextField.jsx';
 import SuccessToast from '../components/SuccessToast.jsx';
 import {
+  getToken,
   getVendorProfile,
   getVendorReservations,
   getVendorReservationHistory,
   completeReservation,
   cancelVendorReservation,
 } from '../services/auth.js';
+import {
+  getSocket,
+  connectSocket,
+} from '../services/socket.js';
 
 const TABS = ['All', 'Active', 'Completed', 'Expired', 'Cancelled'];
 
@@ -132,67 +137,67 @@ const msLeft = deadline ? deadline.getTime() - now : 0;
 const customerName = reservation.user?.fullName || 'Customer';
 
   return (
-    <div className="fixed top-3 bottom-3 overflow-y-auto inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl">
+    <div className="bg-black/40 bottom-3 fixed flex inset-0 items-center justify-center overflow-y-auto p-4 top-3 z-50">
+      <div className="bg-white max-w-md p-6 rounded-3xl shadow-xl w-full">
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex gap-3 items-center">
             {reservation.user?.profileImage ? (
               <img
                 src={reservation.user.profileImage}
                 alt={customerName}
-                className="h-12 w-12 shrink-0 rounded-full object-cover"
+                className="h-12 object-cover rounded-full shrink-0 w-12"
               />
             ) : (
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-light text-body1 font-semibold text-green-normal">
+              <div className="bg-green-light flex font-semibold h-12 items-center justify-center rounded-full shrink-0 text-body1 text-green-normal w-12">
                 {customerName[0]}
               </div>
             )}
-            <h3 className="text-lg font-bold text-ink">{customerName}</h3>
+            <h3 className="font-bold text-ink text-lg">{customerName}</h3>
           </div>
-          <button onClick={onClose} className="text-body-text hover:text-ink">
+          <button onClick={onClose} className="hover:text-ink text-body-text">
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <h4 className="mt-6 mb-3 text-body1 font-bold text-ink">
+        <h4 className="font-bold mb-3 mt-6 text-body1 text-ink">
           Reservation Information
         </h4>
 
-        <div className="divide-y divide-border-muted">
+        <div className="divide-border-muted divide-y">
           <div className="flex items-center justify-between py-2.5">
-            <span className="text-body2 text-body-text">Listing</span>
-            <span className="text-body2 font-medium text-ink">
+            <span className="text-body-text text-body2">Listing</span>
+            <span className="font-medium text-body2 text-ink">
               {reservation.foodName || reservation.listing?.foodName || 'Meal'}
             </span>
           </div>
           <div className="flex items-center justify-between py-2.5">
-            <span className="text-body2 text-body-text">Quantity</span>
-            <span className="text-body2 font-medium text-ink">
+            <span className="text-body-text text-body2">Quantity</span>
+            <span className="font-medium text-body2 text-ink">
               {reservation.quantityRequested} Meals
             </span>
           </div>
           <div className="flex items-center justify-between py-2.5">
-            <span className="text-body2 text-body-text">Reserved At</span>
-            <span className="text-body2 font-medium text-ink">
+            <span className="text-body-text text-body2">Reserved At</span>
+            <span className="font-medium text-body2 text-ink">
               {formatDateTime(reservation.reservedAt)}
             </span>
           </div>
           <div className="flex items-center justify-between py-2.5">
-            <span className="text-body2 text-body-text">Pickup Before</span>
-            <span className="text-body2 font-medium text-ink">
+            <span className="text-body-text text-body2">Pickup Before</span>
+            <span className="font-medium text-body2 text-ink">
               {formatDateTime(deadline)}
             </span>
           </div>
           <div className="flex items-center justify-between py-2.5">
-            <span className="text-body2 text-body-text">Time Remaining</span>
-            <span className="text-body2 font-medium text-orange-normal">
+            <span className="text-body-text text-body2">Time Remaining</span>
+            <span className="font-medium text-body2 text-orange-normal">
               {reservation.status === 'reserved' && msLeft > 0
                 ? `${Math.floor(msLeft / 60000)}m ${Math.floor((msLeft % 60000) / 1000)}s`
                 : 'Expired'}
             </span>
           </div>
           <div className="flex items-center justify-between py-2.5">
-            <span className="text-body2 text-body-text">Status</span>
+            <span className="text-body-text text-body2">Status</span>
             <span
               className={`rounded-full px-3 py-1 text-caption font-medium ${
                 statusStyles[reservation.status] || ''
@@ -201,31 +206,31 @@ const customerName = reservation.user?.fullName || 'Customer';
             </span>
           </div>
           <div className="flex items-center justify-between py-2.5">
-            <span className="text-body2 text-body-text">Reservation ID</span>
-            <span className="text-body2 font-medium text-ink">
+            <span className="text-body-text text-body2">Reservation ID</span>
+            <span className="font-medium text-body2 text-ink">
               {reservation.reservationId}
             </span>
           </div>
         </div>
         <div className="flex items-center justify-between py-2.5">
-          <span className="text-body2 text-body-text">Pickup Code</span>
+          <span className="text-body-text text-body2">Pickup Code</span>
 
-          <span className="text-body2 font-medium text-ink">
+          <span className="font-medium text-body2 text-ink">
             {reservation.pickupCode || '—'}
           </span>
         </div>
         <div className="flex items-center justify-between py-2.5">
-          <span className="text-body2 text-body-text">Category</span>
+          <span className="text-body-text text-body2">Category</span>
 
-          <span className="text-body2 font-medium text-ink">
+          <span className="font-medium text-body2 text-ink">
             {reservation.category || reservation.listing?.category || '—'}
           </span>
         </div>
 
         <div className="flex items-center justify-between py-2.5">
-          <span className="text-body2 text-body-text">Pickup Location</span>
+          <span className="text-body-text text-body2">Pickup Location</span>
 
-          <span className="text-body2 font-medium text-ink">
+          <span className="font-medium text-body2 text-ink">
             {reservation.pickupLocation ||
               reservation.listing?.pickupLocation ||
               '—'}
@@ -238,14 +243,14 @@ const customerName = reservation.user?.fullName || 'Customer';
               type="button"
               onClick={onMarkComplete}
               disabled={actionLoading}
-              className="w-full rounded-xl bg-green-normal py-3 text-body1 font-semibold text-white disabled:opacity-50">
+              className="bg-green-normal disabled:opacity-50 font-semibold py-3 rounded-xl text-body1 text-white w-full">
               {actionLoading ? 'Updating...' : 'Mark as Complete'}
             </button>
             <button
               type="button"
               onClick={onCancelClick}
               disabled={actionLoading}
-              className="w-full rounded-xl border border-red-500 py-3 text-body1 font-semibold text-red-500 disabled:opacity-50">
+              className="border border-red-500 disabled:opacity-50 font-semibold py-3 rounded-xl text-body1 text-red-500 w-full">
               Cancel Reservation
             </button>
           </div>
@@ -259,14 +264,14 @@ function CancelReasonModal({ onKeep, onConfirm, cancelling }) {
   const [reason, setReason] = useState('');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl">
-        <h3 className="text-xl font-bold text-ink">Cancel Reservation</h3>
-        <p className="mt-1 text-body2 text-body-text">
+    <div className="bg-black/40 fixed flex inset-0 items-center justify-center p-4 z-50">
+      <div className="bg-white max-w-md p-6 rounded-3xl shadow-xl w-full">
+        <h3 className="font-bold text-ink text-xl">Cancel Reservation</h3>
+        <p className="mt-1 text-body-text text-body2">
           Please provide a reason for cancelling this reservation
         </p>
 
-        <label className="mt-5 block text-body1 font-semibold text-ink">
+        <label className="block font-semibold mt-5 text-body1 text-ink">
           Reason for cancellation <span className="text-error">*</span>
         </label>
         <textarea
@@ -274,22 +279,22 @@ function CancelReasonModal({ onKeep, onConfirm, cancelling }) {
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           placeholder="Provide a short description of your food"
-          className="mt-2 w-full rounded-xl border border-border-muted px-4 py-3 text-body1 text-ink placeholder:text-body-text focus:outline-none focus:ring-2 focus:ring-green-normal"
+          className="border border-border-muted focus:outline-none focus:ring-2 focus:ring-green-normal mt-2 placeholder:text-body-text px-4 py-3 rounded-xl text-body1 text-ink w-full"
         />
 
-        <div className="mt-6 flex gap-3">
+        <div className="flex gap-3 mt-6">
           <button
             type="button"
             onClick={onKeep}
             disabled={cancelling}
-            className="flex-1 rounded-xl border border-green-normal py-3 text-body1 font-semibold text-green-normal disabled:opacity-50">
+            className="border border-green-normal disabled:opacity-50 flex-1 font-semibold py-3 rounded-xl text-body1 text-green-normal">
             Keep Reservation
           </button>
           <button
             type="button"
             onClick={() => onConfirm(reason)}
             disabled={!reason.trim() || cancelling}
-            className="flex-1 rounded-xl bg-red-500 py-3 text-body1 font-semibold text-white disabled:opacity-40">
+            className="bg-red-500 disabled:opacity-40 flex-1 font-semibold py-3 rounded-xl text-body1 text-white">
             {cancelling ? 'Cancelling...' : 'Cancel Reservation'}
           </button>
         </div>
@@ -343,6 +348,85 @@ const loadAll = async () => {
 
   useEffect(() => {
     loadAll();
+  }, []);
+
+  useEffect(() => {
+    let socket = getSocket();
+
+    if (!socket) {
+      console.log(
+        '🔄 VendorReservations: Socket not ready. Initializing from existing session...',
+      );
+
+      const token = getToken();
+
+      if (!token) {
+        console.warn(
+          '⚠️ VendorReservations: No authentication token available for Socket.IO.',
+        );
+        return;
+      }
+
+      socket = connectSocket(token);
+    }
+
+    if (!socket) {
+      console.warn(
+        '⚠️ VendorReservations: Unable to initialize Socket.IO.',
+      );
+      return;
+    }
+
+    const handleNewReservation = async (data) => {
+      console.log(
+        '📥 VendorReservations received reservation:new:',
+        data,
+      );
+
+      try {
+        // Silent refresh — do NOT show the loading screen.
+        console.log(
+          '🔄 VendorReservations: Silently refreshing reservations...',
+        );
+
+        const reservationsResponse = await getVendorReservations();
+
+        const reservationsData =
+          reservationsResponse?.data?.reservations ||
+          reservationsResponse?.data ||
+          reservationsResponse ||
+          [];
+
+        setReservations(
+          Array.isArray(reservationsData)
+            ? reservationsData
+            : [],
+        );
+
+        console.log(
+          '✅ VendorReservations: Reservations updated silently.',
+        );
+      } catch (err) {
+        console.error(
+          '❌ VendorReservations: Failed to update reservations after reservation:new:',
+          err,
+        );
+      }
+    };
+
+    socket.on('reservation:new', handleNewReservation);
+
+    console.log(
+      '👂 VendorReservations listening for reservation:new',
+    );
+
+    return () => {
+      socket.off('reservation:new', handleNewReservation);
+
+      console.log(
+        '🧹 VendorReservations removed reservation:new listener',
+      );
+    };
   }, []);
 
   const counts = {
@@ -433,17 +517,17 @@ const loadAll = async () => {
 
       {error && <p className="mb-4 text-body2 text-error">{error}</p>}
 
-      <div className="md:pl-2 w-full mt-10 flex flex-col" style={{ height: 'calc(100vh - 200px)' }}>
+      <div className="flex flex-col md:pl-2 mt-10 w-full" style={{ height: 'calc(100vh - 200px)' }}>
       <TextField
         icon={Search}
         placeholder="Search Reservation"
         variant="search"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full shrink-0"
+        className="shrink-0 w-full"
       />
 
-      <div className="mt-6 flex gap-2 md:gap-6 border-b border-border-muted pb-px shrink-0">
+      <div className="border-b border-border-muted flex gap-2 md:gap-6 mt-6 pb-px shrink-0">
         {TABS.map((tab) => (
           <button
             key={tab}
@@ -458,29 +542,29 @@ const loadAll = async () => {
         ))}
       </div>
 
-      <div className="flex-1 overflow-auto mt-4 scrollbar-hide">
+      <div className="flex-1 mt-4 overflow-auto scrollbar-hide">
       {loading ? (
         <p className="mt-6 text-body-text">Loading reservations…</p>
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center gap-2 text-center py-10">
-          <div className="w-30.75 h-22.25 md:w-56.75 md:h-41 rounded-full bg-green-light flex items-center justify-center mb-4">
+        <div className="flex flex-col gap-2 items-center py-10 text-center">
+          <div className="bg-green-light flex h-22.25 items-center justify-center mb-4 md:h-41 md:w-56.75 rounded-full w-30.75">
             <img
               src="/empty-reservation.png"
               alt="No Reservation"
-              className=" w-full h-full object-cover"
+              className="h-full object-cover w-full"
             />
           </div>
-          <p className="text-regular font-medium text-ink">
+          <p className="font-medium text-ink text-regular">
             No reservation yet
           </p>
-          <p className="text-normal font text-ink mt-1 max-w-xs">
+          <p className="font max-w-xs mt-1 text-ink text-normal">
             Once someone reserves your listing, it will appear here
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-border-muted scrollbar-hide">
+        <div className="border border-border-muted overflow-x-auto rounded-2xl scrollbar-hide">
             <div className="min-w-[1000px]">
-              <div className="grid grid-cols-[minmax(240px,1fr)_180px_150px_150px_140px_90px] items-center bg-[#f3f3f3] px-6 py-3 text-charcoal text-normal font-bold">
+              <div className="bg-[#f3f3f3] font-bold grid grid-cols-[minmax(240px,1fr)_180px_150px_150px_140px_90px] items-center px-6 py-3 text-charcoal text-normal">
                 <span>Customer</span>
                 <span>Reserved At</span>
                 <span>Pickup Before</span>
@@ -489,7 +573,7 @@ const loadAll = async () => {
                 <span>Action</span>
               </div>
 
-              <div className="divide-y divide-border-muted">
+              <div className="divide-border-muted divide-y">
                 {filtered.map((r) => {
                   const deadline = getDeadline(r);
                   const customerName = r.user?.fullName || 'Customer';
@@ -497,23 +581,23 @@ const loadAll = async () => {
                     <div
                       key={r._id || r.reservationId}
                       className="grid grid-cols-[minmax(240px,1fr)_180px_150px_150px_140px_90px] items-center px-6 py-4">
-                      <div className="flex items-center gap-3">
+                      <div className="flex gap-3 items-center">
                         {r.user?.profileImage ? (
                           <img
                             src={r.user.profileImage}
                             alt={customerName}
-                            className="h-10 w-10 shrink-0 rounded-full object-cover"
+                            className="h-10 object-cover rounded-full shrink-0 w-10"
                           />
                         ) : (
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-light text-body1 font-semibold text-green-normal">
+                          <div className="bg-green-light flex font-semibold h-10 items-center justify-center rounded-full shrink-0 text-body1 text-green-normal w-10">
                             {customerName[0]}
                           </div>
                         )}
                         <div>
-                          <p className="text-body1 font-bold text-ink">
+                          <p className="font-bold text-body1 text-ink">
                             {customerName}
                           </p>
-                          <p className="truncate text-body2 text-charcoal">
+                          <p className="text-body2 text-charcoal truncate">
                             {r.foodName || r.listing?.foodName || 'Meal'}
                           </p>
                         </div>
@@ -533,7 +617,7 @@ const loadAll = async () => {
                       </span>
                       <button
                         onClick={() => setSelected(r)}
-                        className="rounded-lg border border-border-muted px-4 py-1.5 text-body2 text-ink w-fit">
+                        className="border border-border-muted px-4 py-1.5 rounded-lg text-body2 text-ink w-fit">
                         View
                       </button>
                     </div>
